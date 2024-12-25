@@ -12,11 +12,11 @@ class PostService {
   }
 
   public async getAllPostByUser(
-    user: Partial<IBase>
+    userId: string
   ): Promise<Array<Partial<IBase>>> {
     try {
       const posts = await PostTable.find(
-        { userId: user._id },
+        { userId: userId },
         { _id: 1, post: 1, type: 1 }
       ).lean();
       return posts;
@@ -25,10 +25,10 @@ class PostService {
     }
   }
 
-  public async getPostById(params: any): Promise<Partial<IBase>> {
+  public async getPostById(postId: string): Promise<Partial<IBase>> {
     try {
       const post = await PostTable.findById(
-        { _id: params.id },
+        { _id: postId },
         { _id: 1, post: 1, type: 1 }
       ).lean();
       if (!post) {

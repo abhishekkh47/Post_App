@@ -12,13 +12,17 @@ postRoutes.post("/create-post", AuthMiddleware.Auth, async (req, res, next) => {
   }
 });
 
-postRoutes.get("/get-posts", AuthMiddleware.Auth, async (req, res, next) => {
-  try {
-    await PostController.getPost(req, res, next);
-  } catch (error) {
-    next(error);
+postRoutes.get(
+  "/get-posts-by-user/:id",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await PostController.getPostByUser(req, res, next);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 postRoutes.get("/get-post/:id", AuthMiddleware.Auth, async (req, res, next) => {
   try {
@@ -29,7 +33,7 @@ postRoutes.get("/get-post/:id", AuthMiddleware.Auth, async (req, res, next) => {
 });
 
 postRoutes.delete(
-  "/delete-post",
+  "/delete-post/:id",
   AuthMiddleware.Auth,
   async (req, res, next) => {
     try {

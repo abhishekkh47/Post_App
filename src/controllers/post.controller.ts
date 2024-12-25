@@ -35,19 +35,19 @@ class PostController extends BaseController {
     );
   }
 
-  async getPost(req: any, res: Response, next: NextFunction) {
+  async getPostByUser(req: any, res: Response, next: NextFunction) {
     return postValidations.getPostsValidation(
-      req.body,
+      req.params,
       res,
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { _id } = req;
+            const { _id, params } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
               throw new NetworkError("User do not exists", 400);
             }
-            const posts = await PostService.getAllPostByUser(user);
+            const posts = await PostService.getAllPostByUser(params.id);
             this.Ok(res, { posts });
           } catch (error) {
             throw new NetworkError((error as Error).message, 400);
@@ -69,7 +69,7 @@ class PostController extends BaseController {
             if (!user) {
               throw new NetworkError("User do not exists", 400);
             }
-            const post = await PostService.getPostById(params);
+            const post = await PostService.getPostById(params.id);
             this.Ok(res, { post });
           } catch (error) {
             throw new NetworkError((error as Error).message, 400);
@@ -81,7 +81,7 @@ class PostController extends BaseController {
 
   async deleteUserPostById(req: any, res: Response, next: NextFunction) {
     return postValidations.deletePostByIdValidation(
-      req.body,
+      req.params,
       res,
       async (validate: boolean) => {
         if (validate) {
@@ -91,8 +91,8 @@ class PostController extends BaseController {
             if (!user) {
               throw new NetworkError("User do not exists", 400);
             }
-            const post = await PostService.deleteUserPost(user, params);
-            this.Ok(res, { post });
+            await PostService.deleteUserPost(user, params);
+            this.Ok(res, { message: "Post deleted successfully" });
           } catch (error) {
             throw new NetworkError((error as Error).message, 400);
           }
