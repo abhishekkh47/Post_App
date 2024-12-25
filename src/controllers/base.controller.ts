@@ -1,0 +1,17 @@
+import { Response } from "express";
+
+class BaseController {
+  protected Ok<T>(res: Response, data: T) {
+    res.status(200).json({ status: 200, data });
+  }
+
+  protected BadRequest<T>(res: Response, message: T) {
+    res.status(400).json({ status: 400, message: message || "Bad Request" });
+  }
+
+  protected UnAuthorized<T>(res: Response, message: T) {
+    res.status(401).json({ status: 401, message: message || "Unuthorized" });
+  }
+}
+
+export default BaseController;

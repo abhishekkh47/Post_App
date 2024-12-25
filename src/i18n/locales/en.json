@@ -1,0 +1,9 @@
+{
+  "userSignupValidationPasswordRequired": "Please enter a valid password",
+  "userSignupValidationEmailEmail": "Please enter a valid email",
+  "userSignupValidationEmailRequired": "Please enter a valid email",
+  "userSignupValidationFirstnameRequired": "Please enter a valid firstname",
+  "createPostValidationPostRequired": "Please enter a valid post content",
+  "getPostDetailsUsingIdValidationPostidRequired": "Post id is required",
+  "createCommentValidationContentEmpty": "Enter a valid comment"
+}

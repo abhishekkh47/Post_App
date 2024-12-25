@@ -1,0 +1,40 @@
+import { Router } from "express";
+import { CommentController } from "controllers";
+import { AuthMiddleware } from "middleware";
+export const commentRoutes = Router();
+
+commentRoutes.post(
+  "/create-comment",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await CommentController.createComment(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+commentRoutes.get(
+  "/get-post-comments",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await CommentController.getCommentByPostId(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+commentRoutes.delete(
+  "/delete-comment",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await CommentController.deleteCommentById(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
