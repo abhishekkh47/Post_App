@@ -40,7 +40,7 @@ commentRoutes.get(
 );
 
 commentRoutes.delete(
-  "/delete-comment",
+  "/delete-comment/:id",
   AuthMiddleware.Auth,
   async (req, res, next) => {
     try {
