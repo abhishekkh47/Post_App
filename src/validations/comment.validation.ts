@@ -41,8 +41,27 @@ export const commentValidations = {
     if (error) {
       return res
         .status(400)
-        .json(i18n.__(validationMessageKey("deleteCommentValidation", error)));
+        .json(
+          i18n.__(validationMessageKey("getCommentByPostIdValidation", error))
+        );
     }
     return callback(true);
+  },
+
+  getCommentByCommentIdValidation: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      commentId: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(req);
+    if (error) {
+      return res
+        .status(400)
+        .json(
+          i18n.__(
+            validationMessageKey("getCommentByCommentIdValidation", error)
+          )
+        );
+    }
   },
 };

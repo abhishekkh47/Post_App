@@ -16,11 +16,23 @@ commentRoutes.post(
 );
 
 commentRoutes.get(
-  "/get-post-comments",
+  "/get-post-comments/:id",
   AuthMiddleware.Auth,
   async (req, res, next) => {
     try {
       await CommentController.getCommentByPostId(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+commentRoutes.get(
+  "/get-comment/:id",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await CommentController.getCommentById(req, res, next);
     } catch (error) {
       next(error);
     }

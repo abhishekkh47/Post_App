@@ -19,16 +19,28 @@ class CommentService {
     }
   }
 
-  async deleteComment(user: any, comment: Partial<IComment>) {
+  async deleteComment(commentId: string) {
     try {
-      const commentObj = {
-        userId: user._id,
-        ...comment,
-        likes: 0,
-        type: comment?.type ?? ECommentType.COMMENT,
-      };
-      await CommentTable.findOneAndDelete(commentObj);
+      await CommentTable.findOneAndDelete({ _id: commentId });
       return true;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  async getCommentByPostId(postId: string) {
+    try {
+      const comments = await CommentTable.find({ postId }).lean();
+      return comments;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  async getCommentById(commentId: string) {
+    try {
+      const comments = await CommentTable.findOne({ _id: commentId }).lean();
+      return comments;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }

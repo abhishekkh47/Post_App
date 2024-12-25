@@ -28,34 +28,54 @@ class CommentController extends BaseController {
   }
 
   async getCommentByPostId(req: any, res: Response, next: NextFunction) {
-    try {
-      this.Ok(res, { message: "Get comment successfully" });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  async getCommentById(req: any, res: Response, next: NextFunction) {
-    try {
-      this.Ok(res, { message: "Get comment by id successfully" });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  async deleteCommentById(req: any, res: Response, next: NextFunction) {
-    return commentValidations.deleteCommentValidation(
-      req.body,
+    return commentValidations.getCommentByPostIdValidation(
+      req.params,
       res,
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { _id, body } = req;
+            const comments = await CommentService.getCommentByPostId(
+              req.params.id
+            );
+            this.Ok(res, { data: comments });
+          } catch (error) {
+            next(error);
+          }
+        }
+      }
+    );
+  }
+
+  async getCommentById(req: any, res: Response, next: NextFunction) {
+    return commentValidations.getCommentByCommentIdValidation(
+      req.params,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const comments = await CommentService.getCommentById(req.params.id);
+            this.Ok(res, { data: comments });
+          } catch (error) {
+            next(error);
+          }
+        }
+      }
+    );
+  }
+
+  async deleteCommentById(req: any, res: Response, next: NextFunction) {
+    return commentValidations.deleteCommentValidation(
+      req.params,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const { _id, params } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
               throw new NetworkError("User do not exists", 400);
             }
-            await CommentService.deleteComment(user, body);
+            await CommentService.deleteComment(params.id);
             this.Ok(res, { message: "Comment deleted successfully" });
           } catch (error) {
             next(error);
