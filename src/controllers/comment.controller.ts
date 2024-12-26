@@ -34,10 +34,13 @@ class CommentController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const comments = await CommentService.getCommentByPostId(
-              req.params.id
-            );
-            this.Ok(res, { data: comments });
+            const { _id, params } = req;
+            const user = await AuthService.findUserById(_id);
+            if (!user) {
+              throw new NetworkError("User do not exists", 400);
+            }
+            const comments = await CommentService.getCommentByPostId(params.id);
+            this.Ok(res, { comments });
           } catch (error) {
             next(error);
           }
@@ -54,7 +57,7 @@ class CommentController extends BaseController {
         if (validate) {
           try {
             const comments = await CommentService.getCommentById(req.params.id);
-            this.Ok(res, { data: comments });
+            this.Ok(res, { comments });
           } catch (error) {
             next(error);
           }
@@ -100,7 +103,7 @@ class CommentController extends BaseController {
             const comments = await CommentService.getAllCommentsByUserId(
               params.id
             );
-            this.Ok(res, { data: comments });
+            this.Ok(res, { comments });
           } catch (error) {
             next(error);
           }

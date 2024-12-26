@@ -14,12 +14,16 @@ class AuthMiddleware extends base_controller_1.default {
     super(...arguments);
     this.Auth = (req, res, next) => {
       try {
-        const token = req.headers["authorization"];
+        const authorization = req.headers["authorization"].split(" ");
+        if (authorization.length < 2 || authorization[0] != "Bearer") {
+          return this.UnAuthorized(res, "Invalid token");
+        }
+        const token = authorization[1];
         if (!token) {
           return this.UnAuthorized(res, "Unauthorized: No token provided");
         }
         const response = (0, utils_1.verifyToken)(token);
-        if (response && response.status && response.status == 401) {
+        if (response.status && response.status == 401) {
           return this.UnAuthorized(res, "Invalid Token");
         }
         req._id = response._id;

@@ -4,17 +4,21 @@ import { IRequestUser } from "types";
 import { verifyToken } from "utils";
 
 class AuthMiddleware extends BaseController {
-  Auth = (req: any, res: Response, next: NextFunction) => {
+  Auth = (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req.headers["authorization"];
+      const authorization = (req as any).headers["authorization"].split(" ");
+      if (authorization.length < 2 || authorization[0] != "Bearer") {
+        return this.UnAuthorized(res as any, "Invalid token");
+      }
+      const token = authorization[1];
       if (!token) {
         return this.UnAuthorized(res as any, "Unauthorized: No token provided");
       }
       const response = verifyToken(token);
-      if (response && response.status && response.status == 401) {
+      if (response?.status && response.status == 401) {
         return this.UnAuthorized(res as any, "Invalid Token");
       }
-      req._id = response._id;
+      (req as any)._id = response._id;
       next();
     } catch (error) {
       return this.UnAuthorized(res as any, "Invalid Token");
