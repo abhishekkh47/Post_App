@@ -84,6 +84,30 @@ class CommentController extends BaseController {
       }
     );
   }
+
+  async getAllCommentsByUserId(req: any, res: Response, next: NextFunction) {
+    return commentValidations.getCommentsByUserIdValidation(
+      req.params,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const { _id, params } = req;
+            const user = await AuthService.findUserById(_id);
+            if (!user) {
+              throw new NetworkError("User do not exists", 400);
+            }
+            const comments = await CommentService.getAllCommentsByUserId(
+              params.id
+            );
+            this.Ok(res, { data: comments });
+          } catch (error) {
+            next(error);
+          }
+        }
+      }
+    );
+  }
 }
 
 export default new CommentController();

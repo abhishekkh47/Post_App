@@ -45,6 +45,15 @@ class CommentService {
       throw new NetworkError((error as Error).message, 400);
     }
   }
+
+  async getAllCommentsByUserId(userId: string) {
+    try {
+      const comments = await CommentTable.find({ user: userId }).lean();
+      return comments;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
 }
 
 export default new CommentService();

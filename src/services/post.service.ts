@@ -43,8 +43,8 @@ class PostService {
   public async deleteUserPost(user: any, params: any) {
     try {
       await PostTable.findOneAndDelete({
-        _id: params.id,
-        userId: user._id,
+        _id: params?.id,
+        userId: user?._id,
       }).lean();
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);

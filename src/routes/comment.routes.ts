@@ -50,3 +50,15 @@ commentRoutes.delete(
     }
   }
 );
+
+commentRoutes.get(
+  "/get-user-comments/:id",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await CommentController.getAllCommentsByUserId(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);

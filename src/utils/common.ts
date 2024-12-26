@@ -7,7 +7,7 @@
 export const validationMessageKey = (apiTag: string, error: any) => {
   let key = toUpperCase(error.details[0].context.key);
   let type = error.details[0].type.split(".");
-  type = toUpperCase(type[1]);
+  type = toUpperCase(type[1] || type[0]);
   key = apiTag + key + type;
   return key;
 };

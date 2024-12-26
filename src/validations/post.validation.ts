@@ -1,5 +1,7 @@
 import i18n from "../i18n/i18n";
 import { POST_TYPE, validationMessageKey, Joi } from "utils";
+// we can also use joi-objectid lib
+import { objectIdValidation } from "validations";
 
 export const postValidations = {
   createPostValidation: (req: any, res: any, callback: any) => {
@@ -20,7 +22,9 @@ export const postValidations = {
   },
 
   getPostsValidation: (req: any, res: any, callback: any) => {
-    const schema = Joi.object({});
+    const schema = Joi.object({
+      id: objectIdValidation.required(),
+    });
     const { error } = schema.validate(req);
 
     if (error) {
@@ -33,7 +37,7 @@ export const postValidations = {
 
   getPostDetailsUsingIdValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
-      id: Joi.string().required(),
+      id: objectIdValidation.required(),
     });
     const { error } = schema.validate(req);
 
@@ -51,7 +55,7 @@ export const postValidations = {
 
   deletePostByIdValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
-      id: Joi.string().required(),
+      id: objectIdValidation.required(),
     });
     const { error } = schema.validate(req);
 
