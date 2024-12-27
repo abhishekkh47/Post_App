@@ -23,7 +23,7 @@ export const postValidations = {
 
   getPostsValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
-      id: objectIdValidation.required(),
+      userId: objectIdValidation.required(),
     });
     const { error } = schema.validate(req);
 
@@ -37,7 +37,7 @@ export const postValidations = {
 
   getPostDetailsUsingIdValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
-      id: objectIdValidation.required(),
+      postId: objectIdValidation.required(),
     });
     const { error } = schema.validate(req);
 
@@ -55,7 +55,7 @@ export const postValidations = {
 
   deletePostByIdValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
-      id: objectIdValidation.required(),
+      postId: objectIdValidation.required(),
     });
     const { error } = schema.validate(req);
 

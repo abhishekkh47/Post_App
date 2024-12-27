@@ -20,7 +20,7 @@ export const commentValidations = {
 
   deleteCommentValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
-      id: Joi.string().required(),
+      commentId: Joi.string().required(),
     });
 
     const { error } = schema.validate(req);
@@ -34,7 +34,7 @@ export const commentValidations = {
 
   getCommentByPostIdValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
-      id: Joi.string().required(),
+      postId: Joi.string().required(),
     });
 
     const { error } = schema.validate(req);
@@ -50,7 +50,7 @@ export const commentValidations = {
 
   getCommentByCommentIdValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
-      id: Joi.string().required(),
+      commentId: Joi.string().required(),
     });
 
     const { error } = schema.validate(req);

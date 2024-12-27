@@ -2,6 +2,11 @@ import { UserTable } from "models/user";
 import { NetworkError } from "middleware";
 
 class UserService {
+  /**
+   * @description Delete a user
+   * @param userId
+   * @returns {true} if user is deleted successfully
+   */
   async deleteUser(userId: string) {
     try {
       await UserTable.findOneAndDelete({ _id: userId });

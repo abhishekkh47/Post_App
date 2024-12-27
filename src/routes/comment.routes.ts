@@ -16,7 +16,7 @@ commentRoutes.post(
 );
 
 commentRoutes.get(
-  "/get-post-comments/:id",
+  "/get-post-comments/:postId",
   AuthMiddleware.Auth,
   async (req, res, next) => {
     try {
@@ -28,7 +28,7 @@ commentRoutes.get(
 );
 
 commentRoutes.get(
-  "/get-comment/:id",
+  "/get-comment/:commentId",
   AuthMiddleware.Auth,
   async (req, res, next) => {
     try {
@@ -40,7 +40,7 @@ commentRoutes.get(
 );
 
 commentRoutes.delete(
-  "/delete-comment/:id",
+  "/delete-comment/:commentId",
   AuthMiddleware.Auth,
   async (req, res, next) => {
     try {
@@ -52,7 +52,7 @@ commentRoutes.delete(
 );
 
 commentRoutes.get(
-  "/get-user-comments/:id",
+  "/get-user-comments/:userId",
   AuthMiddleware.Auth,
   async (req, res, next) => {
     try {

@@ -10,5 +10,8 @@
   "Invalid MongoDB ObjectId": "Invalid MongoDB ObjectId",
   "getPostDetailsUsingIdValidationIdCustom": "Please provide a valid post id",
   "deletePostByIdValidationIdCustom": "Please provide a valid post id",
-  "getPostsValidationIdCustom": "Please provide a valid user id"
+  "getPostsValidationIdCustom": "Please provide a valid user id",
+  "getPostsValidationIdRequired": "getPostsValidationIdRequired",
+  "getPostDetailsUsingIdValidationIdRequired": "Please provide a valid post id",
+  "getCommentByPostIdValidationPostidRequired": "Please provide a valid post id"
 }

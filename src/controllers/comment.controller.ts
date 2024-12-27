@@ -39,7 +39,9 @@ class CommentController extends BaseController {
             if (!user) {
               throw new NetworkError("User do not exists", 400);
             }
-            const comments = await CommentService.getCommentByPostId(params.id);
+            const comments = await CommentService.getCommentByPostId(
+              params.postId
+            );
             this.Ok(res, { comments });
           } catch (error) {
             next(error);
@@ -56,7 +58,14 @@ class CommentController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const comments = await CommentService.getCommentById(req.params.id);
+            const { _id, params } = req;
+            const user = await AuthService.findUserById(_id);
+            if (!user) {
+              throw new NetworkError("User do not exists", 400);
+            }
+            const comments = await CommentService.getCommentById(
+              params.commentId
+            );
             this.Ok(res, { comments });
           } catch (error) {
             next(error);
@@ -78,7 +87,7 @@ class CommentController extends BaseController {
             if (!user) {
               throw new NetworkError("User do not exists", 400);
             }
-            await CommentService.deleteComment(params.id);
+            await CommentService.deleteComment(params.commentId);
             this.Ok(res, { message: "Comment deleted successfully" });
           } catch (error) {
             next(error);
@@ -101,7 +110,7 @@ class CommentController extends BaseController {
               throw new NetworkError("User do not exists", 400);
             }
             const comments = await CommentService.getAllCommentsByUserId(
-              params.id
+              params.userId
             );
             this.Ok(res, { comments });
           } catch (error) {

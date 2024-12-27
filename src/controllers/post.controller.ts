@@ -47,7 +47,7 @@ class PostController extends BaseController {
             if (!user) {
               throw new NetworkError("User do not exists", 400);
             }
-            const posts = await PostService.getAllPostByUser(params.id);
+            const posts = await PostService.getAllPostByUser(params.userId);
             this.Ok(res, { posts });
           } catch (error) {
             throw new NetworkError((error as Error).message, 400);
@@ -69,7 +69,7 @@ class PostController extends BaseController {
             if (!user) {
               throw new NetworkError("User do not exists", 400);
             }
-            const post = await PostService.getPostById(params.id);
+            const post = await PostService.getPostById(params.postId);
             this.Ok(res, { post });
           } catch (error) {
             throw new NetworkError((error as Error).message, 400);
@@ -91,7 +91,7 @@ class PostController extends BaseController {
             if (!user) {
               throw new NetworkError("User do not exists", 400);
             }
-            await PostService.deleteUserPost(user, params);
+            await PostService.deleteUserPost(user, params.postId);
             this.Ok(res, { message: "Post deleted successfully" });
           } catch (error) {
             throw new NetworkError((error as Error).message, 400);

@@ -3,14 +3,25 @@ import { PostTable } from "models";
 import { IBase, ICreatePost } from "types";
 
 class PostService {
+  /**
+   * @description create post
+   * @param postDeatils post details
+   * @returns {true}
+   */
   public async createPost(postDeatils: ICreatePost) {
     try {
       await PostTable.create(postDeatils);
+      return true;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
   }
 
+  /**
+   * @description get all posts create by a user
+   * @param userId
+   * @returns {posts} list of posts
+   */
   public async getAllPostByUser(
     userId: string
   ): Promise<Array<Partial<IBase>>> {
@@ -25,6 +36,11 @@ class PostService {
     }
   }
 
+  /**
+   * @description get post details for the given post
+   * @param postId
+   * @returns {post} post details
+   */
   public async getPostById(postId: string): Promise<Partial<IBase>> {
     try {
       const post = await PostTable.findById(
@@ -40,10 +56,15 @@ class PostService {
     }
   }
 
-  public async deleteUserPost(user: any, params: any) {
+  /**
+   * @description delete the given post of the logged user
+   * @param user
+   * @param postId post to be deleted
+   */
+  public async deleteUserPost(user: any, postId: any) {
     try {
       await PostTable.findOneAndDelete({
-        _id: params?.id,
+        _id: postId,
         userId: user?._id,
       }).lean();
     } catch (error) {
