@@ -8,7 +8,7 @@ class TokenService {
    * @param user user object
    * @returns {token, refreshToken}
    */
-  generateToken(user: IUser) {
+  generateToken(user: IUser): any {
     const authInfo = AuthService.getJwtAuthInfo(user);
     const refreshToken = getRefereshToken(authInfo);
     const token = getJwtToken(authInfo);

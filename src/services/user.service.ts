@@ -7,7 +7,7 @@ class UserService {
    * @param userId
    * @returns {true} if user is deleted successfully
    */
-  async deleteUser(userId: string) {
+  async deleteUser(userId: string): Promise<boolean> {
     try {
       await UserTable.findOneAndDelete({ _id: userId });
       return true;

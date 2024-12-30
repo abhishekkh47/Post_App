@@ -11,7 +11,7 @@ class CommentService {
    * @param comment comment obj to be created
    * @returns {true} if comment is created successfully
    */
-  async createComment(user: any, comment: Partial<IComment>) {
+  async createComment(user: any, comment: Partial<IComment>): Promise<any> {
     try {
       const commentObj = {
         userId: user._id,
@@ -31,7 +31,7 @@ class CommentService {
    * @param commentId comment id
    * @returns {true} if comment is deleted successfully
    */
-  async deleteComment(commentId: string) {
+  async deleteComment(commentId: string): Promise<boolean> {
     try {
       await CommentTable.findOneAndDelete({ _id: commentId });
       return true;
@@ -45,7 +45,7 @@ class CommentService {
    * @param postId
    * @returns {*} List of comments
    */
-  async getCommentByPostId(postId: string) {
+  async getCommentByPostId(postId: string): Promise<any> {
     try {
       const comments = await CommentTable.find({ postId }).lean();
       return comments;
@@ -59,7 +59,7 @@ class CommentService {
    * @param commentId
    * @returns {*} Hierarchical comment tree structure
    */
-  async getCommentById(commentId: string) {
+  async getCommentById(commentId: string): Promise<any> {
     try {
       const comments = await CommentTable.aggregate([
         // Match the root comment
@@ -152,7 +152,7 @@ class CommentService {
    * @param commentId
    * @returns {*} Hierarchical comment tree structure
    */
-  async _getCommentById(commentId: string) {
+  async _getCommentById(commentId: string): Promise<any> {
     try {
       const comments = await CommentTable.aggregate([
         // Match the root comment
@@ -235,7 +235,7 @@ class CommentService {
    * @param userId
    * @returns {*} List of comments
    */
-  async getAllCommentsByUserId(userId: string) {
+  async getAllCommentsByUserId(userId: string): Promise<any> {
     try {
       const comments = await CommentTable.find({ user: userId }).lean();
       return comments;

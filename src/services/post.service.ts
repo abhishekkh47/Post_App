@@ -8,7 +8,7 @@ class PostService {
    * @param postDeatils post details
    * @returns {true}
    */
-  public async createPost(postDeatils: ICreatePost) {
+  public async createPost(postDeatils: ICreatePost): Promise<boolean> {
     try {
       await PostTable.create(postDeatils);
       return true;
@@ -61,7 +61,7 @@ class PostService {
    * @param user
    * @param postId post to be deleted
    */
-  public async deleteUserPost(user: any, postId: any) {
+  public async deleteUserPost(user: any, postId: any): Promise<void> {
     try {
       await PostTable.findOneAndDelete({
         _id: postId,
