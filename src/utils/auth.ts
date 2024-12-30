@@ -5,7 +5,7 @@ import Config from "../config";
 
 export const getJwtToken = (body: IUserAuthInfo, expiryTime: number = 0) => {
   return Jwt.sign(body, Config.JWT_KEY, {
-    expiresIn: expiryTime ? expiryTime : 36000,
+    expiresIn: expiryTime || 36000,
   });
 };
 

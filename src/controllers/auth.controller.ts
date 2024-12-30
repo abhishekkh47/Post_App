@@ -14,7 +14,14 @@ class AuthController extends BaseController {
         if (validate) {
           try {
             const {
-              body: { email, password, firstName, lastName },
+              body: {
+                email,
+                password,
+                firstName,
+                lastName,
+                bio = null,
+                profile_pic = null,
+              },
             } = req;
 
             if (!email || !password || !firstName || !lastName) {
@@ -32,6 +39,8 @@ class AuthController extends BaseController {
               password,
               firstName,
               lastName,
+              bio,
+              profile_pic,
             };
             const response = await AuthService.userSignup(userObj);
 

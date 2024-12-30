@@ -22,6 +22,14 @@ const schema = new mongoose.Schema<IUserSchema>(
       type: mongoose.Schema.Types.String,
       required: true,
     },
+    bio: {
+      type: mongoose.Schema.Types.String,
+      required: false,
+    },
+    profile_pic: {
+      type: mongoose.Schema.Types.String,
+      required: false,
+    },
   },
   { timestamps: true }
 );

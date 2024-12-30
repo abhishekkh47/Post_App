@@ -6,6 +6,8 @@ export interface IUserSignup {
   lastName: string;
   email: string;
   password: string;
+  bio?: string;
+  profile_pic?: string;
 }
 
 export interface IUserAuthInfo {
@@ -13,4 +15,9 @@ export interface IUserAuthInfo {
   issuedOn: number;
   expiredOn: number;
   email: string | undefined;
+}
+
+export interface IFollowUser {
+  followerId: string;
+  followeeId: string;
 }
