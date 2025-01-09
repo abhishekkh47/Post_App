@@ -34,4 +34,35 @@ export const authValidations = {
     }
     return callback(true);
   },
+
+  sendPasswordResetLinkValidation: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      email: Joi.string().email().required(),
+    });
+
+    const { error } = schema.validate(req);
+    if (error) {
+      return res.throw(
+        400,
+        res.__(validationMessageKey("sendPasswordResetLinkValidation", error))
+      );
+    }
+    return callback(true);
+  },
+
+  resetPasswordUsingLinkValidation: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      token: Joi.string().required(),
+      password: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(req);
+    if (error) {
+      return res.throw(
+        400,
+        res.__(validationMessageKey("resetPasswordUsingLinkValidation", error))
+      );
+    }
+    return callback(true);
+  },
 };

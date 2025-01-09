@@ -6,6 +6,18 @@ export default {
     return process.env.DB_PATH;
   },
   get JWT_KEY() {
-    return process.env.JWT_KEY || "this_is_a_secret_key";
+    return process.env.JWT_KEY ?? "this_is_a_secret_key";
+  },
+  get BASEURL() {
+    return process.env.BASEURL;
+  },
+  get ADMIN_EMAIL() {
+    return process.env.ADMIN_EMAIL;
+  },
+  get ADMIN_PASSWORD() {
+    return process.env.ADMIN_PASSWORD;
+  },
+  get MAILGUN_API_KEY() {
+    return process.env.MAILGUN_API_KEY;
   },
 };

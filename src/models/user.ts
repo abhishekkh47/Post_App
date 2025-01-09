@@ -30,6 +30,11 @@ const schema = new mongoose.Schema<IUserSchema>(
       type: mongoose.Schema.Types.String,
       required: false,
     },
+    isPrivate: {
+      type: mongoose.Schema.Types.Boolean,
+      required: true,
+      default: false,
+    },
   },
   { timestamps: true }
 );

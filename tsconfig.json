@@ -19,7 +19,8 @@
       "services/*": ["services/*"],
       "types/*": ["types/*"],
       "utils/*": ["utils/*"],
-      "validations/*": ["validations/*"]
+      "validations/*": ["validations/*"],
+      "config/*": ["config/*"]
     },
     "typeRoots": ["./node_modules/@types", "./src/types/express.d.ts"]
   },

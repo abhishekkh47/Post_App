@@ -12,6 +12,12 @@ class BaseController {
   protected UnAuthorized<T>(res: Response, message: T) {
     res.status(401).json({ status: 401, message: message || "Unuthorized" });
   }
+
+  protected InternalServerError<T>(res: Response, message: T) {
+    res
+      .status(500)
+      .json({ status: 500, message: message || "Internal Server Error" });
+  }
 }
 
 export default BaseController;

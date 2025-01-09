@@ -1,9 +1,8 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
-import { NetworkError } from "middleware";
 import { AuthService, PostService } from "services";
 import { ICreatePost } from "types";
-import { POST_TYPE } from "utils";
+import { ERR_MSGS, POST_TYPE, SUCCESS_MSGS } from "utils";
 import { postValidations } from "validations";
 
 class PostController extends BaseController {
@@ -17,7 +16,7 @@ class PostController extends BaseController {
             const { _id, body } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
-              throw new NetworkError("User do not exists", 400);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             const postObj: ICreatePost = {
               userId: user._id,
@@ -26,9 +25,9 @@ class PostController extends BaseController {
             };
 
             await PostService.createPost(postObj);
-            this.Ok(res, { message: "Post created successfully" });
+            this.Ok(res, { message: SUCCESS_MSGS.POST_CREATED });
           } catch (error) {
-            throw new NetworkError((error as Error).message, 400);
+            this.InternalServerError(res, (error as Error).message);
           }
         }
       }
@@ -45,12 +44,12 @@ class PostController extends BaseController {
             const { _id, params } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
-              throw new NetworkError("User do not exists", 400);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             const posts = await PostService.getAllPostByUser(params.userId);
             this.Ok(res, { posts });
           } catch (error) {
-            throw new NetworkError((error as Error).message, 400);
+            this.InternalServerError(res, (error as Error).message);
           }
         }
       }
@@ -67,12 +66,12 @@ class PostController extends BaseController {
             const { _id, params } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
-              throw new NetworkError("User do not exists", 400);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             const post = await PostService.getPostById(params.postId);
             this.Ok(res, { post });
           } catch (error) {
-            throw new NetworkError((error as Error).message, 400);
+            this.InternalServerError(res, (error as Error).message);
           }
         }
       }
@@ -89,12 +88,12 @@ class PostController extends BaseController {
             const { _id, params } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
-              throw new NetworkError("User do not exists", 400);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             await PostService.deleteUserPost(user, params.postId);
-            this.Ok(res, { message: "Post deleted successfully" });
+            this.Ok(res, { message: SUCCESS_MSGS.POST_DELETED });
           } catch (error) {
-            throw new NetworkError((error as Error).message, 400);
+            this.InternalServerError(res, (error as Error).message);
           }
         }
       }

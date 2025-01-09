@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import BaseController from "./base.controller";
-import { NetworkError } from "middleware";
 import { AuthService } from "services";
 import { IUser, IUserSignup } from "types";
 import { authValidations } from "validations";
+import { ERR_MSGS } from "utils/constants";
 
 class AuthController extends BaseController {
   public async signup(req: Request, res: Response, next: NextFunction) {
@@ -21,17 +21,18 @@ class AuthController extends BaseController {
                 lastName,
                 bio = null,
                 profile_pic = null,
+                isPrivate = true,
               },
             } = req;
 
             if (!email || !password || !firstName || !lastName) {
-              return this.BadRequest(res, "Please provide all details");
+              return this.BadRequest(res, ERR_MSGS.PROVIDE_ALL_DETAILS);
             }
 
             const userIfExists: IUser | null =
               await AuthService.findUserByEmail(email);
             if (userIfExists) {
-              return this.BadRequest(res, "User already exists");
+              return this.BadRequest(res, ERR_MSGS.USER_EXISTS);
             }
 
             const userObj: IUserSignup = {
@@ -41,12 +42,13 @@ class AuthController extends BaseController {
               lastName,
               bio,
               profile_pic,
+              isPrivate,
             };
             const response = await AuthService.userSignup(userObj);
 
             this.Ok(res, response);
           } catch (error) {
-            this.BadRequest(res, "Bad Request : Please provide all details");
+            this.BadRequest(res, ERR_MSGS.PROVIDE_ALL_DETAILS);
           }
         }
       }
@@ -64,17 +66,10 @@ class AuthController extends BaseController {
               body: { email, password },
             } = req;
 
-            if (!email || !password) {
-              return this.BadRequest(
-                res,
-                "Please provide a valid username and password"
-              );
-            }
-
             const userIfExists: IUser | null =
               await AuthService.findUserByEmail(email);
             if (!userIfExists) {
-              return this.BadRequest(res, "User do not exists");
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
 
             const response = await AuthService.userLogin(
@@ -84,10 +79,7 @@ class AuthController extends BaseController {
 
             this.Ok(res, response);
           } catch (error) {
-            throw new NetworkError(
-              "Bad Request : Please provide all details",
-              400
-            );
+            this.BadRequest(res, ERR_MSGS.PROVIDE_ALL_DETAILS);
           }
         }
       }
@@ -98,12 +90,12 @@ class AuthController extends BaseController {
     try {
       const { refreshToken } = req.body;
       if (!refreshToken || refreshToken == "") {
-        return this.BadRequest(res, "Invalid refresh token");
+        return this.BadRequest(res, ERR_MSGS.INVALIID_REFRESH_TOKEN);
       }
       const response = await AuthService.getRefreshToken(refreshToken);
       this.Ok(res, response);
     } catch (error) {
-      throw new NetworkError(`Error - ${(error as Error).message}`, 400);
+      this.InternalServerError(res, (error as Error).message);
     }
   }
 }

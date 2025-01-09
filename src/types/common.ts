@@ -8,6 +8,7 @@ export interface IUserSignup {
   password: string;
   bio?: string;
   profile_pic?: string;
+  isPrivate?: boolean;
 }
 
 export interface IUserAuthInfo {

@@ -15,17 +15,21 @@
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "form-data": "^4.0.1",
     "i18n": "^0.15.1",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "mailgun.js": "^10.4.0",
     "module-alias": "^2.2.3",
     "mongoose": "^8.8.2",
+    "nodemailer": "^6.9.16",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/nodemailer": "^6.4.17",
     "nodemon": "^3.1.7"
   },
   "_moduleAliases": {
@@ -36,6 +40,7 @@
     "routes": "src/routes",
     "types": "src/types",
     "utils": "src/utils",
-    "validations": "src/validations"
+    "validations": "src/validations",
+    "config": "src/config"
   }
 }

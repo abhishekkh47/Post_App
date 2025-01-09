@@ -1,6 +1,5 @@
 import BaseController from "controllers/base.controller";
 import { Request, Response, NextFunction } from "express";
-import { IRequestUser } from "types";
 import { verifyToken } from "utils";
 
 class AuthMiddleware extends BaseController {
