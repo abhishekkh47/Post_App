@@ -41,14 +41,14 @@ class PostController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { _id, params, userId } = req;
+            const { _id, params } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             const [isPublicProfile, ifUserFollowed] = await Promise.all([
-              UserService.isPublicProfile(userId),
-              FollowService.ifUserFollowed(user, userId),
+              UserService.isPublicProfile(params.userId),
+              FollowService.ifUserFollowed(user, params.userId),
             ]);
             if (isPublicProfile || ifUserFollowed) {
               const posts = await PostService.getAllPostByUser(params.userId);
