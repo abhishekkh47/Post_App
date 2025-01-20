@@ -86,6 +86,12 @@ class AuthController extends BaseController {
     );
   }
 
+  /**
+   * @description Generate new login token uisng refresh token if existing token expired
+   * @param req
+   * @param res
+   * @param next
+   */
   public async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.body;

@@ -18,7 +18,7 @@ class PostService {
   }
 
   /**
-   * @description get all posts create by a user
+   * @description get all posts created by a user
    * @param userId
    * @returns {posts} list of posts
    */

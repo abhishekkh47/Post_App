@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
-import { AuthService, PostService } from "services";
+import { AuthService, PostService, UserService, FollowService } from "services";
 import { ICreatePost } from "types";
 import { ERR_MSGS, POST_TYPE, SUCCESS_MSGS } from "utils";
 import { postValidations } from "validations";
@@ -41,13 +41,23 @@ class PostController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { _id, params } = req;
+            const { _id, params, userId } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
-            const posts = await PostService.getAllPostByUser(params.userId);
-            this.Ok(res, { posts });
+            const [isPublicProfile, ifUserFollowed] = await Promise.all([
+              UserService.isPublicProfile(userId),
+              FollowService.ifUserFollowed(user, userId),
+            ]);
+            if (isPublicProfile || ifUserFollowed) {
+              const posts = await PostService.getAllPostByUser(params.userId);
+              this.Ok(res, { posts });
+            } else {
+              this.Ok(res, {
+                message: "This is a private profile. Send request to follow.",
+              });
+            }
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
           }
@@ -98,6 +108,20 @@ class PostController extends BaseController {
         }
       }
     );
+  }
+
+  async getMyPosts(req: any, res: Response, next: NextFunction) {
+    try {
+      const { _id, params } = req;
+      const user = await AuthService.findUserById(_id);
+      if (!user) {
+        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+      }
+      const posts = await PostService.getAllPostByUser(params.userId);
+      this.Ok(res, { posts });
+    } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
   }
 }
 

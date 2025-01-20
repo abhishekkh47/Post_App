@@ -5,6 +5,12 @@ import { AuthService, FollowService } from "services/index";
 import { ERR_MSGS } from "utils/constants";
 
 class FollowController extends BaseController {
+  /**
+   * @description Follow a user
+   * @param req
+   * @param res
+   * @param next
+   */
   async followUser(req: any, res: Response, next: NextFunction) {
     return followValidations.followValidation(
       req.body,
@@ -25,6 +31,12 @@ class FollowController extends BaseController {
     );
   }
 
+  /**
+   * @description Unfollow a user
+   * @param req
+   * @param res
+   * @param next
+   */
   async unFollowUser(req: any, res: Response, next: NextFunction) {
     return followValidations.unfollowValidation(
       req.body,

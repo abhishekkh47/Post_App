@@ -72,6 +72,21 @@ class UserService {
       throw new NetworkError((error as Error).message, 400);
     }
   }
+
+  /**
+   * @description check if profile is public
+   * @param user
+   * @returns {boolean} whether profile is public or not
+   */
+  async isPublicProfile(userId: string): Promise<boolean> {
+    try {
+      const user = await UserTable.findOne({ _id: userId });
+      if (user?.isPrivate) return false;
+      else return true;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
 }
 
 export default new UserService();

@@ -1,6 +1,6 @@
 import { NetworkError } from "middleware/errorHandler.middleware";
 import { FollowTable } from "models/follows";
-import { IFollowUser } from "types/common";
+import { IFollowUser, IUser } from "types";
 
 class FollowService {
   async followUser(followUser: IFollowUser): Promise<boolean> {
@@ -16,6 +16,22 @@ class FollowService {
     try {
       await FollowTable.findOneAndDelete(unFollowUser);
       return true;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  async ifUserFollowed(
+    user: Partial<IUser>,
+    followedUser: Partial<IUser>
+  ): Promise<boolean> {
+    try {
+      const ifUserFollowed = await FollowTable.findOne({
+        followeeId: user._id,
+        followerId: followedUser,
+      });
+      if (ifUserFollowed) return true;
+      else return false;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }

@@ -5,6 +5,12 @@ import { CommentService, AuthService } from "services";
 import { ERR_MSGS, SUCCESS_MSGS } from "utils/constants";
 
 class CommentController extends BaseController {
+  /**
+   * @description Add comment to a post
+   * @param req
+   * @param res
+   * @param next
+   */
   async createComment(req: any, res: Response, next: NextFunction) {
     return commentValidations.createCommentValidation(
       req.body,
@@ -27,6 +33,12 @@ class CommentController extends BaseController {
     );
   }
 
+  /**
+   * @description Get all comments on a post
+   * @param req
+   * @param res
+   * @param next
+   */
   async getCommentByPostId(req: any, res: Response, next: NextFunction) {
     return commentValidations.getCommentByPostIdValidation(
       req.params,
@@ -51,6 +63,12 @@ class CommentController extends BaseController {
     );
   }
 
+  /**
+   * @description Get comment by commentId
+   * @param req
+   * @param res
+   * @param next
+   */
   async getCommentById(req: any, res: Response, next: NextFunction) {
     return commentValidations.getCommentByCommentIdValidation(
       req.params,
@@ -75,6 +93,12 @@ class CommentController extends BaseController {
     );
   }
 
+  /**
+   * @description Delete a comment
+   * @param req
+   * @param res
+   * @param next
+   */
   async deleteCommentById(req: any, res: Response, next: NextFunction) {
     return commentValidations.deleteCommentValidation(
       req.params,
@@ -97,6 +121,12 @@ class CommentController extends BaseController {
     );
   }
 
+  /**
+   * @description Get all comments made by user
+   * @param req
+   * @param res
+   * @param next
+   */
   async getAllCommentsByUserId(req: any, res: Response, next: NextFunction) {
     return commentValidations.getCommentsByUserIdValidation(
       req.params,

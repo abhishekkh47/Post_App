@@ -5,6 +5,12 @@ import { authValidations } from "validations/auth.validation";
 import { verifyToken, ERR_MSGS, SUCCESS_MSGS } from "utils";
 
 class UserController extends BaseController {
+  /**
+   * @description Delete user
+   * @param req
+   * @param res
+   * @param next
+   */
   async deleteUser(req: any, res: Response, next: NextFunction) {
     const user = await AuthService.findUserById(req._id);
     if (!user) {
