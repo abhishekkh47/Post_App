@@ -2,9 +2,9 @@ import { FollowController } from "controllers/index";
 import { Router } from "express";
 import { AuthMiddleware } from "middleware";
 
-const followRouter = Router();
+export const followRoutes = Router();
 
-followRouter.post(
+followRoutes.post(
   "/follow-user",
   AuthMiddleware.Auth,
   async (req, res, next) => {
@@ -16,7 +16,7 @@ followRouter.post(
   }
 );
 
-followRouter.post(
+followRoutes.post(
   "/unfollow-user",
   AuthMiddleware.Auth,
   async (req, res, next) => {

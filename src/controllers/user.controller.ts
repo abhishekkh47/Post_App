@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
 import { AuthService, UserService } from "services";
-import { authValidations } from "validations/auth.validation";
+import { authValidations } from "validations";
 import { verifyToken, ERR_MSGS, SUCCESS_MSGS } from "utils";
 
 class UserController extends BaseController {

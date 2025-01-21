@@ -3,6 +3,8 @@ import express from "express";
 import mongoose from "mongoose";
 import DotEnv from "dotenv";
 import bodyParser from "body-parser";
+import { createServer } from "http";
+import { setupWebSocket } from "utils";
 DotEnv.config();
 import Config from "./config";
 import i18n from "./i18n/i18n";
@@ -12,20 +14,31 @@ import {
   userRoutes,
   postRoutes,
   commentRoutes,
+  followRoutes,
+  chatRoutes,
 } from "./routes";
 import { errorHandler } from "middleware";
 
 const server = async () => {
   try {
     const app = express();
+    const httpServer = createServer(app);
+    const io = setupWebSocket(httpServer);
     app.use(bodyParser.json());
     app.use(i18n.init);
+
+    app.use((req: any, res, next) => {
+      req.io = io;
+      next();
+    });
 
     app.use("/", defaultRoutes);
     app.use("/auth", authRoutes);
     app.use("/user", userRoutes);
     app.use("/post", postRoutes);
     app.use("/comment", commentRoutes);
+    app.use("/follow", followRoutes);
+    app.use("/chat", chatRoutes);
     app.use(
       errorHandler as (
         err: any,

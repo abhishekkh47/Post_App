@@ -3,7 +3,7 @@ import BaseController from "./base.controller";
 import { AuthService } from "services";
 import { IUser, IUserSignup } from "types";
 import { authValidations } from "validations";
-import { ERR_MSGS } from "utils/constants";
+import { ERR_MSGS } from "utils";
 
 class AuthController extends BaseController {
   public async signup(req: Request, res: Response, next: NextFunction) {

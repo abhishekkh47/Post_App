@@ -1,8 +1,8 @@
 import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
-import { commentValidations } from "validations/comment.validation";
+import { commentValidations } from "validations";
 import { CommentService, AuthService } from "services";
-import { ERR_MSGS, SUCCESS_MSGS } from "utils/constants";
+import { ERR_MSGS, SUCCESS_MSGS } from "utils";
 
 class CommentController extends BaseController {
   /**

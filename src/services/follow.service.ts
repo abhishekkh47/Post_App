@@ -1,5 +1,5 @@
-import { NetworkError } from "middleware/errorHandler.middleware";
-import { FollowTable } from "models/follows";
+import { NetworkError } from "middleware";
+import { FollowTable } from "models";
 import { IFollowUser, IUser } from "types";
 
 class FollowService {

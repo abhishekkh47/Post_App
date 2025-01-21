@@ -1,8 +1,8 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
 import { followValidations } from "validations";
-import { AuthService, FollowService } from "services/index";
-import { ERR_MSGS } from "utils/constants";
+import { AuthService, FollowService } from "services";
+import { ERR_MSGS } from "utils";
 
 class FollowController extends BaseController {
   /**
