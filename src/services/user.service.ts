@@ -87,6 +87,23 @@ class UserService {
       throw new NetworkError((error as Error).message, 400);
     }
   }
+
+  /**
+   * @description get user details based on user id
+   * @param userId
+   * @returns {*} User details
+   */
+  async getUserDetails(userId: string): Promise<IUser | null> {
+    try {
+      const user = await UserTable.findOne(
+        { _id: userId },
+        { email: 1, firstName: 1, lastName: 1, profile_pic: 1, bio: 1 }
+      );
+      return user;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
 }
 
 export default new UserService();

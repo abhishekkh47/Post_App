@@ -13,5 +13,6 @@
   "getPostsValidationIdCustom": "Please provide a valid user id",
   "getPostsValidationIdRequired": "getPostsValidationIdRequired",
   "getPostDetailsUsingIdValidationIdRequired": "Please provide a valid post id",
-  "getCommentByPostIdValidationPostidRequired": "Please provide a valid post id"
+  "getCommentByPostIdValidationPostidRequired": "Please provide a valid post id",
+  "getPostsValidationUseridRequired": "getPostsValidationUseridRequired"
 }

@@ -50,7 +50,7 @@ postRoutes.delete(
 
 postRoutes.get("/get-my-posts", AuthMiddleware.Auth, async (req, res, next) => {
   try {
-    await PostController.getPostByUser(req, res, next);
+    await PostController.getMyPosts(req, res, next);
   } catch (error) {
     next(error);
   }

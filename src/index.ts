@@ -3,6 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import DotEnv from "dotenv";
 import bodyParser from "body-parser";
+import cors from "cors";
 import { createServer } from "http";
 import { setupWebSocket } from "utils";
 DotEnv.config();
@@ -27,6 +28,13 @@ const server = async () => {
     app.use(bodyParser.json());
     app.use(i18n.init);
 
+    app.use(
+      cors({
+        origin: "http://localhost:5173", // Allow only requests from this origin
+        methods: ["GET", "POST", "PUT", "DELETE"], // Allow only these methods
+        credentials: true, // Allow cookies and credentials to be sent with requests
+      })
+    );
     app.use((req: any, res, next) => {
       req.io = io;
       next();

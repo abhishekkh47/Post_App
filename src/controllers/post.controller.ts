@@ -50,7 +50,7 @@ class PostController extends BaseController {
               UserService.isPublicProfile(params.userId),
               FollowService.ifUserFollowed(user, params.userId),
             ]);
-            if (isPublicProfile || ifUserFollowed) {
+            if (isPublicProfile || ifUserFollowed || _id == params.userId) {
               const posts = await PostService.getAllPostByUser(params.userId);
               this.Ok(res, { posts });
             } else {
@@ -112,12 +112,12 @@ class PostController extends BaseController {
 
   async getMyPosts(req: any, res: Response, next: NextFunction) {
     try {
-      const { _id, params } = req;
+      const { _id } = req;
       const user = await AuthService.findUserById(_id);
       if (!user) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
-      const posts = await PostService.getAllPostByUser(params.userId);
+      const posts = await PostService.getAllPostByUser(_id);
       this.Ok(res, { posts });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);

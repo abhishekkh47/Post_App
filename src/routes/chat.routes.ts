@@ -4,20 +4,38 @@ import { AuthMiddleware } from "middleware";
 
 export const chatRoutes = Router();
 
-chatRoutes.get(
+chatRoutes.delete(
   "/conversations",
   AuthMiddleware.Auth,
-  ChatController.getConversations
+  async (req, res, next) => {
+    try {
+      await ChatController.getConversations(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
 );
 
 chatRoutes.get(
   "/messages/:userId",
   AuthMiddleware.Auth,
-  ChatController.getMessagesWith
+  async (req, res, next) => {
+    try {
+      await ChatController.getMessagesWith(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
 );
 
 chatRoutes.delete(
   "/conversation/:userId",
   AuthMiddleware.Auth,
-  ChatController.deleteConversation
+  async (req, res, next) => {
+    try {
+      await ChatController.deleteConversation(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
 );

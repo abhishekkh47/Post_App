@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import BaseController from "./base.controller";
-import { AuthService } from "services";
+import { AuthService, UserService } from "services";
 import { IUser, IUserSignup } from "types";
 import { authValidations } from "validations";
 import { ERR_MSGS } from "utils";
@@ -72,12 +72,12 @@ class AuthController extends BaseController {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
 
-            const response = await AuthService.userLogin(
-              userIfExists,
-              password
-            );
+            const [response, userDetails] = await Promise.all([
+              AuthService.userLogin(userIfExists, password),
+              UserService.getUserDetails(userIfExists._id),
+            ]);
 
-            this.Ok(res, response);
+            this.Ok(res, { ...response, user: userDetails });
           } catch (error) {
             this.BadRequest(res, ERR_MSGS.PROVIDE_ALL_DETAILS);
           }

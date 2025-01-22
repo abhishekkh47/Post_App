@@ -7,6 +7,6 @@ authRoutes.post("/signup", async (req, res, next) => {
   await AuthController.signup(req, res, next);
 });
 
-authRoutes.get("/login", async (req, res, next) => {
+authRoutes.post("/login", async (req, res, next) => {
   await AuthController.login(req, res, next);
 });
