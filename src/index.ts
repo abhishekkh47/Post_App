@@ -36,6 +36,7 @@ const server = async () => {
       })
     );
     app.use((req: any, res, next) => {
+      console.log(req.path);
       req.io = io;
       next();
     });

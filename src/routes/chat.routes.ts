@@ -4,7 +4,7 @@ import { AuthMiddleware } from "middleware";
 
 export const chatRoutes = Router();
 
-chatRoutes.delete(
+chatRoutes.get(
   "/conversations",
   AuthMiddleware.Auth,
   async (req, res, next) => {
