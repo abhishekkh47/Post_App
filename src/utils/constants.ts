@@ -12,7 +12,8 @@ export const ERR_MSGS = {
   INVALID_REQUEST: "Invalid Request",
   PASSWORD_DONT_MATCH: "Password do not match",
   PASSWORD_UPDATED: "Password Updated",
-  INVALIID_REFRESH_TOKEN: "Invalid refresh token",
+  INVALID_REFRESH_TOKEN: "Invalid refresh token",
+  INVALID_CREDENTIALS: "Invalid credentials",
 };
 
 export const SUCCESS_MSGS = {

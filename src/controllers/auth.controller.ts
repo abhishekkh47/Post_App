@@ -76,6 +76,9 @@ class AuthController extends BaseController {
               AuthService.userLogin(userIfExists, password),
               UserService.getUserDetails(userIfExists._id),
             ]);
+            if (!response) {
+              return this.UnAuthorized(res, ERR_MSGS.INVALID_CREDENTIALS);
+            }
 
             this.Ok(res, { ...response, user: userDetails });
           } catch (error) {
@@ -94,12 +97,15 @@ class AuthController extends BaseController {
    */
   public async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-      const { refreshToken } = req.body;
+      const { refreshToken, userId } = req.body;
       if (!refreshToken || refreshToken == "") {
-        return this.BadRequest(res, ERR_MSGS.INVALIID_REFRESH_TOKEN);
+        return this.BadRequest(res, ERR_MSGS.INVALID_REFRESH_TOKEN);
       }
-      const response = await AuthService.getRefreshToken(refreshToken);
-      this.Ok(res, response);
+      const [response, userDetails] = await Promise.all([
+        AuthService.getRefreshToken(refreshToken),
+        UserService.getUserDetails(userId),
+      ]);
+      this.Ok(res, { ...response, user: userDetails });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }

@@ -43,7 +43,7 @@ class AuthService {
 
   async userLogin(user: IUser | null, password: string) {
     try {
-      let response = {};
+      let response = null;
       if (!user?.password) {
         throw new NetworkError("Invalid password", 400);
       }
