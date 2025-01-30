@@ -21,7 +21,6 @@ const schema = new mongoose.Schema<IMessageSchema>({
   isRead: {
     type: mongoose.Schema.Types.Boolean,
     required: true,
-    ref: "users",
   },
   attachments: [
     {

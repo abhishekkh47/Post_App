@@ -27,9 +27,11 @@ class PostService {
   ): Promise<Array<Partial<IBase>>> {
     try {
       const posts = await PostTable.find(
-        { userId: userId },
-        { _id: 1, post: 1, type: 1 }
-      ).lean();
+        { userId },
+        { _id: 1, userId: 1, post: 1, type: 1, createdAt: 1 }
+      )
+        .lean()
+        .populate("userId");
       return posts;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
