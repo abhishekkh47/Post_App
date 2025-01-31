@@ -7,12 +7,12 @@ const schema = new mongoose.Schema<IMessageSchema>({
   senderId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: "users",
+    ref: "user",
   },
   receiverId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: "users",
+    ref: "user",
   },
   content: {
     type: mongoose.Schema.Types.String,

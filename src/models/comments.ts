@@ -8,7 +8,7 @@ const schema = new mongoose.Schema<ICommentSchema>(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "users",
+      ref: "user",
     },
     postId: {
       type: mongoose.Schema.Types.ObjectId,
