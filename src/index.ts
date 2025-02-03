@@ -33,6 +33,7 @@ const server = async () => {
         origin: "http://localhost:5173", // Allow only requests from this origin
         methods: ["GET", "POST", "PUT", "DELETE"], // Allow only these methods
         credentials: true, // Allow cookies and credentials to be sent with requests
+        allowedHeaders: ["Content-Type", "Authorization"],
       })
     );
     app.use((req: any, res, next) => {
@@ -59,8 +60,12 @@ const server = async () => {
 
     await mongoose.connect(Config.DB_PATH as string);
 
-    app.listen(Config.PORT, () => {
+    // app.listen(Config.PORT, () => {
+    //   console.log(`Server running on Port ${Config.PORT}`);
+    // });
+    httpServer.listen(Config.PORT, () => {
       console.log(`Server running on Port ${Config.PORT}`);
+      console.log(`WebSocket server is ready`);
     });
   } catch (error) {
     console.error("Error : ", error);

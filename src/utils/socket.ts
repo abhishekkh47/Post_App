@@ -8,7 +8,10 @@ const setupWebSocket = (httpServer: HttpServer) => {
     cors: {
       origin: process.env.CLIENT_URL,
       methods: ["GET", "POST"],
+      credentials: true,
     },
+    transports: ["websocket", "polling"],
+    path: "/socket.io",
   });
 
   const userSockets = new Map<string, string>();
@@ -28,6 +31,7 @@ const setupWebSocket = (httpServer: HttpServer) => {
   });
 
   io.on("connection", (socket) => {
+    console.log("A user connected");
     const userId = socket.data.user._id;
     userSockets.set(userId, socket.id);
 
@@ -71,6 +75,7 @@ const setupWebSocket = (httpServer: HttpServer) => {
     });
 
     socket.on("disconnect", () => {
+      console.log("User disconnected");
       userSockets.delete(userId);
     });
   });
