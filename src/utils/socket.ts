@@ -62,6 +62,12 @@ const setupWebSocket = (httpServer: HttpServer) => {
       }
     });
 
+    // Assuming you're using socket.io in the backend
+    socket.on("send_message", (message) => {
+      // Broadcast the message to the recipient user
+      socket.to(message.receiverId).emit("message", message);
+    });
+
     socket.on("mark_read", async (data) => {
       try {
         await MessageService.markMessagesAsRead(data.senderId, userId);

@@ -3,7 +3,8 @@ import BaseController from "./base.controller";
 import { AuthService, UserService } from "services";
 import { IUser, IUserSignup } from "types";
 import { authValidations } from "validations";
-import { ERR_MSGS } from "utils";
+import { decodeJwtToken, ERR_MSGS } from "utils";
+import { UserTable } from "models";
 
 class AuthController extends BaseController {
   public async signup(req: Request, res: Response, next: NextFunction) {
@@ -97,13 +98,23 @@ class AuthController extends BaseController {
    */
   public async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-      const { refreshToken, userId } = req.body;
+      const { refreshToken } = req.body;
       if (!refreshToken || refreshToken == "") {
         return this.BadRequest(res, ERR_MSGS.INVALID_REFRESH_TOKEN);
       }
+      let user: any;
+      try {
+        user = decodeJwtToken(refreshToken);
+      } catch (error) {
+        return this.BadRequest(res, "Refresh Token Expired");
+      }
+      user = await UserTable.findOne({ _id: user._id });
+      if (!user) {
+        return this.BadRequest(res, "User Not Found");
+      }
       const [response, userDetails] = await Promise.all([
         AuthService.getRefreshToken(refreshToken),
-        UserService.getUserDetails(userId),
+        UserService.getUserDetails(user._id),
       ]);
       this.Ok(res, { ...response, user: userDetails });
     } catch (error) {

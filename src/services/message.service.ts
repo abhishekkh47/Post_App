@@ -18,7 +18,13 @@ class MessageService {
         attachments,
         isRead: false,
       });
-      return message.toObject();
+      const newMessage = await MessageTable.findOne({ _id: message._id })
+        .populate("senderId", "firstName lastName profile_pic")
+        .populate("receiverId", "firstName lastName profile_pic");
+      if (!newMessage) {
+        return message.toObject();
+      }
+      return newMessage;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
@@ -65,7 +71,7 @@ class MessageService {
                 "$senderId",
               ],
             },
-            lastMessage: { $first: "$$ROOT" },
+            lastMessage: { $last: "$$ROOT" },
           },
         },
         {
