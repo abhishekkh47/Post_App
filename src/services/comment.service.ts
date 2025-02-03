@@ -47,7 +47,9 @@ class CommentService {
    */
   async getCommentByPostId(postId: string): Promise<any> {
     try {
-      const comments = await CommentTable.find({ postId }).lean();
+      const comments = await CommentTable.find({ postId })
+        .lean()
+        .populate("userId");
       return comments;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
