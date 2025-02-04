@@ -65,4 +65,19 @@ export const authValidations = {
     }
     return callback(true);
   },
+
+  getUserProfileValidation: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      userId: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(req);
+    if (error) {
+      return res.throw(
+        400,
+        res.__(validationMessageKey("getUserProfileValidation", error))
+      );
+    }
+    return callback(true);
+  },
 };

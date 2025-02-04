@@ -95,6 +95,34 @@ class UserController extends BaseController {
       }
     );
   }
+
+  /**
+   * @description User Profile
+   * @param req
+   * @param res
+   * @param next
+   */
+  async getUserProfile(req: any, res: Response, next: NextFunction) {
+    return authValidations.getUserProfileValidation(
+      req.params,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const { userId } = req.params;
+            const user = await AuthService.findUserById(userId);
+            if (!user) {
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            }
+            const userDetails = await UserService.getUserDetails(userId);
+            this.Ok(res, { userDetails, isFollowing: false });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
+  }
 }
 
 export default new UserController();
