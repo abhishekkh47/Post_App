@@ -70,10 +70,10 @@ const setupWebSocket = (httpServer: HttpServer) => {
 
     socket.on("mark_read", async (data) => {
       try {
-        await MessageService.markMessagesAsRead(data.senderId, userId);
-        const senderSocketId = userSockets.get(data.senderId);
+        // await MessageService.markMessagesAsRead(data.senderId, userId);
+        const senderSocketId = userSockets.get(data.receiverId);
         if (senderSocketId) {
-          io.to(senderSocketId).emit("messages_read", { userId });
+          io.to(senderSocketId).emit("message_marked_read", { userId });
         }
       } catch (error) {
         socket.emit("error", { message: "Failed to mark messages as read" });
