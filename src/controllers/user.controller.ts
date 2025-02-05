@@ -116,7 +116,7 @@ class UserController extends BaseController {
             }
             const [userDetails, isFollowing] = await Promise.all([
               UserService.getUserDetails(userId),
-              FollowService.ifUserFollowed(req._id, userId),
+              FollowService.ifUserFollowed(req, userId),
             ]);
             this.Ok(res, { userDetails, isFollowing });
           } catch (error) {

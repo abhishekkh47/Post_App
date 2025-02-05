@@ -5,7 +5,7 @@ import { IFollowUser, IUser } from "types";
 class FollowService {
   async followUser(followUser: IFollowUser): Promise<boolean> {
     try {
-      await FollowTable.create(followUser);
+      await FollowTable.findOneAndUpdate(followUser, { upsert: true });
       return true;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
@@ -27,8 +27,8 @@ class FollowService {
   ): Promise<boolean> {
     try {
       const ifUserFollowed = await FollowTable.findOne({
-        followeeId: user._id,
-        followerId: followedUser,
+        followerId: user._id,
+        followeeId: followedUser,
       });
       if (ifUserFollowed) return true;
       else return false;
