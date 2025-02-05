@@ -55,10 +55,14 @@ userRoutes.post("/reset-password", async (req, res, next) => {
 /**
  * To reset password using email link
  */
-userRoutes.get("/get-profile/:userId", async (req, res, next) => {
-  try {
-    await UserController.getUserProfile(req, res, next);
-  } catch (error) {
-    next(error);
+userRoutes.get(
+  "/get-profile/:userId",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await UserController.getUserProfile(req, res, next);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);

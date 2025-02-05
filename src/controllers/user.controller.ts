@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
-import { AuthService, UserService } from "services";
+import { AuthService, FollowService, UserService } from "services";
 import { authValidations } from "validations";
 import { verifyToken, ERR_MSGS, SUCCESS_MSGS } from "utils";
 
@@ -114,8 +114,11 @@ class UserController extends BaseController {
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
-            const userDetails = await UserService.getUserDetails(userId);
-            this.Ok(res, { userDetails, isFollowing: false });
+            const [userDetails, isFollowing] = await Promise.all([
+              UserService.getUserDetails(userId),
+              FollowService.ifUserFollowed(req._id, userId),
+            ]);
+            this.Ok(res, { userDetails, isFollowing });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
           }
