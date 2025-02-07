@@ -5,6 +5,7 @@ export interface IPost extends IBase {
   userId: mongoose.Schema.Types.ObjectId;
   post: string;
   type: EPostType;
+  edited: boolean;
 }
 
 enum EPostType {

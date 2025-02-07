@@ -12,6 +12,7 @@ const schema = new mongoose.Schema<IPostSchema>(
     },
     post: { type: mongoose.Schema.Types.String, required: true },
     type: { type: mongoose.Schema.Types.Number, required: true },
+    edited: { type: mongoose.Schema.Types.Boolean, required: true },
   },
   { timestamps: true }
 );

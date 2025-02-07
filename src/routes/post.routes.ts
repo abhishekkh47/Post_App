@@ -55,3 +55,15 @@ postRoutes.get("/get-my-posts", AuthMiddleware.Auth, async (req, res, next) => {
     next(error);
   }
 });
+
+postRoutes.put(
+  "/edit-or-update-post",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await PostController.editOrUpdatePost(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);

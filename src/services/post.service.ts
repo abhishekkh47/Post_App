@@ -28,7 +28,7 @@ class PostService {
     try {
       const posts = await PostTable.find(
         { userId },
-        { _id: 1, userId: 1, post: 1, type: 1, createdAt: 1 }
+        { _id: 1, userId: 1, post: 1, type: 1, createdAt: 1, edited: 1 }
       )
         .lean()
         .populate("userId");
@@ -47,7 +47,7 @@ class PostService {
     try {
       const post = await PostTable.findById(
         { _id: postId },
-        { _id: 1, post: 1, type: 1 }
+        { _id: 1, post: 1, type: 1, edited: 1 }
       ).lean();
       if (!post) {
         throw new NetworkError("Post not found", 400);
@@ -69,6 +69,28 @@ class PostService {
         _id: postId,
         userId: user?._id,
       }).lean();
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  /**
+   * @description update the content of the post
+   * @param userId
+   * @param postId postId of the post to be updated
+   * @param post update post content
+   * @returns {posts} list of posts
+   */
+  public async editOrUpdatePost(
+    userId: string,
+    postId: string,
+    post: string
+  ): Promise<void> {
+    try {
+      await PostTable.findOneAndUpdate(
+        { _id: postId, userId },
+        { post, edited: true }
+      );
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }

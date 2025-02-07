@@ -123,6 +123,31 @@ class PostController extends BaseController {
       this.InternalServerError(res, (error as Error).message);
     }
   }
+
+  async editOrUpdatePost(req: any, res: Response, next: NextFunction) {
+    return postValidations.editOrUpdatePostValidation(
+      req.body,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const {
+              _id,
+              body: { postId, post },
+            } = req;
+            const user = await AuthService.findUserById(_id);
+            if (!user) {
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            }
+            await PostService.editOrUpdatePost(user._id, postId, post);
+            this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
+  }
 }
 
 export default new PostController();

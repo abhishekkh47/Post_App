@@ -66,4 +66,21 @@ export const postValidations = {
     }
     return callback(true);
   },
+
+  editOrUpdatePostValidation: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      postId: objectIdValidation.required(),
+      post: Joi.string().required(),
+    });
+    const { error } = schema.validate(req);
+
+    if (error) {
+      return res
+        .status(400)
+        .json(
+          i18n.__(validationMessageKey("editOrUpdatePostValidation", error))
+        );
+    }
+    return callback(true);
+  },
 };
