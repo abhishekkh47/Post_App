@@ -37,6 +37,7 @@ class PostService {
         { _id: 1, userId: 1, post: 1, type: 1, createdAt: 1, edited: 1 }
       )
         .lean()
+        .sort({ createdAt: -1 })
         .populate("userId");
       return posts;
     } catch (error) {
@@ -71,11 +72,13 @@ class PostService {
    */
   public async deleteUserPost(user: any, postId: any): Promise<void> {
     try {
-      await PostTable.findOneAndDelete({
-        _id: postId,
-        userId: user?._id,
-      }).lean();
-      UserTable.findOneAndUpdate({ _id: user._id }, { $inc: { posts: -1 } });
+      await Promise.all([
+        PostTable.findOneAndDelete({
+          _id: postId,
+          userId: user?._id,
+        }).lean(),
+        UserTable.findOneAndUpdate({ _id: user._id }, { $inc: { posts: -1 } }),
+      ]);
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }

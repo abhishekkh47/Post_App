@@ -97,7 +97,7 @@ class UserService {
     try {
       const user = await UserTable.findOne(
         { _id: userId },
-        { email: 1, firstName: 1, lastName: 1, profile_pic: 1, bio: 1 }
+        { updatedAt: 0, __v: 0 }
       );
       return user;
     } catch (error) {
