@@ -27,3 +27,27 @@ followRoutes.post(
     }
   }
 );
+
+followRoutes.get(
+  "/get-followers/:userId",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await FollowController.getFollowers(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+followRoutes.get(
+  "/get-following/:userId",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await FollowController.getFollowing(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);

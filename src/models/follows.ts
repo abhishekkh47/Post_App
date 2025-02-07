@@ -7,10 +7,12 @@ const schema = new mongoose.Schema<IFollowsSchema>(
     followerId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "user",
     },
     followeeId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "user",
     },
   },
   { timestamps: true }

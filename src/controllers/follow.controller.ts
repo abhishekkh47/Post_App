@@ -2,7 +2,7 @@ import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
 import { followValidations } from "validations";
 import { AuthService, FollowService } from "services";
-import { ERR_MSGS } from "utils";
+import { ERR_MSGS, SUCCESS_MSGS } from "utils";
 
 class FollowController extends BaseController {
   /**
@@ -23,6 +23,7 @@ class FollowController extends BaseController {
               this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             await FollowService.followUser(req.body);
+            this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
           }
@@ -42,16 +43,76 @@ class FollowController extends BaseController {
       req.body,
       res,
       async (validate: boolean) => {
-        try {
-          const user = await AuthService.findUserById(req._id);
-          if (!user) {
-            this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-          }
-          if (validate) {
+        if (validate) {
+          try {
+            const user = await AuthService.findUserById(req._id);
+            if (!user) {
+              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            }
+
             await FollowService.unFollowUser(req.body);
+            this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
           }
-        } catch (error) {
-          this.InternalServerError(res, (error as Error).message);
+        }
+      }
+    );
+  }
+
+  /**
+   * @description get followers of users
+   * @param req
+   * @param res
+   * @param next
+   */
+  async getFollowers(req: any, res: Response, next: NextFunction) {
+    return followValidations.getFollowersValidation(
+      req.params,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const user = await AuthService.findUserById(req._id);
+            if (!user) {
+              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            }
+            const followers = await FollowService.getUserFollowers(
+              req.params.userId
+            );
+            this.Ok(res, { followers });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
+  }
+
+  /**
+   * @description get profiles who follow the user
+   * @param req
+   * @param res
+   * @param next
+   */
+  async getFollowing(req: any, res: Response, next: NextFunction) {
+    return followValidations.getFollowersValidation(
+      req.params,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const user = await AuthService.findUserById(req._id);
+            if (!user) {
+              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            }
+            const following = await FollowService.getUserFollowing(
+              req.params.userId
+            );
+            this.Ok(res, { following });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
         }
       }
     );

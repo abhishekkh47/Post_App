@@ -29,4 +29,18 @@ export const followValidations = {
     }
     return callback(true);
   },
+
+  getFollowersValidation: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      userId: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(req);
+    if (error) {
+      return res
+        .status(400)
+        .json(i18n.__(validationMessageKey("getFollowersValidation", error)));
+    }
+    return callback(true);
+  },
 };

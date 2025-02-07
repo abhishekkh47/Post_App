@@ -10,6 +10,7 @@ export const postValidations = {
       type: Joi.number()
         .optional()
         .valid(...Object.values(POST_TYPE)),
+      edited: Joi.boolean().optional(),
     });
     const { error } = schema.validate(req);
 

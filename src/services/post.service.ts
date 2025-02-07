@@ -1,5 +1,5 @@
 import { NetworkError } from "middleware/errorHandler.middleware";
-import { PostTable } from "models";
+import { PostTable, UserTable } from "models";
 import { IBase, ICreatePost } from "types";
 
 class PostService {
@@ -10,7 +10,13 @@ class PostService {
    */
   public async createPost(postDeatils: ICreatePost): Promise<boolean> {
     try {
-      await PostTable.create(postDeatils);
+      await Promise.all([
+        PostTable.create(postDeatils),
+        UserTable.findOneAndUpdate(
+          { _id: postDeatils.userId },
+          { $inc: { posts: 1 } }
+        ),
+      ]);
       return true;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
@@ -69,6 +75,7 @@ class PostService {
         _id: postId,
         userId: user?._id,
       }).lean();
+      UserTable.findOneAndUpdate({ _id: user._id }, { $inc: { posts: -1 } });
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }

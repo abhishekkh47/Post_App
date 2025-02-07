@@ -35,6 +35,21 @@ const schema = new mongoose.Schema<IUserSchema>(
       required: true,
       default: false,
     },
+    posts: {
+      type: mongoose.Schema.Types.Number,
+      required: true,
+      default: 0,
+    },
+    followers: {
+      type: mongoose.Schema.Types.Number,
+      required: true,
+      default: 0,
+    },
+    following: {
+      type: mongoose.Schema.Types.Number,
+      required: true,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

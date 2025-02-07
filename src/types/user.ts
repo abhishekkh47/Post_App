@@ -8,4 +8,7 @@ export interface IUser extends IBase {
   bio: string;
   profile_pic: string;
   isPrivate: boolean;
+  posts: number;
+  followers: number;
+  following: number;
 }
