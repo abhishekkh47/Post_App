@@ -67,3 +67,11 @@ postRoutes.put(
     }
   }
 );
+
+postRoutes.get("/get-feed", AuthMiddleware.Auth, async (req, res, next) => {
+  try {
+    await PostController.getMyFeed(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});

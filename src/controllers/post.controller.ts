@@ -148,6 +148,20 @@ class PostController extends BaseController {
       }
     );
   }
+
+  async getMyFeed(req: any, res: Response, next: NextFunction) {
+    try {
+      const { _id } = req;
+      const user = await AuthService.findUserById(_id);
+      if (!user) {
+        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+      }
+      const posts = await PostService.getUserFeed(_id);
+      this.Ok(res, { posts });
+    } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
+  }
 }
 
 export default new PostController();

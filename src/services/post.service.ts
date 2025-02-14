@@ -1,6 +1,7 @@
 import { NetworkError } from "middleware/errorHandler.middleware";
-import { PostTable, UserTable } from "models";
+import { FriendsTable, PostTable, UserTable } from "models";
 import { IBase, ICreatePost } from "types";
+import { ObjectId } from "mongodb";
 
 class PostService {
   /**
@@ -101,6 +102,65 @@ class PostService {
         { _id: postId, userId },
         { post, edited: true }
       );
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  /**
+   * @description get feed content for user
+   * @param userId
+   * @returns {posts} list of posts
+   */
+  public async getUserFeed(userId: string): Promise<any> {
+    try {
+      const usersFollowed = await FriendsTable.find({
+        followerId: new ObjectId(userId),
+      }).select("followeeId");
+      const userIds = [
+        new ObjectId(userId),
+        ...usersFollowed.map((f) => f.followeeId),
+      ];
+      const feed = await PostTable.aggregate([
+        {
+          $match: {
+            userId: { $in: userIds },
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
+            as: "userDetails",
+          },
+        },
+        {
+          $unwind: "$userDetails",
+        },
+        {
+          $project: {
+            _id: 1,
+            post: 1,
+            type: 1,
+            edited: 1,
+            createdAt: 1,
+            userId: {
+              _id: "$userDetails._id",
+              firstName: "$userDetails.firstName",
+              lastName: "$userDetails.lastName",
+              profile_pic: "$userDetails.profile_pic",
+              createdAt: "$userDetails.createdAt",
+            },
+          },
+        },
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+      ]).exec();
+      return feed;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }

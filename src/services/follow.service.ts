@@ -1,12 +1,12 @@
 import { NetworkError } from "middleware";
-import { FollowTable, UserTable } from "models";
+import { FriendsTable, UserTable } from "models";
 import { IFollowUser, IUser } from "types";
 
 class FollowService {
   async followUser(followUser: IFollowUser): Promise<boolean> {
     try {
       await Promise.all([
-        FollowTable.create(followUser),
+        FriendsTable.create(followUser),
         UserTable.findOneAndUpdate(
           { _id: followUser.followerId },
           { $inc: { followers: 1 } }
@@ -22,7 +22,7 @@ class FollowService {
     try {
       const { followeeId, followerId } = unFollowUser;
       await Promise.all([
-        FollowTable.findOneAndDelete({ followeeId, followerId }),
+        FriendsTable.findOneAndDelete({ followeeId, followerId }),
         UserTable.findOneAndUpdate(
           { _id: unFollowUser.followerId },
           { $inc: { followers: -1 } }
@@ -46,7 +46,7 @@ class FollowService {
   ): Promise<boolean> {
     try {
       if (user.toString() == followedUser.toString()) return true;
-      const ifUserFollowed = await FollowTable.findOne({
+      const ifUserFollowed = await FriendsTable.findOne({
         followerId: user._id,
         followeeId: followedUser,
       });
@@ -64,10 +64,9 @@ class FollowService {
    */
   async getUserFollowers(userId: string): Promise<any> {
     try {
-      const followers = await FollowTable.find({ followerId: userId }).populate(
-        "followeeId",
-        "firstName lastName profile_pic"
-      );
+      const followers = await FriendsTable.find({
+        followerId: userId,
+      }).populate("followeeId", "firstName lastName profile_pic");
       console.log("followers : ", JSON.stringify(followers));
       return followers;
     } catch (error) {
@@ -82,10 +81,9 @@ class FollowService {
    */
   async getUserFollowing(userId: string): Promise<any> {
     try {
-      const followers = await FollowTable.find({ followeeId: userId }).populate(
-        "followerId",
-        "firstName lastName profile_pic"
-      );
+      const followers = await FriendsTable.find({
+        followeeId: userId,
+      }).populate("followerId", "firstName lastName profile_pic");
       console.log("followees : ", JSON.stringify(followers));
       return followers;
     } catch (error) {
