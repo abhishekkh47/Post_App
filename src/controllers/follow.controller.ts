@@ -61,7 +61,7 @@ class FollowController extends BaseController {
   }
 
   /**
-   * @description get followers of users
+   * @description get users who follow the user
    * @param req
    * @param res
    * @param next
@@ -90,7 +90,7 @@ class FollowController extends BaseController {
   }
 
   /**
-   * @description get profiles who follow the user
+   * @description get profiles followed by user
    * @param req
    * @param res
    * @param next

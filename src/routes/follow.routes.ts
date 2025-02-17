@@ -29,7 +29,7 @@ followRoutes.post(
 );
 
 followRoutes.get(
-  "/get-followers/:userId",
+  "/followers/:userId",
   AuthMiddleware.Auth,
   async (req, res, next) => {
     try {
@@ -41,7 +41,7 @@ followRoutes.get(
 );
 
 followRoutes.get(
-  "/get-following/:userId",
+  "/following/:userId",
   AuthMiddleware.Auth,
   async (req, res, next) => {
     try {

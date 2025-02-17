@@ -30,7 +30,9 @@ const server = async () => {
 
     app.use(
       cors({
-        origin: "http://localhost:5173", // Allow only requests from this origin
+        origin: function (origin, callback) {
+          callback(null, true); // ✅ Dynamically allow all origins
+        },
         methods: ["GET", "POST", "PUT", "DELETE"], // Allow only these methods
         credentials: true, // Allow cookies and credentials to be sent with requests
         allowedHeaders: ["Content-Type", "Authorization"],
