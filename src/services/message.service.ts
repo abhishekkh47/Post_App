@@ -39,6 +39,7 @@ class MessageService {
         ],
       })
         .sort({ createdAt: 1 })
+        .select("senderId receiverId content isRead attachments createdAt")
         .populate("senderId", "firstName lastName profile_pic")
         .populate("receiverId", "firstName lastName profile_pic");
 
@@ -72,6 +73,11 @@ class MessageService {
               ],
             },
             lastMessage: { $last: "$$ROOT" },
+            unreadCount: {
+              $sum: {
+                $cond: [{ $eq: ["$isRead", false] }, 1, 0],
+              },
+            },
           },
         },
         {
