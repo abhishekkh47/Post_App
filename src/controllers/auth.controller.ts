@@ -45,9 +45,10 @@ class AuthController extends BaseController {
               profile_pic,
               isPrivate,
             };
-            const response = await AuthService.userSignup(userObj);
+            const { response, user } = await AuthService.userSignup(userObj);
+            const userDetails = await UserService.getUserDetails(user._id);
 
-            this.Ok(res, response);
+            this.Ok(res, { ...response, user: userDetails });
           } catch (error) {
             this.BadRequest(res, ERR_MSGS.PROVIDE_ALL_DETAILS);
           }

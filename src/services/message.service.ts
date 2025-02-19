@@ -81,6 +81,9 @@ class MessageService {
           },
         },
         {
+          $sort: { "lastMessage.createdAt": -1 },
+        },
+        {
           $lookup: {
             from: "users",
             localField: "_id",

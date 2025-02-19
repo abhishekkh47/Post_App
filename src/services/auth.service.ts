@@ -35,7 +35,7 @@ class AuthService {
       if (user) {
         response = TokenService.generateToken(user);
       }
-      return response;
+      return { response, user };
     } catch (error) {
       throw new NetworkError("Error occurred while creating a user", 400);
     }
