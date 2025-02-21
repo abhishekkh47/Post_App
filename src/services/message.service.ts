@@ -61,7 +61,7 @@ class MessageService {
           },
         },
         {
-          $sort: { created: -1 },
+          $sort: { createdAt: 1 },
         },
         {
           $group: {
