@@ -80,4 +80,19 @@ export const authValidations = {
     }
     return callback(true);
   },
+
+  searchUserProfileValidation: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      search: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(req);
+    if (error) {
+      return res.throw(
+        400,
+        res.__(validationMessageKey("searchUserProfileValidation", error))
+      );
+    }
+    return callback(true);
+  },
 };

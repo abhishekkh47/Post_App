@@ -66,3 +66,14 @@ userRoutes.get(
     }
   }
 );
+
+/**
+ * To search user mathing a given string
+ */
+userRoutes.get("/search-user", AuthMiddleware.Auth, async (req, res, next) => {
+  try {
+    await UserController.searchUsers(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});

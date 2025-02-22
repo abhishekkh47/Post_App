@@ -104,6 +104,23 @@ class UserService {
       throw new NetworkError((error as Error).message, 400);
     }
   }
+
+  /**
+   * @description search users matching the given string
+   * @param search search string
+   * @returns {*} User details
+   */
+  async searchUsers(search: string): Promise<IUser | null> {
+    try {
+      const users = await UserTable.findOne(
+        { firstName: { $regex: search } },
+        { createAt: 0, updatedAt: 0, __v: 0 }
+      );
+      return users;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
 }
 
 export default new UserService();

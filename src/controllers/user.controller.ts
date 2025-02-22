@@ -126,6 +126,34 @@ class UserController extends BaseController {
       }
     );
   }
+
+  /**
+   * @description Search User Profile
+   * @param req
+   * @param res
+   * @param next
+   */
+  async searchUsers(req: any, res: Response, next: NextFunction) {
+    return authValidations.searchUserProfileValidation(
+      req.query,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const { search } = req.query;
+            const user = await AuthService.findUserById(req._id);
+            if (!user) {
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            }
+            const users = await UserService.searchUsers(search);
+            this.Ok(res, { users });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
+  }
 }
 
 export default new UserController();
