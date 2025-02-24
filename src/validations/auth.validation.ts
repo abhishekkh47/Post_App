@@ -95,4 +95,20 @@ export const authValidations = {
     }
     return callback(true);
   },
+
+  sendNotificationValidation: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      recipientId: Joi.string().required(),
+      message: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(req);
+    if (error) {
+      return res.throw(
+        400,
+        res.__(validationMessageKey("sendNotificationValidation", error))
+      );
+    }
+    return callback(true);
+  },
 };

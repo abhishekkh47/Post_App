@@ -1,7 +1,7 @@
-import { CommentTable } from "models/comments";
+import { CommentTable } from "models";
 import { NetworkError } from "middleware";
-import type { IComment } from "types/comment";
-import { ECommentType } from "types/comment";
+import type { IComment } from "types";
+import { ECommentType } from "types";
 import { ObjectId } from "mongodb";
 
 class CommentService {

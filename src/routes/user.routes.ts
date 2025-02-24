@@ -77,3 +77,14 @@ userRoutes.get("/search-user", AuthMiddleware.Auth, async (req, res, next) => {
     next(error);
   }
 });
+
+/**
+ * send notifications
+ */
+userRoutes.get("/notify", AuthMiddleware.Auth, async (req, res, next) => {
+  try {
+    await UserController.notifyUser(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});

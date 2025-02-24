@@ -1,4 +1,4 @@
-import { UserTable } from "models/user";
+import { UserTable, NotificationTable } from "models";
 import { NetworkError } from "middleware";
 import { IUser } from "types";
 import { TokenService } from "services";
@@ -110,13 +110,37 @@ class UserService {
    * @param search search string
    * @returns {*} User details
    */
-  async searchUsers(search: string): Promise<IUser | null> {
+  async searchUsers(search: string): Promise<IUser[] | null> {
     try {
-      const users = await UserTable.findOne(
-        { firstName: { $regex: search } },
+      const users = await UserTable.find(
+        { firstName: { $regex: search, $options: "i" } },
         { createAt: 0, updatedAt: 0, __v: 0 }
       );
       return users;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  /**
+   * @description create notification to the user
+   * @param senderId
+   * @param recipientId
+   * @param message notification message
+   * @returns {*}
+   */
+  async sendNotification(
+    senderId: string,
+    recipientId: string,
+    message: string
+  ): Promise<boolean> {
+    try {
+      await NotificationTable.create({
+        senderId,
+        recipientId,
+        message,
+      });
+      return true;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }

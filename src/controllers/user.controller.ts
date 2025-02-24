@@ -154,6 +154,34 @@ class UserController extends BaseController {
       }
     );
   }
+
+  /**
+   * @description Send notifications to user
+   * @param req
+   * @param res
+   * @param next
+   */
+  async notifyUser(req: any, res: Response, next: NextFunction) {
+    return authValidations.sendNotificationValidation(
+      req.body,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const { recipientId, message } = req.body;
+            const user = await AuthService.findUserById(req._id);
+            if (!user) {
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            }
+            await UserService.sendNotification(user._id, recipientId, message);
+            this.Ok(res, { message: SUCCESS_MSGS.NOTIFICATION_SENT });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
+  }
 }
 
 export default new UserController();

@@ -1,7 +1,7 @@
 import { NetworkError } from "middleware";
 import { MessageTable } from "models";
 import { ObjectId } from "mongodb";
-import { IConversation, IMessage } from "types/message";
+import { IConversation, IMessage } from "types";
 
 class MessageService {
   async sendMessage(

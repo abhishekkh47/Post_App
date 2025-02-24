@@ -22,4 +22,5 @@ export const SUCCESS_MSGS = {
   POST_CREATED: "Post created successfully",
   POST_DELETED: "Post deleted successfully",
   COMMENT_DELETED: "Comment deleted",
+  NOTIFICATION_SENT: "Notification Sent",
 };
