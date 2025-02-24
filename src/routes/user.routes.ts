@@ -81,7 +81,7 @@ userRoutes.get("/search-user", AuthMiddleware.Auth, async (req, res, next) => {
 /**
  * send notifications
  */
-userRoutes.get("/notify", AuthMiddleware.Auth, async (req, res, next) => {
+userRoutes.post("/notify", AuthMiddleware.Auth, async (req, res, next) => {
   try {
     await UserController.notifyUser(req, res, next);
   } catch (error) {
