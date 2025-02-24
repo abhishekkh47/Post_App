@@ -20,9 +20,9 @@ class FollowController extends BaseController {
           try {
             const user = await AuthService.findUserById(req._id);
             if (!user) {
-              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
-            await FollowService.followUser(req.body);
+            await FollowService.followUser(user, req.body);
             this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
@@ -47,7 +47,7 @@ class FollowController extends BaseController {
           try {
             const user = await AuthService.findUserById(req._id);
             if (!user) {
-              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
 
             await FollowService.unFollowUser(req.body);
@@ -75,7 +75,7 @@ class FollowController extends BaseController {
           try {
             const user = await AuthService.findUserById(req._id);
             if (!user) {
-              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             const followers = await FollowService.getUserFollowers(
               req.params.userId
@@ -104,7 +104,7 @@ class FollowController extends BaseController {
           try {
             const user = await AuthService.findUserById(req._id);
             if (!user) {
-              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             const following = await FollowService.getUserFollowing(
               req.params.userId

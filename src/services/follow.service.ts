@@ -2,15 +2,23 @@ import { NetworkError } from "middleware";
 import { FriendsTable, UserTable } from "models";
 import { IFollowUser, IUser } from "types";
 import { ObjectId } from "mongodb";
+import { UserService } from "services";
+import { NOTIFICATION_MSGS } from "utils";
 
 class FollowService {
-  async followUser(followUser: IFollowUser): Promise<boolean> {
+  async followUser(user: IUser, followUser: IFollowUser): Promise<boolean> {
+    const { followerId, followeeId } = followUser;
     try {
       await Promise.all([
         FriendsTable.create(followUser),
         UserTable.findOneAndUpdate(
-          { _id: followUser.followerId },
+          { _id: followerId },
           { $inc: { followers: 1 } }
+        ),
+        UserService.sendNotification(
+          followerId,
+          followeeId,
+          NOTIFICATION_MSGS.FOLLOW.replace("##", user.firstName)
         ),
       ]);
       return true;

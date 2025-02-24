@@ -24,3 +24,11 @@ export const SUCCESS_MSGS = {
   COMMENT_DELETED: "Comment deleted",
   NOTIFICATION_SENT: "Notification Sent",
 };
+
+export const NOTIFICATION_MSGS = {
+  FRIEND_REQUEST: "## sent you a friend request",
+  FRIEND_REQUEST_ACCEPTED: "## accepted your friend request",
+  FOLLOW: "## started following you",
+  LIKE: "## liked your post",
+  COMMENT: "## commented on your post",
+};

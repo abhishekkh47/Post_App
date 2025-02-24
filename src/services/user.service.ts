@@ -125,19 +125,19 @@ class UserService {
   /**
    * @description create notification to the user
    * @param senderId
-   * @param recipientId
+   * @param receiverId
    * @param message notification message
    * @returns {*}
    */
   async sendNotification(
     senderId: string,
-    recipientId: string,
+    receiverId: string,
     message: string
   ): Promise<boolean> {
     try {
       await NotificationTable.create({
         senderId,
-        recipientId,
+        receiverId,
         message,
       });
       return true;

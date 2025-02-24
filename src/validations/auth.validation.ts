@@ -98,7 +98,7 @@ export const authValidations = {
 
   sendNotificationValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
-      recipientId: Joi.string().required(),
+      receiverId: Joi.string().required(),
       message: Joi.string().required(),
     });
 

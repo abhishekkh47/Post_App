@@ -21,7 +21,7 @@ class CommentController extends BaseController {
             const { _id, body } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
-              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             await CommentService.createComment(user, body);
             this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
@@ -49,7 +49,7 @@ class CommentController extends BaseController {
             const { _id, params } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
-              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             const comments = await CommentService.getCommentByPostId(
               params.postId
@@ -79,7 +79,7 @@ class CommentController extends BaseController {
             const { _id, params } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
-              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             const comments = await CommentService.getCommentById(
               params.commentId
@@ -109,7 +109,7 @@ class CommentController extends BaseController {
             const { _id, params } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
-              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             await CommentService.deleteComment(params.commentId);
             this.Ok(res, { message: SUCCESS_MSGS.COMMENT_DELETED });
@@ -137,7 +137,7 @@ class CommentController extends BaseController {
             const { _id, params } = req;
             const user = await AuthService.findUserById(_id);
             if (!user) {
-              this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             const comments = await CommentService.getAllCommentsByUserId(
               params.userId

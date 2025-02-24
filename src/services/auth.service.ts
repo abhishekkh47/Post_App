@@ -6,11 +6,33 @@ import { verifyPassword, getHashedPassword, decodeJwtToken } from "utils";
 
 class AuthService {
   async findUserByEmail(email: string) {
-    return await UserTable.findOne({ email });
+    return await UserTable.findOne({ email }).lean().select({
+      email: 1,
+      password: 1,
+      firstName: 1,
+      lastName: 1,
+      bio: 1,
+      profile_pic: 1,
+      isPrivate: 1,
+      posts: 1,
+      followers: 1,
+      following: 1,
+    });
   }
 
   async findUserById(_id: string) {
-    return await UserTable.findOne({ _id });
+    return await UserTable.findOne({ _id }).lean().select({
+      email: 1,
+      password: 1,
+      firstName: 1,
+      lastName: 1,
+      bio: 1,
+      profile_pic: 1,
+      isPrivate: 1,
+      posts: 1,
+      followers: 1,
+      following: 1,
+    });
   }
 
   getJwtAuthInfo(user: Partial<IUser>) {
