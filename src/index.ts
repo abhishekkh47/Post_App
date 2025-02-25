@@ -12,15 +12,7 @@ import i18n from "./i18n/i18n";
 import Morgan from "morgan";
 import * as rfs from "rotating-file-stream";
 import Path from "path";
-import {
-  defaultRoutes,
-  authRoutes,
-  userRoutes,
-  postRoutes,
-  commentRoutes,
-  followRoutes,
-  chatRoutes,
-} from "./routes";
+import router from "./routes";
 import { errorHandler } from "middleware";
 import { currentDateOnly } from "utils";
 
@@ -59,13 +51,7 @@ const server = async () => {
       next();
     });
 
-    app.use("/", defaultRoutes);
-    app.use("/auth", authRoutes);
-    app.use("/user", userRoutes);
-    app.use("/post", postRoutes);
-    app.use("/comment", commentRoutes);
-    app.use("/follow", followRoutes);
-    app.use("/chat", chatRoutes);
+    app.use("/", router);
     app.use(
       errorHandler as (
         err: any,

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { AuthMiddleware } from "middleware";
 import { PostController } from "controllers";
 
-export const postRoutes = Router();
+const postRoutes = Router();
 
 postRoutes.post("/create-post", AuthMiddleware.Auth, async (req, res, next) => {
   try {
@@ -75,3 +75,5 @@ postRoutes.get("/get-feed", AuthMiddleware.Auth, async (req, res, next) => {
     next(error);
   }
 });
+
+export default postRoutes;

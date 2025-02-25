@@ -2,7 +2,7 @@ import { ChatController } from "controllers";
 import { Router } from "express";
 import { AuthMiddleware } from "middleware";
 
-export const chatRoutes = Router();
+const chatRoutes = Router();
 
 chatRoutes.get(
   "/conversations",
@@ -39,3 +39,5 @@ chatRoutes.delete(
     }
   }
 );
+
+export default chatRoutes;

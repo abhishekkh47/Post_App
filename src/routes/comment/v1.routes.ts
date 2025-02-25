@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { CommentController } from "controllers";
 import { AuthMiddleware } from "middleware";
-export const commentRoutes = Router();
+const commentRoutes = Router();
 
 commentRoutes.post(
   "/create-comment",
@@ -62,3 +62,5 @@ commentRoutes.get(
     }
   }
 );
+
+export default commentRoutes;

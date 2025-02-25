@@ -2,7 +2,7 @@ import { FollowController } from "controllers/index";
 import { Router } from "express";
 import { AuthMiddleware } from "middleware";
 
-export const followRoutes = Router();
+const followRoutes = Router();
 
 followRoutes.post(
   "/follow-user",
@@ -51,3 +51,5 @@ followRoutes.get(
     }
   }
 );
+
+export default followRoutes;

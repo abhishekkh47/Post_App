@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { UserController } from "controllers";
 import { AuthMiddleware } from "middleware";
-export const userRoutes = Router();
+const userRoutes = Router();
 
 userRoutes.delete(
   "/delete-user",
@@ -88,3 +88,5 @@ userRoutes.post("/notify", AuthMiddleware.Auth, async (req, res, next) => {
     next(error);
   }
 });
+
+export default userRoutes;
