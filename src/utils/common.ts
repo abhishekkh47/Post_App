@@ -22,3 +22,12 @@ const toUpperCase = (str: any) => {
   }
   return "";
 };
+
+export const currentDateOnly = () => {
+  const currentDate = new Date();
+  return new Date(
+    `${currentDate.getFullYear()}-${
+      currentDate.getMonth() + 1
+    }-${currentDate.getDate()}`
+  );
+};

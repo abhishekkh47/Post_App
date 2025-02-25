@@ -20,4 +20,7 @@ export default {
   get MAILGUN_API_KEY() {
     return process.env.MAILGUN_API_KEY;
   },
+  get NODE_ENV() {
+    return process.env.NODE_ENV;
+  },
 };

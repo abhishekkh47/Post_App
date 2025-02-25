@@ -9,6 +9,9 @@ import { setupWebSocket } from "utils";
 DotEnv.config();
 import Config from "./config";
 import i18n from "./i18n/i18n";
+import Morgan from "morgan";
+import * as rfs from "rotating-file-stream";
+import Path from "path";
 import {
   defaultRoutes,
   authRoutes,
@@ -19,12 +22,24 @@ import {
   chatRoutes,
 } from "./routes";
 import { errorHandler } from "middleware";
+import { currentDateOnly } from "utils";
 
 const server = async () => {
   try {
     const app = express();
     const httpServer = createServer(app);
     const io = setupWebSocket(httpServer);
+    const accessLogStream = rfs.createStream(
+      `${currentDateOnly()}-access.log`,
+      {
+        interval: "1d",
+        path: Path.join(__dirname, "logs"),
+      }
+    );
+
+    Config.NODE_ENV === "development"
+      ? app.use(Morgan("dev", { stream: accessLogStream }))
+      : app.use(Morgan("combined", { stream: accessLogStream }));
     app.use(bodyParser.json());
     app.use(i18n.init);
 
