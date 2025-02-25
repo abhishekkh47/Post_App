@@ -1,7 +1,7 @@
 import { UserTable, NotificationTable } from "models";
 import { NetworkError } from "middleware";
-import { IUser } from "types";
-import { TokenService } from "services";
+import { ITokenResponse, IUser } from "types";
+import { AuthService, TokenService } from "services";
 import { getHashedPassword, sendResetEmail } from "utils";
 
 class UserService {
@@ -22,7 +22,7 @@ class UserService {
   /**
    * @description toggle profile type to private or public
    * @param user
-   * @returns {true} if user is deleted successfully
+   * @returns {true} if profile updated successfully
    */
   async toggleProfileType(user: IUser): Promise<boolean> {
     try {
@@ -41,13 +41,13 @@ class UserService {
   /**
    * @description send email to user containing password reset link
    * @param user
-   * @returns {true} if user is deleted successfully
+   * @returns {true} if email sent successfully
    */
   async sendResetLink(user: IUser): Promise<boolean> {
     try {
-      let email = user.email;
-      const resetToken = TokenService.generateToken(user);
-      await sendResetEmail(email, resetToken);
+      let email: string = user.email;
+      const resetToken: ITokenResponse = TokenService.generateToken(user);
+      await sendResetEmail(email, resetToken.token);
       return true;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
@@ -58,11 +58,11 @@ class UserService {
    * @description send email to user containing password reset link
    * @param user user details
    * @param newPassword password to be updated
-   * @returns {true} if user is deleted successfully
+   * @returns {true} if password reset successfully
    */
   async resetPassword(user: IUser, newPassword: string): Promise<boolean> {
     try {
-      const hashedPassword = getHashedPassword(newPassword);
+      const hashedPassword: string = getHashedPassword(newPassword);
       await UserTable.findOneAndUpdate(
         { _id: user?._id },
         { $set: { password: hashedPassword } }
@@ -80,7 +80,7 @@ class UserService {
    */
   async isPublicProfile(userId: string): Promise<boolean> {
     try {
-      const user = await UserTable.findOne({ _id: userId });
+      const user = await AuthService.findUserById(userId);
       if (user?.isPrivate) return false;
       else return true;
     } catch (error) {
@@ -92,6 +92,7 @@ class UserService {
    * @description get user details based on user id
    * @param userId
    * @returns {*} User details
+   * not being used
    */
   async getUserDetails(userId: string): Promise<IUser | null> {
     try {

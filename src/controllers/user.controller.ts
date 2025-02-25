@@ -3,6 +3,7 @@ import BaseController from "./base.controller";
 import { AuthService, FollowService, UserService } from "services";
 import { authValidations } from "validations";
 import { verifyToken, ERR_MSGS, SUCCESS_MSGS } from "utils";
+import { IUser } from "types";
 
 class UserController extends BaseController {
   /**
@@ -12,7 +13,7 @@ class UserController extends BaseController {
    * @param next
    */
   async deleteUser(req: any, res: Response, next: NextFunction) {
-    const user = await AuthService.findUserById(req._id);
+    const user: IUser | null = await AuthService.findUserById(req._id);
     if (!user) {
       return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
     }
@@ -21,7 +22,7 @@ class UserController extends BaseController {
   }
 
   async toggleProfileType(req: any, res: Response, next: NextFunction) {
-    const user = await AuthService.findUserById(req._id);
+    const user: IUser | null = await AuthService.findUserById(req._id);
     if (!user) {
       return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
     }
@@ -43,7 +44,7 @@ class UserController extends BaseController {
         if (validate) {
           try {
             const { email } = req.body;
-            const user = await AuthService.findUserByEmail(email);
+            const user: IUser | null = await AuthService.findUserByEmail(email);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.EMAIL_NOT_FOUND);
             }
@@ -110,12 +111,12 @@ class UserController extends BaseController {
         if (validate) {
           try {
             const { userId } = req.params;
-            const user = await AuthService.findUserById(userId);
+            const user: IUser | null = await AuthService.findUserById(req._id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
             const [userDetails, isFollowing] = await Promise.all([
-              UserService.getUserDetails(userId),
+              AuthService.findUserById(userId),
               FollowService.ifUserFollowed(req, userId),
             ]);
             this.Ok(res, { userDetails, isFollowing });
@@ -141,7 +142,7 @@ class UserController extends BaseController {
         if (validate) {
           try {
             const { search } = req.query;
-            const user = await AuthService.findUserById(req._id);
+            const user: IUser | null = await AuthService.findUserById(req._id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
@@ -169,7 +170,7 @@ class UserController extends BaseController {
         if (validate) {
           try {
             const { recipientId, message } = req.body;
-            const user = await AuthService.findUserById(req._id);
+            const user: IUser | null = await AuthService.findUserById(req._id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }

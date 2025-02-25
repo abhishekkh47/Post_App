@@ -22,3 +22,8 @@ export interface IFollowUser {
   followerId: string;
   followeeId: string;
 }
+
+export interface ITokenResponse {
+  token: string;
+  refreshToken: string;
+}

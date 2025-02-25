@@ -2,15 +2,17 @@ import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
 import { ERR_MSGS } from "utils";
 import { MessageService, AuthService } from "services";
+import { IConversation, IMessage, IUser } from "types";
 
 class ChatController extends BaseController {
   async getConversations(req: any, res: Response, next: NextFunction) {
     try {
-      const user = await AuthService.findUserById(req._id);
+      const user: IUser | null = await AuthService.findUserById(req._id);
       if (!user) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
-      const conversations = await MessageService.getUserConversations(user._id);
+      const conversations: IConversation[] =
+        await MessageService.getUserConversations(user._id);
       this.Ok(res, { conversations });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
@@ -19,16 +21,18 @@ class ChatController extends BaseController {
 
   async getMessagesWith(req: any, res: Response, next: NextFunction) {
     try {
-      const user = await AuthService.findUserById(req._id);
+      const user: IUser | null = await AuthService.findUserById(req._id);
       if (!user) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
-      const otherUser = await AuthService.findUserById(req.params.userId);
+      const otherUser: IUser | null = await AuthService.findUserById(
+        req.params.userId
+      );
       if (!otherUser) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
 
-      const messages = await MessageService.getConversation(
+      const messages: IMessage[] = await MessageService.getConversation(
         user._id,
         otherUser._id
       );
@@ -44,11 +48,13 @@ class ChatController extends BaseController {
 
   async deleteConversation(req: any, res: Response, next: NextFunction) {
     try {
-      const user = await AuthService.findUserById(req._id);
+      const user: IUser | null = await AuthService.findUserById(req._id);
       if (!user) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
-      const otherUser = await AuthService.findUserById(req.params.userId);
+      const otherUser: IUser | null = await AuthService.findUserById(
+        req.params.userId
+      );
       if (!otherUser) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }

@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
 import { AuthService, PostService, UserService, FollowService } from "services";
-import { ICreatePost } from "types";
+import { ICreatePost, IUser } from "types";
 import { ERR_MSGS, POST_TYPE, SUCCESS_MSGS } from "utils";
 import { postValidations } from "validations";
 
@@ -14,7 +14,7 @@ class PostController extends BaseController {
         if (validate) {
           try {
             const { _id, body } = req;
-            const user = await AuthService.findUserById(_id);
+            const user: IUser | null = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
@@ -42,7 +42,7 @@ class PostController extends BaseController {
         if (validate) {
           try {
             const { _id, params } = req;
-            const user = await AuthService.findUserById(_id);
+            const user: IUser | null = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
@@ -74,7 +74,7 @@ class PostController extends BaseController {
         if (validate) {
           try {
             const { _id, params } = req;
-            const user = await AuthService.findUserById(_id);
+            const user: IUser | null = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
@@ -96,7 +96,7 @@ class PostController extends BaseController {
         if (validate) {
           try {
             const { _id, params } = req;
-            const user = await AuthService.findUserById(_id);
+            const user: IUser | null = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
@@ -113,7 +113,7 @@ class PostController extends BaseController {
   async getMyPosts(req: any, res: Response, next: NextFunction) {
     try {
       const { _id } = req;
-      const user = await AuthService.findUserById(_id);
+      const user: IUser | null = await AuthService.findUserById(_id);
       if (!user) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
@@ -135,7 +135,7 @@ class PostController extends BaseController {
               _id,
               body: { postId, post },
             } = req;
-            const user = await AuthService.findUserById(_id);
+            const user: IUser | null = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
@@ -152,7 +152,7 @@ class PostController extends BaseController {
   async getMyFeed(req: any, res: Response, next: NextFunction) {
     try {
       const { _id } = req;
-      const user = await AuthService.findUserById(_id);
+      const user: IUser | null = await AuthService.findUserById(_id);
       if (!user) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }

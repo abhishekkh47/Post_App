@@ -46,7 +46,7 @@ class AuthController extends BaseController {
               isPrivate,
             };
             const { response, user } = await AuthService.userSignup(userObj);
-            const userDetails = await UserService.getUserDetails(user._id);
+            const userDetails = await AuthService.findUserById(user._id);
 
             this.Ok(res, { ...response, user: userDetails });
           } catch (error) {
@@ -76,7 +76,7 @@ class AuthController extends BaseController {
 
             const [response, userDetails] = await Promise.all([
               AuthService.userLogin(userIfExists, password),
-              UserService.getUserDetails(userIfExists._id),
+              AuthService.findUserById(userIfExists._id),
             ]);
             if (!response) {
               return this.UnAuthorized(res, ERR_MSGS.INVALID_CREDENTIALS);
@@ -115,7 +115,7 @@ class AuthController extends BaseController {
       }
       const [response, userDetails] = await Promise.all([
         AuthService.getRefreshToken(refreshToken),
-        UserService.getUserDetails(user._id),
+        AuthService.findUserById(user._id),
       ]);
       this.Ok(res, { ...response, user: userDetails });
     } catch (error) {

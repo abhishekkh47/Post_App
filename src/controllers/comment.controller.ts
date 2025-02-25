@@ -3,6 +3,7 @@ import BaseController from "./base.controller";
 import { commentValidations } from "validations";
 import { CommentService, AuthService } from "services";
 import { ERR_MSGS, SUCCESS_MSGS } from "utils";
+import { IUser } from "types";
 
 class CommentController extends BaseController {
   /**
@@ -19,7 +20,7 @@ class CommentController extends BaseController {
         if (validate) {
           try {
             const { _id, body } = req;
-            const user = await AuthService.findUserById(_id);
+            const user: IUser | null = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
@@ -47,7 +48,7 @@ class CommentController extends BaseController {
         if (validate) {
           try {
             const { _id, params } = req;
-            const user = await AuthService.findUserById(_id);
+            const user: IUser | null = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
@@ -77,7 +78,7 @@ class CommentController extends BaseController {
         if (validate) {
           try {
             const { _id, params } = req;
-            const user = await AuthService.findUserById(_id);
+            const user: IUser | null = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
@@ -107,7 +108,7 @@ class CommentController extends BaseController {
         if (validate) {
           try {
             const { _id, params } = req;
-            const user = await AuthService.findUserById(_id);
+            const user: IUser | null = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }
@@ -135,7 +136,7 @@ class CommentController extends BaseController {
         if (validate) {
           try {
             const { _id, params } = req;
-            const user = await AuthService.findUserById(_id);
+            const user: IUser | null = await AuthService.findUserById(_id);
             if (!user) {
               return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
             }

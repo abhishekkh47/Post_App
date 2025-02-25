@@ -1,4 +1,4 @@
-import { IUser } from "types";
+import { ITokenResponse, IUser } from "types";
 import { AuthService } from "services";
 import { getJwtToken, getRefereshToken } from "utils";
 
@@ -8,7 +8,7 @@ class TokenService {
    * @param user user object
    * @returns {token, refreshToken}
    */
-  generateToken(user: IUser): any {
+  generateToken(user: IUser): ITokenResponse {
     const authInfo = AuthService.getJwtAuthInfo(user);
     const refreshToken = getRefereshToken(authInfo);
     const token = getJwtToken(authInfo);
