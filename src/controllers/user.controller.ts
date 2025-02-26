@@ -183,6 +183,26 @@ class UserController extends BaseController {
       }
     );
   }
+
+  /**
+   * @description get all notificaitions for the user
+   * @param req
+   * @param res
+   * @param next
+   */
+  async getNotifications(req: any, res: Response, next: NextFunction) {
+    try {
+      const { recipientId, message } = req.body;
+      const user: IUser | null = await AuthService.findUserById(req._id);
+      if (!user) {
+        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+      }
+      await UserService.sendNotification(user._id, recipientId, message);
+      this.Ok(res, { message: SUCCESS_MSGS.NOTIFICATION_SENT });
+    } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
+  }
 }
 
 export default new UserController();

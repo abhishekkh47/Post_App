@@ -40,8 +40,10 @@ class MessageService {
       })
         .sort({ createdAt: 1 })
         .select("senderId receiverId content isRead attachments createdAt")
-        .populate("senderId", "firstName lastName profile_pic")
-        .populate("receiverId", "firstName lastName profile_pic");
+        .populate([
+          { path: "senderId", select: "firstname lastname profile_pic" },
+          { path: "receiverId", select: "firstName lastName profile_pic" },
+        ]);
 
       return messages;
     } catch (error) {

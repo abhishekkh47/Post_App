@@ -19,6 +19,12 @@ const schema = new mongoose.Schema<INotificationSchema>(
     message: {
       type: mongoose.Schema.Types.String,
       required: true,
+      default: null,
+    },
+    isRead: {
+      type: mongoose.Schema.Types.Boolean,
+      required: true,
+      default: false,
     },
   },
   { timestamps: true }

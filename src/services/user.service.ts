@@ -133,15 +133,36 @@ class UserService {
   async sendNotification(
     senderId: string,
     receiverId: string,
-    message: string
+    message: string,
+    isRead: boolean = false
   ): Promise<boolean> {
     try {
       await NotificationTable.create({
         senderId,
         receiverId,
         message,
+        isRead,
       });
       return true;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  /**
+   * @description get notification for the user
+   * @param user
+   * @returns {*}
+   */
+  async getNotification(user: IUser): Promise<any> {
+    try {
+      const notifications = await NotificationTable.find({
+        receiverId: user._id,
+      })
+        .populate("senderId", "firstname lastname profile_pic")
+        .lean();
+      console.log("notifications : ", notifications);
+      return notifications;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
