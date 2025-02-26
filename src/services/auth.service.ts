@@ -23,7 +23,6 @@ class AuthService {
   async findUserById(_id: string) {
     return await UserTable.findOne({ _id }).lean().select({
       email: 1,
-      password: 1,
       firstName: 1,
       lastName: 1,
       bio: 1,
