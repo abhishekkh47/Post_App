@@ -159,9 +159,8 @@ class UserService {
       const notifications = await NotificationTable.find({
         receiverId: user._id,
       })
-        .populate("senderId", "firstname lastname profile_pic")
+        .populate("senderId", "firstName lastName profile_pic")
         .lean();
-      console.log("notifications : ", notifications);
       return notifications;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);

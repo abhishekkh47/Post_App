@@ -26,9 +26,9 @@ export const SUCCESS_MSGS = {
 };
 
 export const NOTIFICATION_MSGS = {
-  FRIEND_REQUEST: "## sent you a friend request",
-  FRIEND_REQUEST_ACCEPTED: "## accepted your friend request",
-  FOLLOW: "## started following you",
-  LIKE: "## liked your post",
-  COMMENT: "## commented on your post",
+  FRIEND_REQUEST: "sent you a friend request",
+  FRIEND_REQUEST_ACCEPTED: "accepted your friend request",
+  FOLLOW: "started following you",
+  LIKE: "liked your post",
+  COMMENT: "commented on your post",
 };

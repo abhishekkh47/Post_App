@@ -13,12 +13,16 @@ class FollowService {
         FriendsTable.create(followUser),
         UserTable.findOneAndUpdate(
           { _id: followerId },
+          { $inc: { following: 1 } }
+        ),
+        UserTable.findOneAndUpdate(
+          { _id: followeeId },
           { $inc: { followers: 1 } }
         ),
         UserService.sendNotification(
           followerId,
           followeeId,
-          NOTIFICATION_MSGS.FOLLOW.replace("##", user.firstName)
+          NOTIFICATION_MSGS.FOLLOW
         ),
       ]);
       return true;
@@ -33,7 +37,11 @@ class FollowService {
       await Promise.all([
         FriendsTable.findOneAndDelete({ followeeId, followerId }),
         UserTable.findOneAndUpdate(
-          { _id: unFollowUser.followerId },
+          { _id: followerId },
+          { $inc: { following: -1 } }
+        ),
+        UserTable.findOneAndUpdate(
+          { _id: followeeId },
           { $inc: { followers: -1 } }
         ),
       ]);

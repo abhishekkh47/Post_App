@@ -192,13 +192,12 @@ class UserController extends BaseController {
    */
   async getNotifications(req: any, res: Response, next: NextFunction) {
     try {
-      const { recipientId, message } = req.body;
       const user: IUser | null = await AuthService.findUserById(req._id);
       if (!user) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
-      await UserService.sendNotification(user._id, recipientId, message);
-      this.Ok(res, { message: SUCCESS_MSGS.NOTIFICATION_SENT });
+      const notifications = await UserService.getNotification(user);
+      this.Ok(res, { notifications });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }

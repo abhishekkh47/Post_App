@@ -6,4 +6,9 @@ export interface INotification extends IBase {
   receiverId: mongoose.Schema.Types.ObjectId;
   message: string;
   isRead: boolean;
+  type: EnotificationType;
+}
+
+enum EnotificationType {
+  OTHER = 0,
 }

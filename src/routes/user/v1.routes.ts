@@ -92,7 +92,7 @@ userRoutes.post("/notify", AuthMiddleware.Auth, async (req, res, next) => {
 /**
  * get notifications
  */
-userRoutes.post(
+userRoutes.get(
   "/get-notifications",
   AuthMiddleware.Auth,
   async (req, res, next) => {
