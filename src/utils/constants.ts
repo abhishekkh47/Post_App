@@ -32,3 +32,20 @@ export const NOTIFICATION_MSGS = {
   LIKE: "liked your post",
   COMMENT: "commented on your post",
 };
+
+export const WS_EVENTS = {
+  CHAT: {
+    LISTENER: {
+      NEW_MESSAGE: "new_message",
+      MESSAGE_READ: "message_read", // not used
+      TYPING: "typing",
+      MARK_READ: "mark_read",
+    },
+    EMITTER: {
+      MESSAGE_MARKED_READ: "message_marked_read",
+      USER_TYPING: "user_typing",
+      PRIVATE_MSG: "private_message",
+      MESSAGE_SENT: "message_sent",
+    },
+  },
+};

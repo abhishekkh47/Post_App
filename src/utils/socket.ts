@@ -1,9 +1,16 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
 import { MessageService } from "services";
-import { verifyToken } from "utils";
+import { verifyToken, WS_EVENTS } from "utils";
 
 const setupWebSocket = (httpServer: HttpServer) => {
+  const {
+    CHAT: {
+      LISTENER: { MARK_READ, NEW_MESSAGE, TYPING },
+      EMITTER: { PRIVATE_MSG, MESSAGE_SENT, USER_TYPING, MESSAGE_MARKED_READ },
+    },
+  } = WS_EVENTS;
+
   const io = new Server(httpServer, {
     cors: {
       origin: process.env.CLIENT_URL,
@@ -31,11 +38,10 @@ const setupWebSocket = (httpServer: HttpServer) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("A user connected");
     const userId = socket.data.user._id;
     userSockets.set(userId, socket.id);
 
-    socket.on("private_message", async (data) => {
+    socket.on(PRIVATE_MSG, async (data) => {
       try {
         const message = await MessageService.sendMessage(
           userId,
@@ -46,34 +52,36 @@ const setupWebSocket = (httpServer: HttpServer) => {
 
         const receiverSocketId = userSockets.get(data.receiverId);
         if (receiverSocketId) {
-          io.to(receiverSocketId).emit("new_message", message);
+          io.to(receiverSocketId).emit(NEW_MESSAGE, message);
         }
 
-        socket.emit("message_sent", message);
+        socket.emit(MESSAGE_SENT, message);
       } catch (error) {
         socket.emit("error", { message: "Failed to send message" });
       }
     });
 
-    socket.on("typing", (data) => {
+    socket.on(TYPING, (data) => {
       const receiverSocketId = userSockets.get(data.receiverId);
       if (receiverSocketId) {
-        io.to(receiverSocketId).emit("user_typing", { userId });
+        io.to(receiverSocketId).emit(USER_TYPING, { userId });
       }
     });
 
-    // Assuming you're using socket.io in the backend
-    socket.on("send_message", (message) => {
-      // Broadcast the message to the recipient user
-      socket.to(message.receiverId).emit("message", message);
-    });
+    /** --------
+     * // Assuming you're using socket.io in the backend
+     * socket.on("send_message", (message) => {
+     * // Broadcast the message to the recipient user
+     * socket.to(message.receiverId).emit("message", message);
+     * });
+     --------- */
 
-    socket.on("mark_read", async (data) => {
+    socket.on(MARK_READ, async (data) => {
       try {
         // await MessageService.markMessagesAsRead(data.senderId, userId);
         const senderSocketId = userSockets.get(data.receiverId);
         if (senderSocketId) {
-          io.to(senderSocketId).emit("message_marked_read", { userId });
+          io.to(senderSocketId).emit(MESSAGE_MARKED_READ, { userId });
         }
       } catch (error) {
         socket.emit("error", { message: "Failed to mark messages as read" });
@@ -81,7 +89,6 @@ const setupWebSocket = (httpServer: HttpServer) => {
     });
 
     socket.on("disconnect", () => {
-      console.log("User disconnected");
       userSockets.delete(userId);
     });
   });

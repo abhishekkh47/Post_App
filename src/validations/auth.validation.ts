@@ -111,4 +111,19 @@ export const authValidations = {
     }
     return callback(true);
   },
+
+  readNotificationValidation: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      notificationId: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(req);
+    if (error) {
+      return res.throw(
+        400,
+        res.__(validationMessageKey("readNotificationValidation", error))
+      );
+    }
+    return callback(true);
+  },
 };

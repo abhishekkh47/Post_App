@@ -5,3 +5,4 @@ export { default as PostController } from "./post.controller";
 export { default as CommentController } from "./comment.controller";
 export { default as FollowController } from "./follow.controller";
 export { default as ChatController } from "./chat.controller";
+export { default as NotificationController } from "./notification.controller";

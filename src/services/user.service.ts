@@ -148,24 +148,6 @@ class UserService {
       throw new NetworkError((error as Error).message, 400);
     }
   }
-
-  /**
-   * @description get notification for the user
-   * @param user
-   * @returns {*}
-   */
-  async getNotification(user: IUser): Promise<any> {
-    try {
-      const notifications = await NotificationTable.find({
-        receiverId: user._id,
-      })
-        .populate("senderId", "firstName lastName profile_pic")
-        .lean();
-      return notifications;
-    } catch (error) {
-      throw new NetworkError((error as Error).message, 400);
-    }
-  }
 }
 
 export default new UserService();

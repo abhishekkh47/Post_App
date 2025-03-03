@@ -17,6 +17,13 @@ const schema = new mongoose.Schema<IPostSchema>(
       required: false,
       default: false,
     },
+    attachments: [
+      {
+        type: mongoose.Schema.Types.String,
+        required: false,
+        default: null,
+      },
+    ],
   },
   { timestamps: true }
 );
