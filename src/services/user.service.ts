@@ -148,6 +148,19 @@ class UserService {
       throw new NetworkError((error as Error).message, 400);
     }
   }
+
+  /**
+   * @description get all users details
+   * @returns {*}
+   */
+  async getAllUsers(): Promise<IUser[]> {
+    try {
+      const users = await UserTable.find({});
+      return users;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
 }
 
 export default new UserService();

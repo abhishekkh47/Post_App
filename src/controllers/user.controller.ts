@@ -183,6 +183,25 @@ class UserController extends BaseController {
       }
     );
   }
+
+  /**
+   * @description get all users
+   * @param req
+   * @param res
+   * @param next
+   */
+  async getAllUsers(req: any, res: Response, next: NextFunction) {
+    try {
+      const user: IUser | null = await AuthService.findUserById(req._id);
+      if (!user) {
+        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+      }
+      const users: IUser[] = await UserService.getAllUsers();
+      this.Ok(res, { users });
+    } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
+  }
 }
 
 export default new UserController();

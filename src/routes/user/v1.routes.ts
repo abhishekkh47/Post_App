@@ -89,4 +89,19 @@ userRoutes.post("/notify", AuthMiddleware.Auth, async (req, res, next) => {
   }
 });
 
+/**
+ * send notifications
+ */
+userRoutes.get(
+  "/get-all-users",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await UserController.getAllUsers(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default userRoutes;
