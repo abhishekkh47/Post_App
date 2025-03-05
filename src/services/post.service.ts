@@ -1,6 +1,6 @@
 import { NetworkError } from "middleware/errorHandler.middleware";
-import { FriendsTable, PostTable, UserTable } from "models";
-import { IBase, ICreatePost } from "types";
+import { FriendsTable, PostReactionTable, PostTable, UserTable } from "models";
+import { EReactionType, IBase, ICreatePost } from "types";
 import { ObjectId } from "mongodb";
 
 class PostService {
@@ -161,6 +161,43 @@ class PostService {
         },
       ]).exec();
       return feed;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  /**
+   * @description add a user reaction on a post
+   * @param userId
+   * @param postId postId of the post to be updated
+   * @param reaction reaction of user on post
+   * @returns {posts} list of posts
+   */
+  public async likePost(
+    userId: string,
+    postId: string,
+    reaction: string = EReactionType.LIKE
+  ): Promise<void> {
+    try {
+      await PostReactionTable.findOneAndUpdate(
+        { postId, userId, type: reaction },
+        { upsert: true }
+      );
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  /**
+   * @description remove reaction from the post
+   * @param userId
+   * @param postId postId of the post to be updated
+   * @param reaction reaction of user on post
+   * @returns {posts} list of posts
+   */
+  public async dislikePost(userId: string, postId: string): Promise<void> {
+    try {
+      await PostReactionTable.findOneAndDelete({ postId, userId });
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }

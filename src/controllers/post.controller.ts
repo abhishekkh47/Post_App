@@ -162,6 +162,50 @@ class PostController extends BaseController {
       this.InternalServerError(res, (error as Error).message);
     }
   }
+
+  async likePost(req: any, res: Response, next: NextFunction) {
+    return postValidations.addReactionOnPost(
+      req.body,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const { _id, body } = req;
+            const user: IUser | null = await AuthService.findUserById(_id);
+            if (!user) {
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            }
+            const posts = await PostService.likePost(user._id, body.postId);
+            this.Ok(res, { posts });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
+  }
+
+  async dislikePost(req: any, res: Response, next: NextFunction) {
+    return postValidations.removeReactionOnPost(
+      req.body,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const { _id, body } = req;
+            const user: IUser | null = await AuthService.findUserById(_id);
+            if (!user) {
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            }
+            const posts = await PostService.dislikePost(user._id, body.postId);
+            this.Ok(res, { posts });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
+  }
 }
 
 export default new PostController();
