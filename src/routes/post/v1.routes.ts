@@ -76,7 +76,7 @@ postRoutes.get("/get-feed", AuthMiddleware.Auth, async (req, res, next) => {
   }
 });
 
-postRoutes.get("/like-post", AuthMiddleware.Auth, async (req, res, next) => {
+postRoutes.post("/like-post", AuthMiddleware.Auth, async (req, res, next) => {
   try {
     await PostController.likePost(req, res, next);
   } catch (error) {
@@ -84,12 +84,16 @@ postRoutes.get("/like-post", AuthMiddleware.Auth, async (req, res, next) => {
   }
 });
 
-postRoutes.get("/dislike-post", AuthMiddleware.Auth, async (req, res, next) => {
-  try {
-    await PostController.dislikePost(req, res, next);
-  } catch (error) {
-    next(error);
+postRoutes.post(
+  "/dislike-post",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await PostController.dislikePost(req, res, next);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 export default postRoutes;
