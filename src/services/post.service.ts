@@ -174,6 +174,7 @@ class PostService {
             edited: 1,
             createdAt: 1,
             reactions: 1,
+            comments: 1,
             userId: {
               _id: "$userDetails._id",
               firstName: "$userDetails.firstName",
