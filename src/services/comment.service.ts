@@ -1,4 +1,4 @@
-import { CommentTable } from "models";
+import { CommentTable, PostTable } from "models";
 import { NetworkError } from "middleware";
 import type { IComment } from "types";
 import { ECommentType } from "types";
@@ -19,7 +19,13 @@ class CommentService {
         likes: 0,
         type: comment?.type ?? ECommentType.COMMENT,
       };
-      await CommentTable.create(commentObj);
+      await Promise.all([
+        CommentTable.create(commentObj),
+        PostTable.findOneAndUpdate(
+          { _id: comment.postId },
+          { $inc: { reactions: 1 }, $setOnInsert: { reactions: 1 } }
+        ),
+      ]);
       return true;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
@@ -33,7 +39,20 @@ class CommentService {
    */
   async deleteComment(commentId: string): Promise<boolean> {
     try {
-      await CommentTable.findOneAndDelete({ _id: commentId });
+      const comment = await CommentTable.findById({ _id: commentId });
+      await Promise.all([
+        CommentTable.findOneAndDelete({ _id: commentId }),
+        PostTable.findOneAndUpdate(
+          { _id: comment?.postId },
+          {
+            $cond: [
+              { $gt: ["$reactions", 0] },
+              { $inc: { reactions: -1 } },
+              { $inc: {} },
+            ],
+          }
+        ),
+      ]);
       return true;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);

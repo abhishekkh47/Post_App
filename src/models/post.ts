@@ -24,6 +24,16 @@ const schema = new mongoose.Schema<IPostSchema>(
         default: null,
       },
     ],
+    reactions: {
+      type: mongoose.Schema.Types.Number,
+      required: false,
+      default: 0,
+    },
+    comments: {
+      type: mongoose.Schema.Types.Number,
+      required: false,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

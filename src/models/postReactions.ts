@@ -14,7 +14,7 @@ const schema = new mongoose.Schema<IPostReactionSchema>(
     postId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "posts",
+      ref: "post",
     },
     type: {
       type: mongoose.Schema.Types.String,

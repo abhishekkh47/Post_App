@@ -7,6 +7,8 @@ export interface IPost extends IBase {
   type: EPostType;
   edited: boolean;
   attachments: string[];
+  reactions: number;
+  comments: number;
 }
 
 enum EPostType {

@@ -35,7 +35,15 @@ class PostService {
     try {
       const posts = await PostTable.find(
         { userId },
-        { _id: 1, userId: 1, post: 1, type: 1, createdAt: 1, edited: 1 }
+        {
+          _id: 1,
+          userId: 1,
+          post: 1,
+          type: 1,
+          createdAt: 1,
+          edited: 1,
+          reactions: 1,
+        }
       )
         .lean()
         .sort({ createdAt: -1 })
@@ -55,7 +63,7 @@ class PostService {
     try {
       const post = await PostTable.findById(
         { _id: postId },
-        { _id: 1, post: 1, type: 1, edited: 1 }
+        { _id: 1, post: 1, type: 1, edited: 1, createdAt: 1, reactions: 1 }
       ).lean();
       if (!post) {
         throw new NetworkError("Post not found", 400);
@@ -139,18 +147,46 @@ class PostService {
           $unwind: "$userDetails",
         },
         {
+          $lookup: {
+            from: "post_reactions",
+            let: { postId: "$_id", userId: new ObjectId(userId) },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$postId", "$$postId"] },
+                      { $eq: ["$userId", "$$userId"] },
+                    ],
+                  },
+                },
+              },
+              { $limit: 1 },
+            ],
+            as: "userReaction",
+          },
+        },
+        {
           $project: {
             _id: 1,
             post: 1,
             type: 1,
             edited: 1,
             createdAt: 1,
+            reactions: 1,
             userId: {
               _id: "$userDetails._id",
               firstName: "$userDetails.firstName",
               lastName: "$userDetails.lastName",
               profile_pic: "$userDetails.profile_pic",
               createdAt: "$userDetails.createdAt",
+            },
+            liked: {
+              $cond: {
+                if: { $gt: [{ $size: "$userReaction" }, 0] },
+                then: true,
+                else: false,
+              },
             },
           },
         },
@@ -179,10 +215,23 @@ class PostService {
     reaction: string = EReactionType.LIKE
   ): Promise<void> {
     try {
-      await PostReactionTable.findOneAndUpdate(
-        { postId, userId, type: reaction },
-        { upsert: true }
-      );
+      await Promise.all([
+        PostReactionTable.findOneAndUpdate(
+          { postId, userId },
+          {
+            $set: {
+              postId,
+              userId,
+              type: reaction,
+            },
+          },
+          { upsert: true, new: true }
+        ),
+        PostTable.findOneAndUpdate(
+          { _id: new ObjectId(postId) },
+          { $inc: { reactions: 1 } }
+        ),
+      ]);
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
@@ -192,12 +241,17 @@ class PostService {
    * @description remove reaction from the post
    * @param userId
    * @param postId postId of the post to be updated
-   * @param reaction reaction of user on post
    * @returns {posts} list of posts
    */
   public async dislikePost(userId: string, postId: string): Promise<void> {
     try {
-      await PostReactionTable.findOneAndDelete({ postId, userId });
+      await Promise.all([
+        PostReactionTable.findOneAndDelete({ postId, userId }),
+        PostTable.findOneAndUpdate(
+          { _id: new ObjectId(postId) },
+          { $inc: { reactions: -1 } }
+        ),
+      ]);
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
