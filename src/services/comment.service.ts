@@ -23,7 +23,8 @@ class CommentService {
         CommentTable.create(commentObj),
         PostTable.findOneAndUpdate(
           { _id: comment.postId },
-          { $inc: { reactions: 1 }, $setOnInsert: { reactions: 1 } }
+          { $inc: { comments: 1 } },
+          { upsert: true }
         ),
       ]);
       return true;
@@ -39,20 +40,18 @@ class CommentService {
    */
   async deleteComment(commentId: string): Promise<boolean> {
     try {
-      const comment = await CommentTable.findById({ _id: commentId });
-      await Promise.all([
-        CommentTable.findOneAndDelete({ _id: commentId }),
-        PostTable.findOneAndUpdate(
-          { _id: comment?.postId },
-          {
-            $cond: [
-              { $gt: ["$reactions", 0] },
-              { $inc: { reactions: -1 } },
-              { $inc: {} },
-            ],
-          }
-        ),
-      ]);
+      const comment = await CommentTable.findById({
+        _id: new ObjectId(commentId),
+      });
+      if (comment) {
+        await Promise.all([
+          CommentTable.findOneAndDelete({ _id: commentId }),
+          PostTable.findOneAndUpdate(
+            { _id: comment.postId },
+            { $inc: { comments: -1 } }
+          ),
+        ]);
+      }
       return true;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
