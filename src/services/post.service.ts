@@ -43,6 +43,7 @@ class PostService {
           createdAt: 1,
           edited: 1,
           reactions: 1,
+          comments: 1,
         }
       )
         .lean()
