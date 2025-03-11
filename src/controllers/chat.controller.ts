@@ -95,7 +95,7 @@ class ChatController extends BaseController {
               description,
               profile_pic
             );
-            this.Ok(res, { message: "Conversation deleted successfully" });
+            this.Ok(res, { message: "Group created successfully" });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
           }

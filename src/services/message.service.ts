@@ -153,7 +153,7 @@ class MessageService {
       await GroupTable.create({
         admin: admin._id,
         name,
-        members,
+        members: [...members, admin._id],
         description,
         profile_pic,
       });
