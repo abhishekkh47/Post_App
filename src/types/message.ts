@@ -19,3 +19,11 @@ export interface IConversation {
     profile_pic?: string;
   };
 }
+
+export interface IGroupChat extends IBase {
+  name: string;
+  admin: mongoose.Schema.Types.ObjectId;
+  members: mongoose.Schema.Types.ObjectId[];
+  description: string;
+  profile_pic: string;
+}

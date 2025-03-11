@@ -3,6 +3,7 @@ import BaseController from "./base.controller";
 import { ERR_MSGS } from "utils";
 import { MessageService, AuthService } from "services";
 import { IConversation, IMessage, IUser } from "types";
+import { chatValidations } from "validations/chat.validation";
 
 class ChatController extends BaseController {
   async getConversations(req: any, res: Response, next: NextFunction) {
@@ -64,6 +65,43 @@ class ChatController extends BaseController {
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }
+  }
+
+  /**
+   * Create a group chat
+   */
+  async createChatGroup(req: any, res: Response, next: NextFunction) {
+    return chatValidations.createGroupValidation(
+      req.body,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const {
+              members,
+              name,
+              profile_pic = null,
+              description = null,
+            } = req.body;
+            const user: IUser | null = await AuthService.findUserById(req._id);
+            if (!user) {
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            }
+
+            await MessageService.createChatGroup(
+              user,
+              name,
+              members,
+              description,
+              profile_pic
+            );
+            this.Ok(res, { message: "Conversation deleted successfully" });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
   }
 }
 

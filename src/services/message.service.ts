@@ -1,7 +1,8 @@
 import { NetworkError } from "middleware";
 import { MessageTable } from "models";
+import { GroupTable } from "models/groupChat";
 import { ObjectId } from "mongodb";
-import { IConversation, IMessage } from "types";
+import { IConversation, IMessage, IUser } from "types";
 
 class MessageService {
   async sendMessage(
@@ -127,6 +128,34 @@ class MessageService {
           { senderId: userId1, receiverId: userId2 },
           { senderId: userId2, receiverId: userId1 },
         ],
+      });
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  /**
+   * @description Create a group of user for group chat
+   * @param admin user details who creates the group
+   * @param name name of the group
+   * @param members userId of all members added to group
+   * @param description group description
+   * @param profile_pic group profile picture
+   */
+  async createChatGroup(
+    admin: IUser,
+    name: string,
+    members: string[],
+    description?: string,
+    profile_pic?: string
+  ): Promise<void> {
+    try {
+      await GroupTable.create({
+        admin: admin._id,
+        name,
+        members,
+        description,
+        profile_pic,
       });
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);

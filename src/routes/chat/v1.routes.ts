@@ -40,4 +40,16 @@ chatRoutes.delete(
   }
 );
 
+chatRoutes.post(
+  "/create-chat-group",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await ChatController.createChatGroup(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default chatRoutes;

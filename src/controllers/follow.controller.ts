@@ -117,6 +117,25 @@ class FollowController extends BaseController {
       }
     );
   }
+
+  /**
+   * @description get profiles followed by user or follower of user
+   * @param req
+   * @param res
+   * @param next
+   */
+  async getFriends(req: any, res: Response, next: NextFunction) {
+    try {
+      const user = await AuthService.findUserById(req._id);
+      if (!user) {
+        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+      }
+      const friends = await FollowService.getUserFriends(req._id);
+      this.Ok(res, { friends });
+    } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
+  }
 }
 
 export default new FollowController();

@@ -52,4 +52,12 @@ followRoutes.get(
   }
 );
 
+followRoutes.get("/my-friends", AuthMiddleware.Auth, async (req, res, next) => {
+  try {
+    await FollowController.getFriends(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default followRoutes;
