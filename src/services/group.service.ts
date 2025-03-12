@@ -1,7 +1,7 @@
 import { NetworkError } from "middleware";
 import { GroupMessageTable, GroupTable, MessageTable } from "models";
 import { ObjectId } from "mongodb";
-import { IConversation, IMessage } from "types";
+import { IConversation, IGroupConversation, IMessage } from "types";
 
 class GroupService {
   async createGroup(
@@ -181,6 +181,72 @@ class GroupService {
   async deleteGroup(groupId: string) {
     try {
       console.log("groupId : ", groupId);
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  async getGroupConversations(userId: string): Promise<IGroupConversation[]> {
+    try {
+      // Get all groups where the user is a member
+      const userGroups = await GroupTable.aggregate([
+        {
+          $match: {
+            "members.userId": new ObjectId(userId),
+          },
+        },
+        {
+          $lookup: {
+            from: "group_messages",
+            let: { groupId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$groupId", "$$groupId"] },
+                },
+              },
+              { $sort: { createdAt: -1 } },
+              { $limit: 1 },
+            ],
+            as: "lastMessageArray",
+          },
+        },
+        {
+          $addFields: {
+            lastMessage: { $arrayElemAt: ["$lastMessageArray", 0] },
+            // This will count unread messages for this user
+            unreadCount: {
+              $size: {
+                $filter: {
+                  input: "$lastMessageArray",
+                  as: "msg",
+                  cond: {
+                    $not: { $in: [new ObjectId(userId), "$$msg.readBy"] },
+                  },
+                },
+              },
+            },
+            type: "group", // Add a type field to distinguish from one-to-one
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            description: 1,
+            createdBy: 1,
+            members: 1,
+            lastMessage: 1,
+            unreadCount: 1,
+            type: 1,
+            // lastMessageArray: 0, // Remove the array since we've extracted what we need
+          },
+        },
+        {
+          $sort: { "lastMessage.createdAt": -1 },
+        },
+      ]).exec();
+      return userGroups;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }

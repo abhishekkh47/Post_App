@@ -27,3 +27,22 @@ export interface ITokenResponse {
   token: string;
   refreshToken: string;
 }
+
+export interface IGroupConversation {
+  _id: string;
+  name: string;
+  description?: string;
+  createdBy: string;
+  members: string[];
+  lastMessage?: {
+    _id: string;
+    senderId: string;
+    groupId: string;
+    content: string;
+    readBy: string[];
+    createdAt: string;
+    updatedAt: string;
+  };
+  unreadCount: number;
+  type: string;
+}

@@ -1,5 +1,5 @@
 import { NetworkError } from "middleware";
-import { MessageTable } from "models";
+import { GroupMessageTable, GroupTable, MessageTable } from "models";
 import { ObjectId } from "mongodb";
 import { IConversation, IMessage } from "types";
 
@@ -94,6 +94,11 @@ class MessageService {
           },
         },
         { $unwind: "$userDetails" },
+        {
+          $addFields: {
+            type: "individual", // Add a type field to distinguish from groups
+          },
+        },
       ]).exec();
 
       return conversations;
