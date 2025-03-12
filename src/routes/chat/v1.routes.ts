@@ -16,24 +16,24 @@ chatRoutes.get(
   }
 );
 
-chatRoutes.get(
-  "/messages/:userId",
-  AuthMiddleware.Auth,
-  async (req, res, next) => {
-    try {
-      await ChatController.getMessagesWith(req, res, next);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
 chatRoutes.delete(
   "/conversation/:userId",
   AuthMiddleware.Auth,
   async (req, res, next) => {
     try {
       await ChatController.deleteConversation(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+chatRoutes.get(
+  "/messages/:userId",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await ChatController.getMessagesWith(req, res, next);
     } catch (error) {
       next(error);
     }

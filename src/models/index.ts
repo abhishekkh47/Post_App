@@ -5,3 +5,5 @@ export * from "./friends";
 export * from "./message";
 export * from "./notification";
 export * from "./postReactions";
+export * from "./groups";
+export * from "./groupMessages";
