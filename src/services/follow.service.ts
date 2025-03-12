@@ -103,7 +103,7 @@ class FollowService {
         },
         {
           $project: {
-            userId: "$followerId",
+            userId: "$followeeId",
             users: {
               _id: "$users._id",
               email: "$users.email",
@@ -191,6 +191,122 @@ class FollowService {
         },
       ]).exec();
       return following.length ? following[0] : [];
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  /**
+   * @description Get profiles followed by user or follo the user
+   * @param userId
+   * @returns {*} List of users who are either in following or followers
+   */
+  async getUserFriends(userId: string): Promise<any> {
+    try {
+      const friends = await FriendsTable.aggregate([
+        // Get the followers
+        {
+          $facet: {
+            followers: [
+              {
+                $match: {
+                  followeeId: new ObjectId(userId),
+                },
+              },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "followerId",
+                  foreignField: "_id",
+                  as: "users",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$users",
+                  preserveNullAndEmptyArrays: false,
+                },
+              },
+              {
+                $project: {
+                  userId: "$followeeId",
+                  users: {
+                    _id: "$users._id",
+                    email: "$users.email",
+                    firstName: "$users.firstName",
+                    lastName: "$users.lastName",
+                    bio: "$users.bio",
+                    profile_pic: "$users.profile_pic",
+                    isPrivate: "$users.isPrivate",
+                  },
+                },
+              },
+            ],
+            following: [
+              {
+                $match: {
+                  followerId: new ObjectId(userId),
+                },
+              },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "followeeId",
+                  foreignField: "_id",
+                  as: "users",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$users",
+                  preserveNullAndEmptyArrays: false,
+                },
+              },
+              {
+                $project: {
+                  userId: "$followerId",
+                  users: {
+                    _id: "$users._id",
+                    email: "$users.email",
+                    firstName: "$users.firstName",
+                    lastName: "$users.lastName",
+                    bio: "$users.bio",
+                    profile_pic: "$users.profile_pic",
+                    isPrivate: "$users.isPrivate",
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $project: {
+            friends: {
+              $setUnion: ["$followers.users", "$following.users"],
+            },
+          },
+        },
+        {
+          $unwind: {
+            path: "$friends",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $group: {
+            _id: "$friends._id",
+            user: { $first: "$friends" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            user: 1,
+          },
+        },
+      ]).exec();
+
+      return friends.length ? friends.map((friend) => friend.user) : [];
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
