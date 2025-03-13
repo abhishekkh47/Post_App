@@ -144,7 +144,7 @@ class GroupService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate("senderId", "name email avatar");
+        .populate("senderId", "firstName lastName profile_pic");
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
@@ -227,6 +227,43 @@ class GroupService {
               },
             },
             type: "group", // Add a type field to distinguish from one-to-one
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "members.userId",
+            foreignField: "_id",
+            as: "userDetails",
+          },
+        },
+        {
+          $addFields: {
+            members: {
+              $map: {
+                input: "$members",
+                as: "member",
+                in: {
+                  $mergeObjects: [
+                    "$$member",
+                    {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: "$userDetails",
+                            as: "userDetail",
+                            cond: {
+                              $eq: ["$$userDetail._id", "$$member.userId"],
+                            },
+                          },
+                        },
+                        0,
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
           },
         },
         {

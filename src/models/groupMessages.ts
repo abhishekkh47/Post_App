@@ -7,7 +7,7 @@ export type IGroupMessagesSchema = MongooseModel<IGroupMessages> &
 const schema = new mongoose.Schema<IGroupMessagesSchema>(
   {
     groupId: {
-      type: mongoose.Schema.Types.String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "group",
     },

@@ -15,7 +15,6 @@ class ChatController extends BaseController {
         MessageService.getUserConversations(user._id),
         GroupService.getGroupConversations(user._id),
       ]);
-      console.log("groupConversations : ", groupConversations);
       this.Ok(res, { conversations, groupConversations });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
