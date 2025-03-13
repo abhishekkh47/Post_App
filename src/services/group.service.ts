@@ -81,32 +81,6 @@ class GroupService {
     }
   }
 
-  async sendMessage(
-    senderId: string,
-    receiverId: string,
-    content: string,
-    attachments?: string[]
-  ): Promise<IMessage> {
-    try {
-      const message = await MessageTable.create({
-        senderId,
-        receiverId,
-        content,
-        attachments,
-        isRead: false,
-      });
-      const newMessage = await MessageTable.findOne({ _id: message._id })
-        .populate("senderId", "firstName lastName profile_pic")
-        .populate("receiverId", "firstName lastName profile_pic");
-      if (!newMessage) {
-        return message.toObject();
-      }
-      return newMessage;
-    } catch (error) {
-      throw new NetworkError((error as Error).message, 400);
-    }
-  }
-
   async sendGroupMessage(
     groupId: string,
     senderId: string,
@@ -124,11 +98,11 @@ class GroupService {
       });
       const newMessage = await GroupMessageTable.findOne({ _id: message._id })
         .populate("senderId", "firstName lastName profile_pic")
-        .populate("receiverId", "firstName lastName profile_pic");
+        .populate("groupId", "name");
       if (!newMessage) {
         return message.toObject();
       }
-      return message;
+      return newMessage;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
@@ -141,7 +115,7 @@ class GroupService {
   ) {
     try {
       return await GroupMessageTable.find({ groupId })
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: 1 })
         .skip(skip)
         .limit(limit)
         .populate("senderId", "firstName lastName profile_pic");
@@ -216,12 +190,16 @@ class GroupService {
             lastMessage: { $arrayElemAt: ["$lastMessageArray", 0] },
             // This will count unread messages for this user
             unreadCount: {
-              $size: {
-                $filter: {
+              $sum: {
+                $map: {
                   input: "$lastMessageArray",
                   as: "msg",
-                  cond: {
-                    $not: { $in: [new ObjectId(userId), "$$msg.readBy"] },
+                  in: {
+                    $cond: [
+                      { $in: [new ObjectId(userId), "$$msg.readBy.userId"] },
+                      0,
+                      1,
+                    ],
                   },
                 },
               },

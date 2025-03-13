@@ -183,6 +183,9 @@ class GroupController extends BaseController {
       }
 
       const group = await GroupService.getGroupById(groupId);
+      if (!group) {
+        return this.BadRequest(res, "Chat do not exist");
+      }
       const isMember = group?.members.some(
         (member) => member.userId.toString() === user._id.toString()
       );

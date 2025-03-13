@@ -183,13 +183,7 @@ const setupWebSocket = (httpServer: HttpServer) => {
         );
 
         // Broadcast to all group members
-        io.to(roomId).emit(GROUP_NEW_MESSAGE, {
-          ...message.toObject(),
-          sender: {
-            _id: userId,
-            name: socket.data.user.name || socket.data.user.email,
-          },
-        });
+        io.to(roomId).emit(GROUP_NEW_MESSAGE, message);
 
         // Confirm to sender
         socket.emit(GROUP_MESSAGE_SENT, message);
