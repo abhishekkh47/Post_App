@@ -72,4 +72,13 @@ groupRoutes.get("/:groupId/messages", async (req, res, next) => {
   }
 });
 
+// Group Details
+groupRoutes.get("/get-details/:groupId", async (req, res, next) => {
+  try {
+    await GroupController.getGroupDetails(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default groupRoutes;

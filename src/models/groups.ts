@@ -21,6 +21,7 @@ const schema = new mongoose.Schema<IGroupsSchema>(
     profile_pic: {
       type: mongoose.Schema.Types.String,
       required: false,
+      default: null,
     },
     members: [
       {

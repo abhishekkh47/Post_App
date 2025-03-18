@@ -1,5 +1,5 @@
 import { NetworkError } from "middleware";
-import { GroupMessageTable, GroupTable, MessageTable } from "models";
+import { GroupMessageTable, GroupTable } from "models";
 import { ObjectId } from "mongodb";
 import { IConversation, IGroupConversation, IMessage } from "types";
 
@@ -262,6 +262,64 @@ class GroupService {
         },
       ]).exec();
       return userGroups;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  async getGroupDetails(groupId: string) {
+    try {
+      const groupDetails = await GroupTable.aggregate([
+        {
+          $match: {
+            _id: new ObjectId(groupId),
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "members.userId",
+            foreignField: "_id",
+            as: "usersDetails",
+          },
+        },
+        {
+          // Add user details into members array
+          $addFields: {
+            members: {
+              $map: {
+                input: "$members",
+                as: "member",
+                in: {
+                  $mergeObjects: [
+                    "$$member",
+                    {
+                      // Ensures that usersDetails is always an array
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: { $ifNull: ["$usersDetails", []] }, // Ensure usersDetails is an array
+                            as: "user",
+                            cond: { $eq: ["$$user._id", "$$member.userId"] },
+                          },
+                        },
+                        0, // Get the first match
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        {
+          // Remove the usersDetails array as it's no longer needed
+          $project: {
+            usersDetails: 0,
+          },
+        },
+      ]).exec();
+      return groupDetails[0];
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
