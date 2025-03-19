@@ -16,5 +16,6 @@
 	"getCommentByPostIdValidationPostidRequired": "Please provide a valid post id",
 	"getPostsValidationUseridRequired": "Please provide a valid user id",
 	"editOrUpdatePostValidationPostidRequired": "Please provide a valid post id",
-	"getPostsValidationUseridCustom": "getPostsValidationUseridCustom"
+	"getPostsValidationUseridCustom": "getPostsValidationUseridCustom",
+	"createPostValidationDescriptionEmpty": "createPostValidationDescriptionEmpty"
 }

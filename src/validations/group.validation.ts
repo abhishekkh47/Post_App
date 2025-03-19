@@ -7,8 +7,8 @@ export const groupValidations = {
   createGroupValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
       name: Joi.string().required(),
-      description: Joi.string().required(),
-      members: Joi.optional().array().items(objectIdValidation.required()),
+      description: Joi.string().optional(),
+      members: Joi.array().items(objectIdValidation).optional(),
     });
     const { error } = schema.validate(req);
 
