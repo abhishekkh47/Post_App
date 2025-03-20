@@ -1,8 +1,9 @@
 import i18n from "../i18n/i18n";
-import { POST_TYPE, validationMessageKey, Joi } from "utils";
+import { GROUP_CHAT_USER_ROLE, validationMessageKey, Joi } from "utils";
 // we can also use joi-objectid lib
 import { objectIdValidation } from "validations";
 
+const { ADMIN, MEMBER } = GROUP_CHAT_USER_ROLE;
 export const groupValidations = {
   createGroupValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
@@ -67,7 +68,7 @@ export const groupValidations = {
   updateGroupValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
       name: Joi.string().required(),
-      description: Joi.string().required(),
+      description: Joi.string().optional().allow(""),
     });
     const { error } = schema.validate(req);
 
@@ -104,6 +105,24 @@ export const groupValidations = {
       return res
         .status(400)
         .json(i18n.__(validationMessageKey("groupDetailsValidation", error)));
+    }
+    return callback(true);
+  },
+
+  updateUserRoleValidation: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      groupId: objectIdValidation.required(),
+      userId: objectIdValidation.required(),
+    });
+    const requestBody = Joi.object({
+      role: Joi.string().valid(ADMIN, MEMBER).required(),
+    });
+    const { error } = schema.validate(req);
+
+    if (error) {
+      return res
+        .status(400)
+        .json(i18n.__(validationMessageKey("updateUserRoleValidation", error)));
     }
     return callback(true);
   },

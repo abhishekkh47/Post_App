@@ -46,6 +46,17 @@ groupRoutes.put("/:groupId", async (req, res, next) => {
   }
 });
 
+groupRoutes.put(
+  "/update-user-role/:groupId/:userId",
+  async (req, res, next) => {
+    try {
+      await GroupController.updateUserRole(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 // Group Members
 groupRoutes.post("/:groupId/members", async (req, res, next) => {
   try {

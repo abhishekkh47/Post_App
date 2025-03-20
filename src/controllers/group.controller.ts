@@ -290,6 +290,48 @@ class GroupController extends BaseController {
       }
     );
   }
+
+  async updateUserRole(req: any, res: Response, next: NextFunction) {
+    groupValidations.updateUserRoleValidation(
+      req.params,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const {
+              params: { groupId, userId },
+              body: { role },
+            } = req;
+            const user: IUser | null = await AuthService.findUserById(req._id);
+            if (!user) {
+              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            }
+
+            const group = await GroupService.getGroupById(groupId);
+            if (!group) {
+              return this.BadRequest(res, "Group do not exist");
+            }
+            const isAdmin = group?.members.some(
+              (member) =>
+                member.userId.toString() === user._id.toString() &&
+                member.role === "admin"
+            );
+            if (!isAdmin) {
+              return this.BadRequest(res, "You are not an admin of this group");
+            }
+            const groupDetails = await GroupService.updateUserRole(
+              groupId,
+              userId,
+              role
+            );
+            this.Ok(res, { groupDetails });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
+  }
 }
 
 export default new GroupController();

@@ -17,5 +17,7 @@
 	"getPostsValidationUseridRequired": "Please provide a valid user id",
 	"editOrUpdatePostValidationPostidRequired": "Please provide a valid post id",
 	"getPostsValidationUseridCustom": "getPostsValidationUseridCustom",
-	"createPostValidationDescriptionEmpty": "createPostValidationDescriptionEmpty"
+	"createPostValidationDescriptionEmpty": "createPostValidationDescriptionEmpty",
+	"updateGroupValidationDescriptionEmpty": "updateGroupValidationDescriptionEmpty",
+	"groupDetailsValidationUseridRequired": "groupDetailsValidationUseridRequired"
 }

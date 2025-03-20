@@ -142,11 +142,13 @@ class GroupService {
 
   async updateGroup(
     groupId: string,
-    data: { name: string; description: string }
+    data: { name: string; description: string | null }
   ) {
     try {
-      console.log("groupId : ", groupId);
-      console.log("data : ", data);
+      await GroupTable.findOneAndUpdate(
+        { _id: new ObjectId(groupId) },
+        { name: data.name, description: data?.description }
+      );
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
@@ -320,6 +322,17 @@ class GroupService {
         },
       ]).exec();
       return groupDetails[0];
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  async updateUserRole(groupId: string, userId: string, role: string) {
+    try {
+      await GroupTable.findOneAndUpdate(
+        { _id: new ObjectId(groupId), "members.userId": new ObjectId(userId) },
+        { $set: { "members.$.role": role } }
+      );
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
