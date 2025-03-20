@@ -52,6 +52,7 @@ const server = async () => {
     });
 
     app.use("/", router);
+    app.use("/uploads", express.static(Path.join(__dirname, "uploads")));
     app.use(
       errorHandler as (
         err: any,

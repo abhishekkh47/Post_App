@@ -23,4 +23,7 @@ export default {
   get NODE_ENV() {
     return process.env.NODE_ENV;
   },
+  get UPLOADS_DIR() {
+    return process.env.UPLOADS_DIR;
+  },
 };

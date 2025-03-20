@@ -332,6 +332,40 @@ class GroupController extends BaseController {
       }
     );
   }
+
+  async updateGroupProfilePicture(req: any, res: Response, next: NextFunction) {
+    try {
+      const {
+        params: { groupId },
+        file,
+      } = req;
+      const filename = file?.filename;
+      if (!filename) {
+        return this.BadRequest(res, "Upload a valid file");
+      }
+      const user: IUser | null = await AuthService.findUserById(req._id);
+      if (!user) {
+        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+      }
+
+      const group = await GroupService.getGroupById(groupId);
+      if (!group) {
+        return this.BadRequest(res, "Group do not exist");
+      }
+      const isAdmin = group?.members.some(
+        (member) =>
+          member.userId.toString() === user._id.toString() &&
+          member.role === "admin"
+      );
+      if (!isAdmin) {
+        return this.BadRequest(res, "You are not an admin of this group");
+      }
+      await GroupService.updateGroupProfilePicture(groupId, filename);
+      this.Ok(res, { message: "success", filename });
+    } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
+  }
 }
 
 export default new GroupController();

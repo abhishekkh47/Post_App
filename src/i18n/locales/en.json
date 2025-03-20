@@ -19,5 +19,6 @@
 	"getPostsValidationUseridCustom": "getPostsValidationUseridCustom",
 	"createPostValidationDescriptionEmpty": "createPostValidationDescriptionEmpty",
 	"updateGroupValidationDescriptionEmpty": "updateGroupValidationDescriptionEmpty",
-	"groupDetailsValidationUseridRequired": "groupDetailsValidationUseridRequired"
+	"groupDetailsValidationUseridRequired": "groupDetailsValidationUseridRequired",
+	"groupDetailsValidationGroupidCustom": "groupDetailsValidationGroupidCustom"
 }

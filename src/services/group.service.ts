@@ -256,6 +256,7 @@ class GroupService {
             lastMessage: 1,
             unreadCount: 1,
             type: 1,
+            profile_pic: 1,
             // lastMessageArray: 0, // Remove the array since we've extracted what we need
           },
         },
@@ -332,6 +333,17 @@ class GroupService {
       await GroupTable.findOneAndUpdate(
         { _id: new ObjectId(groupId), "members.userId": new ObjectId(userId) },
         { $set: { "members.$.role": role } }
+      );
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  async updateGroupProfilePicture(groupId: string, filename: string) {
+    try {
+      await GroupTable.findOneAndUpdate(
+        { _id: new ObjectId(groupId) },
+        { $set: { profile_pic: filename } }
       );
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);

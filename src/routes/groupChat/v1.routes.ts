@@ -1,7 +1,7 @@
-import { ChatController } from "controllers";
 import { GroupController } from "controllers";
 import { Router } from "express";
 import { AuthMiddleware } from "middleware";
+import { upload } from "utils/multer";
 
 const groupRoutes = Router();
 groupRoutes.use(AuthMiddleware.Auth);
@@ -51,6 +51,18 @@ groupRoutes.put(
   async (req, res, next) => {
     try {
       await GroupController.updateUserRole(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+groupRoutes.put(
+  "/update-profile-picture/:groupId",
+  upload.single("groupProfilePicture"),
+  async (req, res, next) => {
+    try {
+      await GroupController.updateGroupProfilePicture(req, res, next);
     } catch (error) {
       next(error);
     }
