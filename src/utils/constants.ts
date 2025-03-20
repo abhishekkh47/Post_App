@@ -48,4 +48,23 @@ export const WS_EVENTS = {
       MESSAGE_SENT: "message_sent",
     },
   },
+  GROUP: {
+    LISTENER: {
+      JOIN_GROUP: "join_group",
+      LEAVE_GROUP: "leave_group",
+      GROUP_MSG: "group_message",
+      GROUP_TYPING: "group_typing",
+      GROUP_MARK_READ: "group_mark_read",
+    },
+    EMITTER: {
+      GROUP_JOINED: "group_joined",
+      GROUP_LEFT: "group_left",
+      GROUP_MESSAGE_SENT: "group_message_sent",
+      GROUP_NEW_MESSAGE: "group_new_message",
+      GROUP_USER_TYPING: "group_user_typing",
+      GROUP_MESSAGE_MARKED_READ: "group_message_marked_read",
+    },
+  },
 };
+
+export const GROUP_CHAT_USER_ROLE = { MEMBER: "member", ADMIN: "admin" };

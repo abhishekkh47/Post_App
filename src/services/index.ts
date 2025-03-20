@@ -6,3 +6,4 @@ export { default as CommentService } from "./comment.service";
 export { default as FollowService } from "./follow.service";
 export { default as MessageService } from "./message.service";
 export { default as NotificationService } from "./notification.service";
+export { default as GroupService } from "./group.service";

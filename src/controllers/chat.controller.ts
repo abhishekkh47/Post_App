@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
 import { ERR_MSGS } from "utils";
-import { MessageService, AuthService } from "services";
+import { MessageService, AuthService, GroupService } from "services";
 import { IConversation, IMessage, IUser } from "types";
 
 class ChatController extends BaseController {
@@ -11,9 +11,11 @@ class ChatController extends BaseController {
       if (!user) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
-      const conversations: IConversation[] =
-        await MessageService.getUserConversations(user._id);
-      this.Ok(res, { conversations });
+      const [conversations, groupConversations] = await Promise.all([
+        MessageService.getUserConversations(user._id),
+        GroupService.getGroupConversations(user._id),
+      ]);
+      this.Ok(res, { conversations, groupConversations });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }

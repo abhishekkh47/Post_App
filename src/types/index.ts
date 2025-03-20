@@ -7,3 +7,4 @@ export * from "./friend";
 export * from "./message";
 export * from "./notification";
 export * from "./postReaction";
+export * from "./groups";
