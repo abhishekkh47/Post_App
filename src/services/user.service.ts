@@ -161,6 +161,23 @@ class UserService {
       throw new NetworkError((error as Error).message, 400);
     }
   }
+
+  /**
+   * @description get all users details
+   * @param user user details
+   * @param filename filename string
+   * @returns {*}
+   */
+  async updateProfilePicture(user: IUser, filename: string): Promise<void> {
+    try {
+      await UserTable.findOneAndUpdate(
+        { _id: user._id },
+        { profile_pic: filename }
+      );
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
 }
 
 export default new UserService();

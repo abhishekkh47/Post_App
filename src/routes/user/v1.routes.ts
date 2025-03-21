@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserController } from "controllers";
 import { AuthMiddleware } from "middleware";
+import { upload } from "utils/multer";
 const userRoutes = Router();
 
 userRoutes.delete(
@@ -98,6 +99,21 @@ userRoutes.get(
   async (req, res, next) => {
     try {
       await UserController.getAllUsers(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * update profile picture
+ */
+userRoutes.put(
+  "/update-profile-picture",
+  [AuthMiddleware.Auth, upload.single("profilePicture")],
+  async (req: any, res: any, next: any) => {
+    try {
+      await UserController.updateProfilePicture(req, res, next);
     } catch (error) {
       next(error);
     }

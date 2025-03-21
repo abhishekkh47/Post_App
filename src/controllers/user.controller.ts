@@ -202,6 +202,27 @@ class UserController extends BaseController {
       this.InternalServerError(res, (error as Error).message);
     }
   }
+
+  /**
+   * @description update profile picture
+   */
+  async updateProfilePicture(req: any, res: Response, next: NextFunction) {
+    try {
+      const { file } = req;
+      const filename = file?.filename;
+      if (!filename) {
+        return this.BadRequest(res, "Upload a valid file");
+      }
+      const user: IUser | null = await AuthService.findUserById(req._id);
+      if (!user) {
+        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+      }
+      await UserService.updateProfilePicture(user, filename);
+      this.Ok(res, { message: "success", filename });
+    } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
+  }
 }
 
 export default new UserController();

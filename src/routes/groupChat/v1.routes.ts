@@ -59,7 +59,7 @@ groupRoutes.put(
 
 groupRoutes.put(
   "/update-profile-picture/:groupId",
-  upload.single("groupProfilePicture"),
+  upload.single("profilePicture"),
   async (req, res, next) => {
     try {
       await GroupController.updateGroupProfilePicture(req, res, next);
