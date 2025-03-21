@@ -8,6 +8,7 @@ import followRoutes from "./follow";
 import chatRoutes from "./chat";
 import notificationRoutes from "./notification";
 import groupRoutes from "./groupChat";
+import commonRoutes from "./common";
 
 const router = Router();
 router.use("/", defaultRoutes);
@@ -19,5 +20,6 @@ router.use("/follow", followRoutes);
 router.use("/chat", chatRoutes);
 router.use("/notification", notificationRoutes);
 router.use("/group", groupRoutes);
+router.use("/common", commonRoutes);
 
 export default router;

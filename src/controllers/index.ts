@@ -7,3 +7,4 @@ export { default as FollowController } from "./follow.controller";
 export { default as ChatController } from "./chat.controller";
 export { default as NotificationController } from "./notification.controller";
 export { default as GroupController } from "./group.controller";
+export { default as CommonController } from "./common.controller";

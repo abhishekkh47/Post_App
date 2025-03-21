@@ -1,5 +1,5 @@
 import { NetworkError } from "middleware";
-import { GroupMessageTable, GroupTable, MessageTable } from "models";
+import { MessageTable } from "models";
 import { ObjectId } from "mongodb";
 import { IConversation, IMessage } from "types";
 
