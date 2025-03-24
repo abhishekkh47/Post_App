@@ -2,6 +2,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import Config from "config";
+import { v4 as uuidV4 } from "uuid";
 
 const UPLOADS_DIR = (Config.UPLOADS_DIR as string) || "src/uploads";
 if (!fs.existsSync(UPLOADS_DIR as string)) {
@@ -13,7 +14,7 @@ const storage = multer.diskStorage({
     cb(null, UPLOADS_DIR as string);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+    cb(null, uuidV4() + path.extname(file.originalname));
   },
 });
 

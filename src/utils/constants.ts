@@ -68,3 +68,4 @@ export const WS_EVENTS = {
 };
 
 export const GROUP_CHAT_USER_ROLE = { MEMBER: "member", ADMIN: "admin" };
+export const MEDIA = { CHAT: "chatMedia", PROFILE: "profilePicture" };

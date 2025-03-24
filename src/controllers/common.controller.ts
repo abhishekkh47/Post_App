@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
 import { ERR_MSGS } from "utils";
-import { AuthService, GroupService } from "services";
+import { AuthService } from "services";
 import { IUser } from "types";
 
 class CommonController extends BaseController {
