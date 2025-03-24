@@ -7,7 +7,7 @@ const commonRoutes = Router();
 
 commonRoutes.post(
   "/upload-chat-multimedia/:chatId",
-  [AuthMiddleware.Auth, upload.single("chatMedia")],
+  [AuthMiddleware.Auth, upload.array("chatMedia")],
   async (req: any, res: any, next: any) => {
     try {
       await CommonController.uploadFileInChat(req, res, next);

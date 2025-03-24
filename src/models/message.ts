@@ -17,7 +17,7 @@ const schema = new mongoose.Schema<IMessageSchema>(
     },
     content: {
       type: mongoose.Schema.Types.String,
-      required: true,
+      required: false,
     },
     isRead: {
       type: mongoose.Schema.Types.Boolean,
@@ -26,6 +26,7 @@ const schema = new mongoose.Schema<IMessageSchema>(
     attachments: [
       {
         type: mongoose.Schema.Types.String,
+        required: false,
       },
     ],
   },

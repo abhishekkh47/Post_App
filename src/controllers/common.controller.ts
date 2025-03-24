@@ -9,11 +9,14 @@ class CommonController extends BaseController {
     try {
       const {
         params: { chatId },
-        file,
+        files,
       } = req;
-      const filename = file?.filename;
-      if (!filename) {
-        return this.BadRequest(res, "Upload a valid file");
+      let filename: string[] = [];
+      for (let file of files) {
+        filename.push(file?.filename);
+        if (!filename) {
+          return this.BadRequest(res, "Upload a valid file");
+        }
       }
       const user: IUser | null = await AuthService.findUserById(req._id);
       if (!user) {
