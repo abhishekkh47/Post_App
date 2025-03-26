@@ -22,7 +22,9 @@
       "validations/*": ["validations/*"],
       "config/*": ["config/*"]
     },
-    "typeRoots": ["./node_modules/@types", "./src/types/express.d.ts"]
+    "typeRoots": ["./node_modules/@types", "./src/types/express.d.ts"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*"]
 }

@@ -1,15 +1,15 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
 import { followValidations } from "validations";
-import { AuthService, FollowService } from "services";
+import { FollowService } from "services";
 import {
-  ERR_MSGS,
   getDataFromCache,
   REDIS_KEYS,
   redisClient,
   setDataToCache,
   SUCCESS_MSGS,
 } from "utils";
+import { RequireActiveUser } from "middleware/requireActiveUser";
 
 class FollowController extends BaseController {
   /**
@@ -18,6 +18,7 @@ class FollowController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async followUser(req: any, res: Response, next: NextFunction) {
     return followValidations.followValidation(
       req.body,
@@ -25,11 +26,7 @@ class FollowController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const user = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
-            await FollowService.followUser(user, req.body);
+            await FollowService.followUser(req.user, req.body);
             this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
@@ -45,6 +42,7 @@ class FollowController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async unFollowUser(req: any, res: Response, next: NextFunction) {
     return followValidations.unfollowValidation(
       req.body,
@@ -52,11 +50,6 @@ class FollowController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const user = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
-
             await FollowService.unFollowUser(req.body);
             this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
           } catch (error) {
@@ -73,6 +66,7 @@ class FollowController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async getFollowers(req: any, res: Response, next: NextFunction) {
     return followValidations.getFollowersValidation(
       req.params,
@@ -80,10 +74,6 @@ class FollowController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const user = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
             const followers = await FollowService.getUserFollowers(
               req.params.userId
             );
@@ -102,6 +92,7 @@ class FollowController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async getFollowing(req: any, res: Response, next: NextFunction) {
     return followValidations.getFollowersValidation(
       req.params,
@@ -109,10 +100,6 @@ class FollowController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const user = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
             const following = await FollowService.getUserFollowing(
               req.params.userId
             );
@@ -131,21 +118,18 @@ class FollowController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async getFriends(req: any, res: Response, next: NextFunction) {
     try {
-      const user = await AuthService.findUserById(req._id);
-      if (!user) {
-        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-      }
       const cachedData = await getDataFromCache(
-        `${REDIS_KEYS.GET_FRIENDS}_${user._id}`
+        `${REDIS_KEYS.GET_FRIENDS}_${req._id}`
       );
       if (cachedData) {
         return this.Ok(res, { friends: JSON.parse(cachedData) });
       }
       const friends = await FollowService.getUserFriends(req._id);
       setDataToCache(
-        `${REDIS_KEYS.GET_FRIENDS}_${user._id}`,
+        `${REDIS_KEYS.GET_FRIENDS}_${req._id}`,
         JSON.stringify(friends)
       );
       this.Ok(res, { friends });

@@ -53,18 +53,15 @@ class FollowService {
 
   /**
    * @description Check if user is followed or not
-   * @param user
+   * @param userId
    * @param followedUser id of user being followed
    * @returns {boolean}
    */
-  async ifUserFollowed(
-    user: Partial<IUser>,
-    followedUser: Partial<IUser>
-  ): Promise<boolean> {
+  async ifUserFollowed(userId: string, followedUser: string): Promise<boolean> {
     try {
-      if (user.toString() == followedUser.toString()) return true;
+      if (userId == followedUser) return true;
       const ifUserFollowed = await FriendsTable.findOne({
-        followerId: user._id,
+        followerId: userId,
         followeeId: followedUser,
       });
       if (ifUserFollowed) return true;

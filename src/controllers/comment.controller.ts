@@ -1,9 +1,9 @@
 import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
 import { commentValidations } from "validations";
-import { CommentService, AuthService } from "services";
-import { ERR_MSGS, SUCCESS_MSGS } from "utils";
-import { IUser } from "types";
+import { CommentService } from "services";
+import { SUCCESS_MSGS } from "utils";
+import { RequireActiveUser } from "middleware/requireActiveUser";
 
 class CommentController extends BaseController {
   /**
@@ -12,6 +12,7 @@ class CommentController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async createComment(req: any, res: Response, next: NextFunction) {
     return commentValidations.createCommentValidation(
       req.body,
@@ -19,11 +20,7 @@ class CommentController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { _id, body } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
+            const { _id, user, body } = req;
             await CommentService.createComment(user, body);
             this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
           } catch (error) {
@@ -40,6 +37,7 @@ class CommentController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async getCommentByPostId(req: any, res: Response, next: NextFunction) {
     return commentValidations.getCommentByPostIdValidation(
       req.params,
@@ -47,11 +45,7 @@ class CommentController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { _id, params } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
+            const { params } = req;
             const comments = await CommentService.getCommentByPostId(
               params.postId
             );
@@ -70,6 +64,7 @@ class CommentController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async getCommentById(req: any, res: Response, next: NextFunction) {
     return commentValidations.getCommentByCommentIdValidation(
       req.params,
@@ -77,11 +72,7 @@ class CommentController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { _id, params } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
+            const { params } = req;
             const comments = await CommentService.getCommentById(
               params.commentId
             );
@@ -100,6 +91,7 @@ class CommentController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async deleteCommentById(req: any, res: Response, next: NextFunction) {
     return commentValidations.deleteCommentValidation(
       req.params,
@@ -107,11 +99,7 @@ class CommentController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { _id, params } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
+            const { params } = req;
             await CommentService.deleteComment(params.commentId);
             this.Ok(res, { message: SUCCESS_MSGS.COMMENT_DELETED });
           } catch (error) {
@@ -128,6 +116,7 @@ class CommentController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async getAllCommentsByUserId(req: any, res: Response, next: NextFunction) {
     return commentValidations.getCommentsByUserIdValidation(
       req.params,
@@ -135,11 +124,7 @@ class CommentController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { _id, params } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
+            const { params } = req;
             const comments = await CommentService.getAllCommentsByUserId(
               params.userId
             );

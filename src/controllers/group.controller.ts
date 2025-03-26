@@ -1,11 +1,11 @@
 import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
-import { ERR_MSGS } from "utils";
-import { AuthService, GroupService } from "services";
-import { IUser } from "types";
+import { GroupService } from "services";
 import { groupValidations } from "validations/group.validation";
+import { RequireActiveUser } from "middleware/requireActiveUser";
 
 class GroupController extends BaseController {
+  @RequireActiveUser()
   async createGroup(req: any, res: Response, next: NextFunction) {
     groupValidations.createGroupValidation(
       req.body,
@@ -14,14 +14,10 @@ class GroupController extends BaseController {
         if (validate) {
           try {
             const { name, description, members = [] } = req.body;
-            const user: IUser | null = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
             const group = await GroupService.createGroup(
               name,
               description,
-              user._id,
+              req._id,
               members
             );
             this.Ok(res, { group });
@@ -33,13 +29,10 @@ class GroupController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async getUserGroups(req: any, res: Response, next: NextFunction) {
     try {
-      const user: IUser | null = await AuthService.findUserById(req._id);
-      if (!user) {
-        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-      }
-      const groups = await GroupService.getUserGroups(user._id);
+      const groups = await GroupService.getUserGroups(req._id);
       if (!groups) {
         return this.BadRequest(res, "No Groups Found");
       }
@@ -49,6 +42,7 @@ class GroupController extends BaseController {
     }
   }
 
+  @RequireActiveUser()
   async getGroupById(req: any, res: Response, next: NextFunction) {
     groupValidations.getGroupByIdValidation(
       req.params,
@@ -57,14 +51,10 @@ class GroupController extends BaseController {
         if (validate) {
           try {
             const { groupId } = req.params;
-            const user: IUser | null = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
 
             const group = await GroupService.getGroupById(groupId);
             const isMember = group?.members.some(
-              (member) => member.userId.toString() === user._id.toString()
+              (member) => member.userId.toString() === req._id.toString()
             );
             if (!isMember) {
               return this.BadRequest(res, "You are not a member of this group");
@@ -78,6 +68,7 @@ class GroupController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async updateGroup(req: any, res: Response, next: NextFunction) {
     groupValidations.updateGroupValidation(
       req.body,
@@ -87,15 +78,11 @@ class GroupController extends BaseController {
           try {
             const { groupId } = req.params;
             const { name, description } = req.body;
-            const user: IUser | null = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
 
             const group = await GroupService.getGroupById(groupId);
             const isAdmin = group?.members.some(
               (member) =>
-                member.userId.toString() === user._id.toString() &&
+                member.userId.toString() === req._id.toString() &&
                 member.role === "admin"
             );
             if (!isAdmin) {
@@ -118,6 +105,7 @@ class GroupController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async deleteGroup(req: any, res: Response, next: NextFunction) {
     groupValidations.deleteGroupValidation(
       req.params,
@@ -126,15 +114,11 @@ class GroupController extends BaseController {
         if (validate) {
           try {
             const { groupId } = req.params;
-            const user: IUser | null = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
 
             const group = await GroupService.getGroupById(groupId);
             const isAdmin = group?.members.some(
               (member) =>
-                member.userId.toString() === user._id.toString() &&
+                member.userId.toString() === req._id.toString() &&
                 member.role === "admin"
             );
             if (!isAdmin) {
@@ -153,19 +137,18 @@ class GroupController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async addMembers(req: any, res: Response, next: NextFunction) {
     try {
-      const { groupId } = req.params;
-      const { members } = req.body;
-      const user: IUser | null = await AuthService.findUserById(req._id);
-      if (!user) {
-        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-      }
+      const {
+        params: { groupId },
+        body: { members },
+      } = req;
 
       const group = await GroupService.getGroupById(groupId);
       const isAdmin = group?.members.some(
         (member) =>
-          member.userId.toString() === user._id.toString() &&
+          member.userId.toString() === req._id.toString() &&
           member.role === "admin"
       );
       if (!isAdmin) {
@@ -181,6 +164,7 @@ class GroupController extends BaseController {
     }
   }
 
+  @RequireActiveUser()
   async removeMember(req: any, res: Response, next: NextFunction) {
     groupValidations.removeMemberValidation(
       req.params,
@@ -189,15 +173,11 @@ class GroupController extends BaseController {
         if (validate) {
           try {
             const { groupId, userId: memberIdToRemove } = req.params;
-            const user: IUser | null = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
 
             const group = await GroupService.getGroupById(groupId);
             const isAdmin = group?.members.some(
               (member) =>
-                member.userId.toString() === user._id.toString() &&
+                member.userId.toString() === req._id.toString() &&
                 member.role === "admin"
             );
             const isSelf = req._id.toString() == memberIdToRemove.toString();
@@ -220,6 +200,7 @@ class GroupController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async getGroupMessages(req: any, res: Response, next: NextFunction) {
     groupValidations.getGroupMessagesValidation(
       req.params,
@@ -228,18 +209,14 @@ class GroupController extends BaseController {
         if (validate) {
           try {
             const { groupId } = req.params;
-            const user: IUser | null = await AuthService.findUserById(req._id);
             const { limit = 50, skip = 0 } = req.query;
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
 
             const group = await GroupService.getGroupById(groupId);
             if (!group) {
               return this.BadRequest(res, "Group do not exist");
             }
             const isMember = group?.members.some(
-              (member) => member.userId.toString() === user._id.toString()
+              (member) => member.userId.toString() === req._id.toString()
             );
             if (!isMember) {
               return this.BadRequest(res, "You are not a member of this group");
@@ -258,6 +235,7 @@ class GroupController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async getGroupDetails(req: any, res: Response, next: NextFunction) {
     groupValidations.groupDetailsValidation(
       req.params,
@@ -266,17 +244,13 @@ class GroupController extends BaseController {
         if (validate) {
           try {
             const { groupId } = req.params;
-            const user: IUser | null = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
 
             const group = await GroupService.getGroupById(groupId);
             if (!group) {
               return this.BadRequest(res, "Group do not exist");
             }
             const isMember = group?.members.some(
-              (member) => member.userId.toString() === user._id.toString()
+              (member) => member.userId.toString() === req._id.toString()
             );
             if (!isMember) {
               return this.BadRequest(res, "You are not a member of this group");
@@ -291,6 +265,7 @@ class GroupController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async updateUserRole(req: any, res: Response, next: NextFunction) {
     groupValidations.updateUserRoleValidation(
       req.params,
@@ -302,10 +277,6 @@ class GroupController extends BaseController {
               params: { groupId, userId },
               body: { role },
             } = req;
-            const user: IUser | null = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
 
             const group = await GroupService.getGroupById(groupId);
             if (!group) {
@@ -313,7 +284,7 @@ class GroupController extends BaseController {
             }
             const isAdmin = group?.members.some(
               (member) =>
-                member.userId.toString() === user._id.toString() &&
+                member.userId.toString() === req._id.toString() &&
                 member.role === "admin"
             );
             if (!isAdmin) {
@@ -333,6 +304,7 @@ class GroupController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async updateGroupProfilePicture(req: any, res: Response, next: NextFunction) {
     try {
       const {
@@ -343,10 +315,6 @@ class GroupController extends BaseController {
       if (!filename) {
         return this.BadRequest(res, "Upload a valid file");
       }
-      const user: IUser | null = await AuthService.findUserById(req._id);
-      if (!user) {
-        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-      }
 
       const group = await GroupService.getGroupById(groupId);
       if (!group) {
@@ -354,7 +322,7 @@ class GroupController extends BaseController {
       }
       const isAdmin = group?.members.some(
         (member) =>
-          member.userId.toString() === user._id.toString() &&
+          member.userId.toString() === req._id.toString() &&
           member.role === "admin"
       );
       if (!isAdmin) {
