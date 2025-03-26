@@ -3,7 +3,8 @@ import BaseController from "./base.controller";
 import { GroupService } from "services";
 import { groupValidations } from "validations/group.validation";
 import { RequireActiveUser } from "middleware/requireActiveUser";
-import { IGroups } from "types/groups";
+import { IGroups } from "types";
+import { GroupTable } from "models";
 
 class GroupController extends BaseController {
   @RequireActiveUser()
@@ -323,6 +324,26 @@ class GroupController extends BaseController {
     return group?.members.some(
       (member) => member.userId.toString() === userId.toString()
     );
+  }
+
+  @RequireActiveUser()
+  async joinGroupUsingInviteLink(req: any, res: Response, next: NextFunction) {
+    try {
+      const {
+        params: { inviteToken },
+      } = req;
+
+      const group: IGroups | null = await GroupTable.findOne({ inviteToken });
+      if (!group) return null;
+
+      const updatedGroup = await GroupService.addMember(group._id, [req._id]);
+      if (!updatedGroup) {
+        return this.BadRequest(res, "Group do not exist");
+      }
+      this.Ok(res, { message: "success", updatedGroup });
+    } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
   }
 }
 

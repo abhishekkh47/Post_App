@@ -86,6 +86,14 @@ groupRoutes.delete("/:groupId/members/:userId", async (req, res, next) => {
   }
 });
 
+groupRoutes.get("/members/join/:inviteToken", async (req, res, next) => {
+  try {
+    await GroupController.joinGroupUsingInviteLink(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Group Messages
 groupRoutes.get("/:groupId/messages", async (req, res, next) => {
   try {

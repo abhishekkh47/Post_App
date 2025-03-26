@@ -1,7 +1,9 @@
 import { NetworkError } from "middleware";
 import { GroupMessageTable, GroupTable } from "models";
 import { ObjectId } from "mongodb";
-import { IConversation, IGroupConversation, IMessage } from "types";
+import { IGroupConversation, IGroups } from "types";
+import { GROUP_CHAT_USER_ROLE } from "utils/constants";
+import { v4 as uuidv4 } from "uuid";
 
 class GroupService {
   async createGroup(
@@ -12,10 +14,14 @@ class GroupService {
   ) {
     try {
       const initialMembers = [
-        { userId: createdBy, role: "admin", joinedAt: new Date() },
+        {
+          userId: createdBy,
+          role: GROUP_CHAT_USER_ROLE.ADMIN,
+          joinedAt: new Date(),
+        },
         ...members.map((userId) => ({
           userId,
-          role: "member",
+          role: GROUP_CHAT_USER_ROLE.MEMBER,
           joinedAt: new Date(),
         })),
       ];
@@ -25,23 +31,29 @@ class GroupService {
         description,
         createdBy,
         members: initialMembers,
+        inviteToken: uuidv4(),
       });
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
   }
 
-  async addMember(groupId: string, userId: string, role: string = "member") {
+  async addMember(
+    groupId: string,
+    users: string[],
+    role: string = GROUP_CHAT_USER_ROLE.MEMBER
+  ) {
     try {
+      const membersToAdd = users.map((userId) => ({
+        userId,
+        role,
+        joinedAt: new Date(),
+      }));
       return await GroupTable.findByIdAndUpdate(
         groupId,
         {
           $push: {
-            members: {
-              userId,
-              role,
-              joinedAt: new Date(),
-            },
+            members: { $each: membersToAdd },
           },
         },
         { new: true }

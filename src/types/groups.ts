@@ -2,6 +2,7 @@ import { IBase } from "./base";
 import mongoose from "mongoose";
 
 export interface IGroups {
+  _id: string;
   name: string;
   description: string;
   createdBy: mongoose.Schema.Types.ObjectId; // Reference to the user who created the group
@@ -13,6 +14,7 @@ export interface IGroups {
       joinedAt: Date;
     }
   ];
+  inviteToken: string;
 }
 
 export interface IGroupMessages {

@@ -42,6 +42,11 @@ const schema = new mongoose.Schema<IGroupsSchema>(
         },
       },
     ],
+    inviteToken: {
+      type: mongoose.Schema.Types.String,
+      required: true,
+      unique: true,
+    },
   },
   { timestamps: true }
 );
