@@ -5,12 +5,16 @@ export const REDIS_KEYS = {
   GET_MY_FEED: "getMyFeed",
   GET_NOTIFICATIONS: "getNotifications",
   GET_CONVERSATIONS: "getConversations",
+  GET_POST_COMMENTS: "getCommentsByPostId",
+  GET_COMMENTS_BY_USER: "getCommentsByUserId",
+  GET_ALL_USERS: "getAllUsers",
+  GET_USER_PROFILE: "getUserProfile",
 };
 
 export const redisClient = new redis({
   host: "localhost", // e.g. 'localhost' or an IP address
   port: 6379,
-  maxRetriesPerRequest: 1,
+  maxRetriesPerRequest: 5,
 });
 
 redisClient
@@ -35,10 +39,14 @@ export const getDataFromCache = async (key: string) => {
   }
 };
 
-export const setDataToCache = async (key: string, value: string) => {
+export const setDataToCache = async (
+  key: string,
+  value: string,
+  ttl: number = 60
+) => {
   try {
     if (!isRedisAvailable()) return null;
-    await redisClient.set(key, value, "EX", 60); // 1 min
+    await redisClient.set(key, value, "EX", ttl); // 1 min
   } catch (error) {
     console.log("redis error > ", error);
     return null;

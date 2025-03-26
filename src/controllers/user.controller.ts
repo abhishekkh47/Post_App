@@ -2,7 +2,14 @@ import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
 import { AuthService, FollowService, UserService } from "services";
 import { authValidations } from "validations";
-import { verifyToken, ERR_MSGS, SUCCESS_MSGS } from "utils";
+import {
+  verifyToken,
+  ERR_MSGS,
+  SUCCESS_MSGS,
+  getDataFromCache,
+  REDIS_KEYS,
+  setDataToCache,
+} from "utils";
 import { IUser } from "types";
 import { RequireActiveUser } from "middleware/requireActiveUser";
 
@@ -105,10 +112,20 @@ class UserController extends BaseController {
         if (validate) {
           try {
             const { userId } = req.params;
+            const cachedData = await getDataFromCache(
+              `${REDIS_KEYS.GET_USER_PROFILE}`
+            );
+            if (cachedData) {
+              return this.Ok(res, JSON.parse(cachedData));
+            }
             const [userDetails, isFollowing] = await Promise.all([
               AuthService.findUserById(userId),
               FollowService.ifUserFollowed(req._id, userId),
             ]);
+            setDataToCache(
+              `${REDIS_KEYS.GET_ALL_USERS}`,
+              JSON.stringify({ userDetails, isFollowing })
+            );
             this.Ok(res, { userDetails, isFollowing });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
@@ -177,7 +194,12 @@ class UserController extends BaseController {
   @RequireActiveUser()
   async getAllUsers(req: any, res: Response, next: NextFunction) {
     try {
+      const cachedData = await getDataFromCache(`${REDIS_KEYS.GET_ALL_USERS}`);
+      if (cachedData) {
+        return this.Ok(res, JSON.parse(cachedData));
+      }
       const users: IUser[] = await UserService.getAllUsers();
+      setDataToCache(`${REDIS_KEYS.GET_ALL_USERS}`, JSON.stringify(users));
       this.Ok(res, { users });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);

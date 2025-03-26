@@ -2,7 +2,12 @@ import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
 import { commentValidations } from "validations";
 import { CommentService } from "services";
-import { SUCCESS_MSGS } from "utils";
+import {
+  getDataFromCache,
+  REDIS_KEYS,
+  setDataToCache,
+  SUCCESS_MSGS,
+} from "utils";
 import { RequireActiveUser } from "middleware/requireActiveUser";
 
 class CommentController extends BaseController {
@@ -45,9 +50,19 @@ class CommentController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { params } = req;
-            const comments = await CommentService.getCommentByPostId(
-              params.postId
+            const {
+              params: { postId },
+            } = req;
+            const cachedData = await getDataFromCache(
+              `${REDIS_KEYS.GET_POST_COMMENTS}_${postId}`
+            );
+            if (cachedData) {
+              return this.Ok(res, JSON.parse(cachedData));
+            }
+            const comments = await CommentService.getCommentByPostId(postId);
+            setDataToCache(
+              `${REDIS_KEYS.GET_POST_COMMENTS}_${postId}`,
+              JSON.stringify({ comments })
             );
             this.Ok(res, { comments });
           } catch (error) {
@@ -124,9 +139,21 @@ class CommentController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { params } = req;
+            const {
+              params: { userId },
+            } = req;
+            const cachedData = await getDataFromCache(
+              `${REDIS_KEYS.GET_COMMENTS_BY_USER}_${userId}`
+            );
+            if (cachedData) {
+              return this.Ok(res, JSON.parse(cachedData));
+            }
             const comments = await CommentService.getAllCommentsByUserId(
-              params.userId
+              userId
+            );
+            setDataToCache(
+              `${REDIS_KEYS.GET_COMMENTS_BY_USER}_${userId}`,
+              JSON.stringify({ comments })
             );
             this.Ok(res, { comments });
           } catch (error) {
