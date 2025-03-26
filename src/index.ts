@@ -52,7 +52,14 @@ const server = async () => {
     });
 
     app.use("/", router);
-    app.use("/uploads", express.static(Path.join(__dirname, "uploads")));
+    app.use(
+      "/uploads",
+      express.static(Path.join(__dirname, "uploads"), {
+        setHeaders: (res) => {
+          res.set("Cache-Control", "public, max-age=86400");
+        },
+      })
+    );
     app.use(
       errorHandler as (
         err: any,

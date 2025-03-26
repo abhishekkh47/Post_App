@@ -1,9 +1,14 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
-import { AuthService, NotificationService } from "services";
+import { NotificationService } from "services";
 import { authValidations } from "validations";
-import { ERR_MSGS, SUCCESS_MSGS } from "utils";
-import { IUser } from "types";
+import {
+  getDataFromCache,
+  REDIS_KEYS,
+  setDataToCache,
+  SUCCESS_MSGS,
+} from "utils";
+import { RequireActiveUser } from "middleware/requireActiveUser";
 
 class NotificationController extends BaseController {
   /**
@@ -12,13 +17,20 @@ class NotificationController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async getNotifications(req: any, res: Response, next: NextFunction) {
     try {
-      const user: IUser | null = await AuthService.findUserById(req._id);
-      if (!user) {
-        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+      const cachedData = await getDataFromCache(
+        `${REDIS_KEYS.GET_NOTIFICATIONS}_${req._id}`
+      );
+      if (cachedData) {
+        return this.Ok(res, JSON.parse(cachedData));
       }
-      const notifications = await NotificationService.getNotification(user);
+      const notifications = await NotificationService.getNotification(req.user);
+      setDataToCache(
+        `${REDIS_KEYS.GET_NOTIFICATIONS}_${req._id}`,
+        JSON.stringify({ notifications })
+      );
       this.Ok(res, { notifications });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
@@ -31,6 +43,7 @@ class NotificationController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async updateNotification(req: any, res: Response, next: NextFunction) {
     return authValidations.readNotificationValidation(
       req.body,
@@ -39,10 +52,6 @@ class NotificationController extends BaseController {
         if (validate) {
           try {
             const { notificationId } = req.body;
-            const user: IUser | null = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
             await NotificationService.updateNotification(notificationId);
             this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
           } catch (error) {

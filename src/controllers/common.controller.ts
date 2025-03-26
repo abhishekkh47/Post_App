@@ -1,10 +1,9 @@
 import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
-import { ERR_MSGS } from "utils";
-import { AuthService } from "services";
-import { IUser } from "types";
+import { RequireActiveUser } from "middleware";
 
 class CommonController extends BaseController {
+  @RequireActiveUser()
   async uploadFileInChat(req: any, res: Response, next: NextFunction) {
     try {
       const {
@@ -17,10 +16,6 @@ class CommonController extends BaseController {
         if (!filename) {
           return this.BadRequest(res, "Upload a valid file");
         }
-      }
-      const user: IUser | null = await AuthService.findUserById(req._id);
-      if (!user) {
-        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
       this.Ok(res, { message: "success", filename });
     } catch (error) {

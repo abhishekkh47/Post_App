@@ -2,8 +2,16 @@ import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
 import { AuthService, FollowService, UserService } from "services";
 import { authValidations } from "validations";
-import { verifyToken, ERR_MSGS, SUCCESS_MSGS } from "utils";
+import {
+  verifyToken,
+  ERR_MSGS,
+  SUCCESS_MSGS,
+  getDataFromCache,
+  REDIS_KEYS,
+  setDataToCache,
+} from "utils";
 import { IUser } from "types";
+import { RequireActiveUser } from "middleware/requireActiveUser";
 
 class UserController extends BaseController {
   /**
@@ -12,21 +20,15 @@ class UserController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async deleteUser(req: any, res: Response, next: NextFunction) {
-    const user: IUser | null = await AuthService.findUserById(req._id);
-    if (!user) {
-      return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-    }
     await UserService.deleteUser(req._id);
     this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
   }
 
+  @RequireActiveUser()
   async toggleProfileType(req: any, res: Response, next: NextFunction) {
-    const user: IUser | null = await AuthService.findUserById(req._id);
-    if (!user) {
-      return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-    }
-    await UserService.toggleProfileType(user);
+    await UserService.toggleProfileType(req.user);
     this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
   }
 
@@ -36,6 +38,7 @@ class UserController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async sendPasswordResetLink(req: any, res: Response, next: NextFunction) {
     return authValidations.sendPasswordResetLinkValidation(
       req.body,
@@ -64,6 +67,7 @@ class UserController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async resetPasswordUsingEmailLink(
     req: any,
     res: Response,
@@ -83,11 +87,7 @@ class UserController extends BaseController {
             if (validateToken?.status && validateToken.status == 401) {
               return this.UnAuthorized(res as any, ERR_MSGS.INVALID_REQUEST);
             }
-            const user = await AuthService.findUserByEmail(validateToken.email);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
-            await UserService.resetPassword(user, newPassword);
+            await UserService.resetPassword(req.user, newPassword);
             this.Ok(res, { message: ERR_MSGS.PASSWORD_UPDATED });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
@@ -103,6 +103,7 @@ class UserController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async getUserProfile(req: any, res: Response, next: NextFunction) {
     return authValidations.getUserProfileValidation(
       req.params,
@@ -111,14 +112,20 @@ class UserController extends BaseController {
         if (validate) {
           try {
             const { userId } = req.params;
-            const user: IUser | null = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+            const cachedData = await getDataFromCache(
+              `${REDIS_KEYS.GET_USER_PROFILE}`
+            );
+            if (cachedData) {
+              return this.Ok(res, JSON.parse(cachedData));
             }
             const [userDetails, isFollowing] = await Promise.all([
               AuthService.findUserById(userId),
-              FollowService.ifUserFollowed(req, userId),
+              FollowService.ifUserFollowed(req._id, userId),
             ]);
+            setDataToCache(
+              `${REDIS_KEYS.GET_ALL_USERS}`,
+              JSON.stringify({ userDetails, isFollowing })
+            );
             this.Ok(res, { userDetails, isFollowing });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
@@ -134,6 +141,7 @@ class UserController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async searchUsers(req: any, res: Response, next: NextFunction) {
     return authValidations.searchUserProfileValidation(
       req.query,
@@ -142,10 +150,6 @@ class UserController extends BaseController {
         if (validate) {
           try {
             const { search } = req.query;
-            const user: IUser | null = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
             const users = await UserService.searchUsers(search);
             this.Ok(res, { users });
           } catch (error) {
@@ -162,6 +166,7 @@ class UserController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async notifyUser(req: any, res: Response, next: NextFunction) {
     return authValidations.sendNotificationValidation(
       req.body,
@@ -170,11 +175,7 @@ class UserController extends BaseController {
         if (validate) {
           try {
             const { recipientId, message } = req.body;
-            const user: IUser | null = await AuthService.findUserById(req._id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
-            await UserService.sendNotification(user._id, recipientId, message);
+            await UserService.sendNotification(req._id, recipientId, message);
             this.Ok(res, { message: SUCCESS_MSGS.NOTIFICATION_SENT });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
@@ -190,13 +191,15 @@ class UserController extends BaseController {
    * @param res
    * @param next
    */
+  @RequireActiveUser()
   async getAllUsers(req: any, res: Response, next: NextFunction) {
     try {
-      const user: IUser | null = await AuthService.findUserById(req._id);
-      if (!user) {
-        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+      const cachedData = await getDataFromCache(`${REDIS_KEYS.GET_ALL_USERS}`);
+      if (cachedData) {
+        return this.Ok(res, JSON.parse(cachedData));
       }
       const users: IUser[] = await UserService.getAllUsers();
+      setDataToCache(`${REDIS_KEYS.GET_ALL_USERS}`, JSON.stringify(users));
       this.Ok(res, { users });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
@@ -206,6 +209,7 @@ class UserController extends BaseController {
   /**
    * @description update profile picture
    */
+  @RequireActiveUser()
   async updateProfilePicture(req: any, res: Response, next: NextFunction) {
     try {
       const { file } = req;
@@ -213,11 +217,7 @@ class UserController extends BaseController {
       if (!filename) {
         return this.BadRequest(res, "Upload a valid file");
       }
-      const user: IUser | null = await AuthService.findUserById(req._id);
-      if (!user) {
-        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-      }
-      await UserService.updateProfilePicture(user, filename);
+      await UserService.updateProfilePicture(req.user, filename);
       this.Ok(res, { message: "success", filename });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);

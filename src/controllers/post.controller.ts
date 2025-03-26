@@ -1,11 +1,19 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
-import { AuthService, PostService, UserService, FollowService } from "services";
-import { ICreatePost, IUser } from "types";
-import { ERR_MSGS, POST_TYPE, SUCCESS_MSGS } from "utils";
+import { PostService, UserService, FollowService } from "services";
+import { ICreatePost } from "types";
+import {
+  getDataFromCache,
+  POST_TYPE,
+  REDIS_KEYS,
+  setDataToCache,
+  SUCCESS_MSGS,
+} from "utils";
 import { postValidations } from "validations";
+import { RequireActiveUser } from "middleware";
 
 class PostController extends BaseController {
+  @RequireActiveUser()
   async createPost(req: any, res: Response, next: NextFunction) {
     return postValidations.createPostValidation(
       req.body,
@@ -14,12 +22,8 @@ class PostController extends BaseController {
         if (validate) {
           try {
             const { _id, body } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
             const postObj: ICreatePost = {
-              userId: user._id,
+              userId: _id,
               post: body.post,
               type: POST_TYPE.TEXT,
             };
@@ -34,6 +38,7 @@ class PostController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async getPostByUser(req: any, res: Response, next: NextFunction) {
     return postValidations.getPostsValidation(
       req.params,
@@ -42,13 +47,9 @@ class PostController extends BaseController {
         if (validate) {
           try {
             const { _id, params } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
             const [isPublicProfile, ifUserFollowed] = await Promise.all([
               UserService.isPublicProfile(params.userId),
-              FollowService.ifUserFollowed(user, params.userId),
+              FollowService.ifUserFollowed(_id, params.userId),
             ]);
             if (isPublicProfile || ifUserFollowed || _id == params.userId) {
               const posts = await PostService.getAllPostByUser(params.userId);
@@ -66,6 +67,7 @@ class PostController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async getPostById(req: any, res: Response, next: NextFunction) {
     return postValidations.getPostDetailsUsingIdValidation(
       req.params,
@@ -73,11 +75,7 @@ class PostController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { _id, params } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
+            const { params } = req;
             const post = await PostService.getPostById(params.postId);
             this.Ok(res, { post });
           } catch (error) {
@@ -88,6 +86,7 @@ class PostController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async deleteUserPostById(req: any, res: Response, next: NextFunction) {
     return postValidations.deletePostByIdValidation(
       req.params,
@@ -96,11 +95,7 @@ class PostController extends BaseController {
         if (validate) {
           try {
             const { _id, params } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
-            await PostService.deleteUserPost(user, params.postId);
+            await PostService.deleteUserPost(_id, params.postId);
             this.Ok(res, { message: SUCCESS_MSGS.POST_DELETED });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
@@ -110,20 +105,17 @@ class PostController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async getMyPosts(req: any, res: Response, next: NextFunction) {
     try {
-      const { _id } = req;
-      const user: IUser | null = await AuthService.findUserById(_id);
-      if (!user) {
-        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-      }
-      const posts = await PostService.getAllPostByUser(_id);
+      const posts = await PostService.getAllPostByUser(req._id);
       this.Ok(res, { posts });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }
   }
 
+  @RequireActiveUser()
   async editOrUpdatePost(req: any, res: Response, next: NextFunction) {
     return postValidations.editOrUpdatePostValidation(
       req.body,
@@ -135,11 +127,7 @@ class PostController extends BaseController {
               _id,
               body: { postId, post },
             } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
-            await PostService.editOrUpdatePost(user._id, postId, post);
+            await PostService.editOrUpdatePost(_id, postId, post);
             this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
@@ -149,20 +137,27 @@ class PostController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async getMyFeed(req: any, res: Response, next: NextFunction) {
     try {
-      const { _id } = req;
-      const user: IUser | null = await AuthService.findUserById(_id);
-      if (!user) {
-        return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
+      const cachedData = await getDataFromCache(
+        `${REDIS_KEYS.GET_MY_FEED}_${req._id}`
+      );
+      if (cachedData) {
+        return this.Ok(res, JSON.parse(cachedData));
       }
-      const posts = await PostService.getUserFeed(_id);
+      const posts = await PostService.getUserFeed(req._id);
+      setDataToCache(
+        `${REDIS_KEYS.GET_MY_FEED}_${req._id}`,
+        JSON.stringify({ posts })
+      );
       this.Ok(res, { posts });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }
   }
 
+  @RequireActiveUser()
   async likePost(req: any, res: Response, next: NextFunction) {
     return postValidations.addReactionOnPost(
       req.body,
@@ -171,11 +166,7 @@ class PostController extends BaseController {
         if (validate) {
           try {
             const { _id, body } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
-            const posts = await PostService.likePost(user._id, body.postId);
+            const posts = await PostService.likePost(_id, body.postId);
             this.Ok(res, { posts });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
@@ -185,6 +176,7 @@ class PostController extends BaseController {
     );
   }
 
+  @RequireActiveUser()
   async dislikePost(req: any, res: Response, next: NextFunction) {
     return postValidations.removeReactionOnPost(
       req.body,
@@ -193,11 +185,7 @@ class PostController extends BaseController {
         if (validate) {
           try {
             const { _id, body } = req;
-            const user: IUser | null = await AuthService.findUserById(_id);
-            if (!user) {
-              return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
-            }
-            const posts = await PostService.dislikePost(user._id, body.postId);
+            const posts = await PostService.dislikePost(_id, body.postId);
             this.Ok(res, { posts });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
