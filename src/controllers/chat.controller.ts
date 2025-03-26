@@ -13,7 +13,7 @@ class ChatController extends BaseController {
         `${REDIS_KEYS.GET_CONVERSATIONS}_${req._id}`
       );
       if (cachedData) {
-        return this.Ok(res, { friends: JSON.parse(cachedData) });
+        return this.Ok(res, JSON.parse(cachedData));
       }
       const [conversations, groupConversations] = await Promise.all([
         MessageService.getUserConversations(req._id),

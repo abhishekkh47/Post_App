@@ -144,12 +144,12 @@ class PostController extends BaseController {
         `${REDIS_KEYS.GET_MY_FEED}_${req._id}`
       );
       if (cachedData) {
-        return this.Ok(res, { friends: JSON.parse(cachedData) });
+        return this.Ok(res, JSON.parse(cachedData));
       }
       const posts = await PostService.getUserFeed(req._id);
       setDataToCache(
         `${REDIS_KEYS.GET_MY_FEED}_${req._id}`,
-        JSON.stringify(posts)
+        JSON.stringify({ posts })
       );
       this.Ok(res, { posts });
     } catch (error) {

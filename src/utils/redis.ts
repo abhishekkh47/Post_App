@@ -27,11 +27,10 @@ export const getDataFromCache = async (key: string) => {
     if (!isRedisAvailable()) return null;
     const cachedData = await redisClient.get(key);
     if (cachedData) {
-      return JSON.parse(cachedData);
+      return cachedData;
     }
   } catch (error) {
     console.log("redis error > ", error);
-  } finally {
     return null;
   }
 };
@@ -41,6 +40,7 @@ export const setDataToCache = async (key: string, value: string) => {
     if (!isRedisAvailable()) return null;
     await redisClient.set(key, value, "EX", 60); // 1 min
   } catch (error) {
+    console.log("redis error > ", error);
     return null;
   }
 };

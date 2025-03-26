@@ -24,12 +24,12 @@ class NotificationController extends BaseController {
         `${REDIS_KEYS.GET_NOTIFICATIONS}_${req._id}`
       );
       if (cachedData) {
-        return this.Ok(res, { friends: JSON.parse(cachedData) });
+        return this.Ok(res, JSON.parse(cachedData));
       }
       const notifications = await NotificationService.getNotification(req.user);
       setDataToCache(
         `${REDIS_KEYS.GET_NOTIFICATIONS}_${req._id}`,
-        JSON.stringify(notifications)
+        JSON.stringify({ notifications })
       );
       this.Ok(res, { notifications });
     } catch (error) {
