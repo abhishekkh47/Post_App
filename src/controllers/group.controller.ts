@@ -3,6 +3,7 @@ import BaseController from "./base.controller";
 import { GroupService } from "services";
 import { groupValidations } from "validations/group.validation";
 import { RequireActiveUser } from "middleware/requireActiveUser";
+import { IGroups } from "types/groups";
 
 class GroupController extends BaseController {
   @RequireActiveUser()
@@ -32,7 +33,7 @@ class GroupController extends BaseController {
   @RequireActiveUser()
   async getUserGroups(req: any, res: Response, next: NextFunction) {
     try {
-      const groups = await GroupService.getUserGroups(req._id);
+      const groups: IGroups[] = await GroupService.getUserGroups(req._id);
       if (!groups) {
         return this.BadRequest(res, "No Groups Found");
       }
@@ -51,12 +52,11 @@ class GroupController extends BaseController {
         if (validate) {
           try {
             const { groupId } = req.params;
-
             const group = await GroupService.getGroupById(groupId);
-            const isMember = group?.members.some(
-              (member) => member.userId.toString() === req._id.toString()
-            );
-            if (!isMember) {
+            if (!group) {
+              return this.BadRequest(res, "Group do not exist");
+            }
+            if (!this.ifMember(group, req._id)) {
               return this.BadRequest(res, "You are not a member of this group");
             }
             this.Ok(res, { group });
@@ -80,12 +80,10 @@ class GroupController extends BaseController {
             const { name, description } = req.body;
 
             const group = await GroupService.getGroupById(groupId);
-            const isAdmin = group?.members.some(
-              (member) =>
-                member.userId.toString() === req._id.toString() &&
-                member.role === "admin"
-            );
-            if (!isAdmin) {
+            if (!group) {
+              return this.BadRequest(res, "Group do not exist");
+            }
+            if (!this.ifAdmin(group, req._id)) {
               return this.BadRequest(
                 res,
                 "Only group admins can update the group"
@@ -116,12 +114,10 @@ class GroupController extends BaseController {
             const { groupId } = req.params;
 
             const group = await GroupService.getGroupById(groupId);
-            const isAdmin = group?.members.some(
-              (member) =>
-                member.userId.toString() === req._id.toString() &&
-                member.role === "admin"
-            );
-            if (!isAdmin) {
+            if (!group) {
+              return this.BadRequest(res, "Group do not exist");
+            }
+            if (!this.ifAdmin(group, req._id)) {
               return this.BadRequest(
                 res,
                 "Only group admins can delete this group"
@@ -146,12 +142,10 @@ class GroupController extends BaseController {
       } = req;
 
       const group = await GroupService.getGroupById(groupId);
-      const isAdmin = group?.members.some(
-        (member) =>
-          member.userId.toString() === req._id.toString() &&
-          member.role === "admin"
-      );
-      if (!isAdmin) {
+      if (!group) {
+        return this.BadRequest(res, "Group do not exist");
+      }
+      if (!this.ifAdmin(group, req._id)) {
         return this.BadRequest(
           res,
           "Only group admins can add members to this group"
@@ -175,13 +169,11 @@ class GroupController extends BaseController {
             const { groupId, userId: memberIdToRemove } = req.params;
 
             const group = await GroupService.getGroupById(groupId);
-            const isAdmin = group?.members.some(
-              (member) =>
-                member.userId.toString() === req._id.toString() &&
-                member.role === "admin"
-            );
+            if (!group) {
+              return this.BadRequest(res, "Group do not exist");
+            }
             const isSelf = req._id.toString() == memberIdToRemove.toString();
-            if (!isAdmin && !isSelf) {
+            if (!this.ifAdmin(group, req._id) && !isSelf) {
               return this.BadRequest(
                 res,
                 "You do not have permission to remove this member"
@@ -215,10 +207,7 @@ class GroupController extends BaseController {
             if (!group) {
               return this.BadRequest(res, "Group do not exist");
             }
-            const isMember = group?.members.some(
-              (member) => member.userId.toString() === req._id.toString()
-            );
-            if (!isMember) {
+            if (!this.ifMember(group, req._id)) {
               return this.BadRequest(res, "You are not a member of this group");
             }
             const messages = await GroupService.getGroupMessages(
@@ -249,10 +238,7 @@ class GroupController extends BaseController {
             if (!group) {
               return this.BadRequest(res, "Group do not exist");
             }
-            const isMember = group?.members.some(
-              (member) => member.userId.toString() === req._id.toString()
-            );
-            if (!isMember) {
+            if (!this.ifMember(group, req._id)) {
               return this.BadRequest(res, "You are not a member of this group");
             }
             const groupDetails = await GroupService.getGroupDetails(groupId);
@@ -282,12 +268,7 @@ class GroupController extends BaseController {
             if (!group) {
               return this.BadRequest(res, "Group do not exist");
             }
-            const isAdmin = group?.members.some(
-              (member) =>
-                member.userId.toString() === req._id.toString() &&
-                member.role === "admin"
-            );
-            if (!isAdmin) {
+            if (!this.ifAdmin(group, req._id)) {
               return this.BadRequest(res, "You are not an admin of this group");
             }
             const groupDetails = await GroupService.updateUserRole(
@@ -320,12 +301,7 @@ class GroupController extends BaseController {
       if (!group) {
         return this.BadRequest(res, "Group do not exist");
       }
-      const isAdmin = group?.members.some(
-        (member) =>
-          member.userId.toString() === req._id.toString() &&
-          member.role === "admin"
-      );
-      if (!isAdmin) {
+      if (this.ifAdmin(group, req._id)) {
         return this.BadRequest(res, "You are not an admin of this group");
       }
       await GroupService.updateGroupProfilePicture(groupId, filename);
@@ -333,6 +309,20 @@ class GroupController extends BaseController {
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }
+  }
+
+  ifAdmin(group: IGroups, userId: string) {
+    return group?.members.some(
+      (member) =>
+        member.userId.toString() === userId.toString() &&
+        member.role === "admin"
+    );
+  }
+
+  ifMember(group: IGroups, userId: string) {
+    return group?.members.some(
+      (member) => member.userId.toString() === userId.toString()
+    );
   }
 }
 
