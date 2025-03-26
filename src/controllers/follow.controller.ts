@@ -2,7 +2,14 @@ import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
 import { followValidations } from "validations";
 import { AuthService, FollowService } from "services";
-import { ERR_MSGS, SUCCESS_MSGS } from "utils";
+import {
+  ERR_MSGS,
+  getDataFromCache,
+  REDIS_KEYS,
+  redisClient,
+  setDataToCache,
+  SUCCESS_MSGS,
+} from "utils";
 
 class FollowController extends BaseController {
   /**
@@ -130,7 +137,17 @@ class FollowController extends BaseController {
       if (!user) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
+      const cachedData = await getDataFromCache(
+        `${REDIS_KEYS.GET_FRIENDS}_${user._id}`
+      );
+      if (cachedData) {
+        return this.Ok(res, { friends: JSON.parse(cachedData) });
+      }
       const friends = await FollowService.getUserFriends(req._id);
+      setDataToCache(
+        `${REDIS_KEYS.GET_FRIENDS}_${user._id}`,
+        JSON.stringify(friends)
+      );
       this.Ok(res, { friends });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);

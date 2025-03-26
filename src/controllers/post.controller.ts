@@ -2,7 +2,14 @@ import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
 import { AuthService, PostService, UserService, FollowService } from "services";
 import { ICreatePost, IUser } from "types";
-import { ERR_MSGS, POST_TYPE, SUCCESS_MSGS } from "utils";
+import {
+  ERR_MSGS,
+  getDataFromCache,
+  POST_TYPE,
+  REDIS_KEYS,
+  setDataToCache,
+  SUCCESS_MSGS,
+} from "utils";
 import { postValidations } from "validations";
 
 class PostController extends BaseController {
@@ -156,7 +163,17 @@ class PostController extends BaseController {
       if (!user) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
+      const cachedData = await getDataFromCache(
+        `${REDIS_KEYS.GET_MY_FEED}_${user._id}`
+      );
+      if (cachedData) {
+        return this.Ok(res, { friends: JSON.parse(cachedData) });
+      }
       const posts = await PostService.getUserFeed(_id);
+      setDataToCache(
+        `${REDIS_KEYS.GET_MY_FEED}_${user._id}`,
+        JSON.stringify(posts)
+      );
       this.Ok(res, { posts });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);

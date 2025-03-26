@@ -1,8 +1,8 @@
 import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
-import { ERR_MSGS } from "utils";
+import { ERR_MSGS, getDataFromCache, REDIS_KEYS, setDataToCache } from "utils";
 import { MessageService, AuthService, GroupService } from "services";
-import { IConversation, IMessage, IUser } from "types";
+import { IMessage, IUser } from "types";
 
 class ChatController extends BaseController {
   async getConversations(req: any, res: Response, next: NextFunction) {
@@ -11,10 +11,20 @@ class ChatController extends BaseController {
       if (!user) {
         return this.BadRequest(res, ERR_MSGS.USER_NOT_FOUND);
       }
+      const cachedData = await getDataFromCache(
+        `${REDIS_KEYS.GET_CONVERSATIONS}_${user._id}`
+      );
+      if (cachedData) {
+        return this.Ok(res, { friends: JSON.parse(cachedData) });
+      }
       const [conversations, groupConversations] = await Promise.all([
         MessageService.getUserConversations(user._id),
         GroupService.getGroupConversations(user._id),
       ]);
+      setDataToCache(
+        `${REDIS_KEYS.GET_CONVERSATIONS}_${user._id}`,
+        JSON.stringify({ conversations, groupConversations })
+      );
       this.Ok(res, { conversations, groupConversations });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
