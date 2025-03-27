@@ -112,4 +112,23 @@ groupRoutes.get("/get-details/:groupId", async (req, res, next) => {
   }
 });
 
+groupRoutes.get(
+  "/get-invite-link-details/:inviteToken",
+  async (req, res, next) => {
+    try {
+      await GroupController.getGroupDetailsUsingInviteLink(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+groupRoutes.patch("/reset-invite-link/:groupId", async (req, res, next) => {
+  try {
+    await GroupController.resetGroupInviteLink(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default groupRoutes;

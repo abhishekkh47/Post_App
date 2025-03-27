@@ -35,7 +35,7 @@ export const groupValidations = {
     return callback(true);
   },
 
-  getGroupMessagesValidation: (req: any, res: any, callback: any) => {
+  groupIdRequired: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
       groupId: objectIdValidation.required(),
     });
@@ -44,9 +44,7 @@ export const groupValidations = {
     if (error) {
       return res
         .status(400)
-        .json(
-          i18n.__(validationMessageKey("getGroupMessagesValidation", error))
-        );
+        .json(i18n.__(validationMessageKey("groupIdRequired", error)));
     }
     return callback(true);
   },
@@ -123,6 +121,20 @@ export const groupValidations = {
       return res
         .status(400)
         .json(i18n.__(validationMessageKey("updateUserRoleValidation", error)));
+    }
+    return callback(true);
+  },
+
+  inviteLinkRequired: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      groupId: objectIdValidation.required(),
+    });
+    const { error } = schema.validate(req);
+
+    if (error) {
+      return res
+        .status(400)
+        .json(i18n.__(validationMessageKey("inviteLinkRequired", error)));
     }
     return callback(true);
   },

@@ -4,7 +4,6 @@ import { GroupService } from "services";
 import { groupValidations } from "validations/group.validation";
 import { RequireActiveUser } from "middleware/requireActiveUser";
 import { IGroups } from "types";
-import { GroupTable } from "models";
 
 class GroupController extends BaseController {
   @RequireActiveUser()
@@ -195,7 +194,7 @@ class GroupController extends BaseController {
 
   @RequireActiveUser()
   async getGroupMessages(req: any, res: Response, next: NextFunction) {
-    groupValidations.getGroupMessagesValidation(
+    groupValidations.groupIdRequired(
       req.params,
       res,
       async (validate: boolean) => {
@@ -328,22 +327,108 @@ class GroupController extends BaseController {
 
   @RequireActiveUser()
   async joinGroupUsingInviteLink(req: any, res: Response, next: NextFunction) {
-    try {
-      const {
-        params: { inviteToken },
-      } = req;
+    groupValidations.inviteLinkRequired(
+      req.params,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const {
+              params: { inviteToken },
+            } = req;
 
-      const group: IGroups | null = await GroupTable.findOne({ inviteToken });
-      if (!group) return null;
+            const group: IGroups | null =
+              await GroupService.getGroupDetailsUsingInviteLink(inviteToken);
+            if (!group) {
+              return this.BadRequest(res, "Invalid link");
+            }
+            if (this.ifMember(group, req._id)) {
+              return this.BadRequest(
+                res,
+                "You are already a member of this group"
+              );
+            }
 
-      const updatedGroup = await GroupService.addMember(group._id, [req._id]);
-      if (!updatedGroup) {
-        return this.BadRequest(res, "Group do not exist");
+            const updatedGroup = await GroupService.addMember(group._id, [
+              req._id,
+            ]);
+            if (!updatedGroup) {
+              return this.BadRequest(res, "Group do not exist");
+            }
+            this.Ok(res, { message: "success", updatedGroup });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
       }
-      this.Ok(res, { message: "success", updatedGroup });
-    } catch (error) {
-      this.InternalServerError(res, (error as Error).message);
-    }
+    );
+  }
+
+  @RequireActiveUser()
+  async getGroupDetailsUsingInviteLink(
+    req: any,
+    res: Response,
+    next: NextFunction
+  ) {
+    groupValidations.inviteLinkRequired(
+      req.params,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const {
+              params: { inviteToken },
+            } = req;
+
+            const group: IGroups | null =
+              await GroupService.getGroupDetailsUsingInviteLink(inviteToken);
+            if (!group) {
+              return this.BadRequest(res, "Group do not exist");
+            }
+            if (this.ifMember(group, req._id)) {
+              return this.BadRequest(
+                res,
+                "You are already a member of this group"
+              );
+            }
+
+            this.Ok(res, { message: "success", group });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
+  }
+
+  @RequireActiveUser()
+  async resetGroupInviteLink(req: any, res: Response, next: NextFunction) {
+    groupValidations.groupIdRequired(
+      req.params,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const {
+              params: { groupId },
+            } = req;
+
+            const group: IGroups | null = await GroupService.getGroupById(
+              groupId
+            );
+            if (!group) {
+              return this.BadRequest(res, "Group do not exist");
+            }
+            const updatedGroup: IGroups | null =
+              await GroupService.resetGroupInviteLink(groupId);
+
+            this.Ok(res, { message: "success", group: updatedGroup });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
   }
 }
 

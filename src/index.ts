@@ -40,7 +40,7 @@ const server = async () => {
         origin: function (origin, callback) {
           callback(null, true); // ✅ Dynamically allow all origins
         },
-        methods: ["GET", "POST", "PUT", "DELETE"], // Allow only these methods
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Allow only these methods
         credentials: true, // Allow cookies and credentials to be sent with requests
         allowedHeaders: ["Content-Type", "Authorization"],
       })

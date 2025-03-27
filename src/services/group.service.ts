@@ -269,6 +269,7 @@ class GroupService {
             unreadCount: 1,
             type: 1,
             profile_pic: 1,
+            inviteToken: 1,
             // lastMessageArray: 0, // Remove the array since we've extracted what we need
           },
         },
@@ -356,6 +357,26 @@ class GroupService {
       await GroupTable.findOneAndUpdate(
         { _id: new ObjectId(groupId) },
         { $set: { profile_pic: filename } }
+      );
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  async getGroupDetailsUsingInviteLink(inviteToken: string) {
+    try {
+      return await GroupTable.findOne({ inviteToken });
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  async resetGroupInviteLink(groupId: string) {
+    try {
+      return await GroupTable.findOneAndUpdate(
+        { _id: new ObjectId(groupId) },
+        { $set: { inviteToken: uuidv4() } },
+        { upsert: true, new: true }
       );
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
