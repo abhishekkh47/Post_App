@@ -127,7 +127,7 @@ export const groupValidations = {
 
   inviteLinkRequired: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
-      groupId: objectIdValidation.required(),
+      inviteToken: Joi.string().required(),
     });
     const { error } = schema.validate(req);
 

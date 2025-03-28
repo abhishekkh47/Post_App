@@ -20,5 +20,6 @@
 	"createPostValidationDescriptionEmpty": "createPostValidationDescriptionEmpty",
 	"updateGroupValidationDescriptionEmpty": "updateGroupValidationDescriptionEmpty",
 	"groupDetailsValidationUseridRequired": "groupDetailsValidationUseridRequired",
-	"groupDetailsValidationGroupidCustom": "groupDetailsValidationGroupidCustom"
+	"groupDetailsValidationGroupidCustom": "groupDetailsValidationGroupidCustom",
+	"inviteLinkRequiredGroupidRequired": "inviteLinkRequiredGroupidRequired"
 }
