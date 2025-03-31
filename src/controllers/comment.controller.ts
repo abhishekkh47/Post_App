@@ -5,6 +5,7 @@ import { CommentService } from "services";
 import {
   getDataFromCache,
   REDIS_KEYS,
+  removeDataFromCache,
   setDataToCache,
   SUCCESS_MSGS,
 } from "utils";
@@ -155,6 +156,38 @@ class CommentController extends BaseController {
               `${REDIS_KEYS.GET_COMMENTS_BY_USER}_${userId}`,
               JSON.stringify({ comments })
             );
+            this.Ok(res, { comments });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
+  }
+
+  /**
+   * @description Like a comment
+   * @param req
+   * @param res
+   * @param next
+   */
+  @RequireActiveUser()
+  async likeDislikeAComment(req: any, res: Response, next: NextFunction) {
+    return commentValidations.likeCommentValidation(
+      req.body,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const {
+              body: { commentId, postId, like = true },
+            } = req;
+            const comments = await CommentService.likeDislikeAComment(
+              commentId,
+              req._id,
+              like
+            );
+            removeDataFromCache(`${REDIS_KEYS.GET_POST_COMMENTS}_${postId}`);
             this.Ok(res, { comments });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);

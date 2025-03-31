@@ -8,6 +8,7 @@ export interface IComment extends IBase {
   content: string;
   type: ECommentType;
   likes: number;
+  likedBy: mongoose.Schema.Types.ObjectId[];
 }
 
 export enum ECommentType {

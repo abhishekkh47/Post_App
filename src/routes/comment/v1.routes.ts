@@ -63,4 +63,16 @@ commentRoutes.get(
   }
 );
 
+commentRoutes.post(
+  "/like-or-dislike-comment",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await CommentController.likeDislikeAComment(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default commentRoutes;

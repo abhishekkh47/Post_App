@@ -263,6 +263,48 @@ class CommentService {
       throw new NetworkError((error as Error).message, 400);
     }
   }
+
+  /**
+   * @description Like or Dislike a comment
+   * @param commentId
+   * @param userId
+   * @param like Boolean - if like or dislike a comment
+   * @returns {*} void
+   */
+  async likeDislikeAComment(
+    commentId: string,
+    userId: string,
+    like: boolean = true
+  ): Promise<any> {
+    try {
+      const comment = await CommentTable.findByIdAndUpdate(commentId).lean();
+      if (
+        like &&
+        comment?.likedBy?.filter((user) => user.toString() == userId)?.length
+      ) {
+        return null;
+      } else if (
+        !like &&
+        !comment?.likedBy?.filter((user) => user.toString() == userId)?.length
+      ) {
+        return null;
+      }
+      let query = {};
+      if (like) {
+        query = { $inc: { likes: 1 }, $push: { likedBy: userId } };
+      } else {
+        query = { $inc: { likes: -1 }, $pull: { likedBy: userId } };
+      }
+      const updatedComment = await CommentTable.findByIdAndUpdate(
+        commentId,
+        query,
+        { upsert: true, new: true }
+      ).lean();
+      return updatedComment;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
 }
 
 export default new CommentService();

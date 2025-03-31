@@ -53,6 +53,16 @@ export const setDataToCache = async (
   }
 };
 
+export const removeDataFromCache = async (key: string) => {
+  try {
+    if (!isRedisAvailable()) return null;
+    await redisClient.del(key);
+  } catch (error) {
+    console.log("redis error > ", error);
+    return null;
+  }
+};
+
 // Function to check if Redis is available
 async function isRedisAvailable() {
   try {

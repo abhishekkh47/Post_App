@@ -36,6 +36,13 @@ const schema = new mongoose.Schema<ICommentSchema>(
       required: true,
       default: 0,
     },
+    likedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "user",
+      },
+    ],
   },
   { timestamps: true }
 );
