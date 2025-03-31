@@ -54,12 +54,12 @@ class CommentController extends BaseController {
             const {
               params: { postId },
             } = req;
-            // const cachedData = await getDataFromCache(
-            //   `${REDIS_KEYS.GET_POST_COMMENTS}_${postId}`
-            // );
-            // if (cachedData) {
-            //   return this.Ok(res, JSON.parse(cachedData));
-            // }
+            const cachedData = await getDataFromCache(
+              `${REDIS_KEYS.GET_POST_COMMENTS}_${postId}`
+            );
+            if (cachedData) {
+              return this.Ok(res, JSON.parse(cachedData));
+            }
             const comments = await CommentService.getCommentByPostId(postId);
             setDataToCache(
               `${REDIS_KEYS.GET_POST_COMMENTS}_${postId}`,

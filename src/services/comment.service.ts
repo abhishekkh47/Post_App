@@ -57,6 +57,11 @@ class CommentService {
             { _id: comment.postId },
             { $inc: { comments: -1 } }
           ),
+          comment.parentId
+            ? CommentTable.findByIdAndUpdate(comment.parentId, {
+                $inc: { replies: -1 },
+              })
+            : null,
         ]);
       }
       return true;
