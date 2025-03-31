@@ -18,6 +18,8 @@ class CommentService {
         ...comment,
         likes: 0,
         type: comment?.type ?? ECommentType.COMMENT,
+        parentId:
+          comment?.type == ECommentType.COMMENT ? null : comment.parentId,
       };
       await Promise.all([
         CommentTable.create(commentObj),
@@ -26,6 +28,11 @@ class CommentService {
           { $inc: { comments: 1 } },
           { upsert: true }
         ),
+        commentObj.parentId
+          ? CommentTable.findByIdAndUpdate(commentObj.parentId, {
+              $inc: { replies: 1 },
+            })
+          : null,
       ]);
       return true;
     } catch (error) {
@@ -65,7 +72,10 @@ class CommentService {
    */
   async getCommentByPostId(postId: string): Promise<any> {
     try {
-      const comments = await CommentTable.find({ postId })
+      const comments = await CommentTable.find({
+        postId,
+        type: ECommentType.COMMENT,
+      })
         .lean()
         .populate("userId");
       return comments;
@@ -113,6 +123,73 @@ class CommentService {
           },
         },
 
+        // Lookup user details for the root comment
+        {
+          $lookup: {
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
+            as: "userDetails",
+          },
+        },
+
+        // Unwind and add user details to root comment
+        {
+          $addFields: {
+            userDetails: { $arrayElemAt: ["$userDetails", 0] },
+          },
+        },
+
+        // Unwind allChildren to process each child separately
+        {
+          $unwind: {
+            path: "$allChildren",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+
+        // Lookup user details for each child comment
+        {
+          $lookup: {
+            from: "users",
+            localField: "allChildren.userId",
+            foreignField: "_id",
+            as: "allChildren.userDetails",
+          },
+        },
+
+        // Simplify the user details array to a single object
+        {
+          $addFields: {
+            "allChildren.userId": {
+              $arrayElemAt: ["$allChildren.userDetails", 0],
+            },
+          },
+        },
+
+        // Group everything back together
+        {
+          $group: {
+            _id: "$_id",
+            userId: { $first: "$userId" },
+            postId: { $first: "$postId" },
+            parentId: { $first: "$parentId" },
+            content: { $first: "$content" },
+            type: { $first: "$type" },
+            likes: { $first: "$likes" },
+            userDetails: { $first: "$userDetails" },
+            childComments: {
+              $push: {
+                $cond: [
+                  { $ifNull: ["$allChildren._id", false] },
+                  "$allChildren",
+                  "$$REMOVE",
+                ],
+              },
+            },
+          },
+        },
+
         // Project final structure
         {
           $project: {
@@ -123,7 +200,8 @@ class CommentService {
             content: 1,
             type: 1,
             likes: 1,
-            allChildren: 1,
+            userDetails: 1,
+            childComments: 1,
           },
         },
       ]).exec();
@@ -158,7 +236,7 @@ class CommentService {
           type: rootComment.type,
           likes: rootComment.likes,
         },
-        rootComment.allChildren
+        rootComment.childComments
       );
 
       return result;

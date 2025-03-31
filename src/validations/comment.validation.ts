@@ -1,6 +1,7 @@
 import i18n from "../i18n/i18n";
 import { validationMessageKey, Joi } from "utils";
 import { objectIdValidation } from "./common.validation";
+import { ECommentType } from "types";
 
 export const commentValidations = {
   createCommentValidation: (req: any, res: any, callback: any) => {
@@ -8,6 +9,14 @@ export const commentValidations = {
       postId: objectIdValidation.required(),
       parentId: objectIdValidation.optional(),
       content: Joi.string().required(),
+      type: Joi.string()
+        .optional()
+        .valid(...Object.values(ECommentType))
+        .when("parentId", {
+          is: Joi.exist(),
+          then: Joi.valid(ECommentType.REPLY).required(),
+          otherwise: Joi.valid(ECommentType.COMMENT).required(),
+        }),
     });
 
     const { error } = schema.validate(req);
