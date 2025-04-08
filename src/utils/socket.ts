@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
-import { GroupService, MessageService } from "services";
+import { GroupService, MessageService, PostService } from "services";
 import { verifyToken, WS_EVENTS } from "utils";
 import { NotificationTable } from "models/index";
 
@@ -229,17 +229,20 @@ const setupWebSocket = (httpServer: HttpServer) => {
       }
     });
 
-    // Handle Engagement
+    // Handle Post Engagement
     socket.on(LIKE_A_POST, async (data) => {
       try {
         const receiverSocketId = userSockets.get(data.receiverId);
 
-        await NotificationTable.create({
-          senderId: userId,
-          receiverId: data.receiverId,
-          message: "liked your post",
-          isRead: false,
-        });
+        await Promise.all([
+          PostService.likePost(userId, data.postId),
+          NotificationTable.create({
+            senderId: userId,
+            receiverId: data.receiverId,
+            message: "liked your post",
+            isRead: false,
+          }),
+        ]);
 
         // Notify group that the user has read the message
         if (receiverSocketId) {
@@ -248,6 +251,56 @@ const setupWebSocket = (httpServer: HttpServer) => {
       } catch (error) {
         socket.emit("error", {
           message: "Failed to like the post",
+        });
+      }
+    });
+
+    socket.on(COMMENT_ON_POST, async (data) => {
+      try {
+        const receiverSocketId = userSockets.get(data.receiverId);
+
+        await Promise.all([
+          PostService.likePost(userId, data.postId),
+          NotificationTable.create({
+            senderId: userId,
+            receiverId: data.receiverId,
+            message: "commented on your post",
+            isRead: false,
+          }),
+        ]);
+
+        // Notify group that the user has read the message
+        if (receiverSocketId) {
+          socket.to(receiverSocketId).emit(POST_COMMENT, { userId });
+        }
+      } catch (error) {
+        socket.emit("error", {
+          message: "Failed to comment the post",
+        });
+      }
+    });
+
+    socket.on(REPLY_COMMENT, async (data) => {
+      try {
+        const receiverSocketId = userSockets.get(data.receiverId);
+
+        await Promise.all([
+          PostService.likePost(userId, data.postId),
+          NotificationTable.create({
+            senderId: userId,
+            receiverId: data.receiverId,
+            message: "replied to your comment",
+            isRead: false,
+          }),
+        ]);
+
+        // Notify group that the user has read the message
+        if (receiverSocketId) {
+          socket.to(receiverSocketId).emit(COMMENT_REPLY, { userId });
+        }
+      } catch (error) {
+        socket.emit("error", {
+          message: "Failed to comment on the post",
         });
       }
     });
