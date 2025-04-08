@@ -1,19 +1,28 @@
 import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
-import { ERR_MSGS, getDataFromCache, REDIS_KEYS, setDataToCache } from "utils";
+import {
+  ERR_MSGS,
+  getDataFromCache,
+  REDIS_KEYS,
+  setDataToCache,
+  CACHING,
+} from "utils";
 import { MessageService, AuthService, GroupService } from "services";
 import { IMessage, IUser } from "types";
 import { RequireActiveUser } from "middleware/requireActiveUser";
+import Config from "../config";
 
 class ChatController extends BaseController {
   @RequireActiveUser()
   async getConversations(req: any, res: Response, next: NextFunction) {
     try {
-      const cachedData = await getDataFromCache(
-        `${REDIS_KEYS.GET_CONVERSATIONS}_${req._id}`
-      );
-      if (cachedData) {
-        return this.Ok(res, JSON.parse(cachedData));
+      if (Config.CACHING === CACHING.ENABLED) {
+        const cachedData = await getDataFromCache(
+          `${REDIS_KEYS.GET_CONVERSATIONS}_${req._id}`
+        );
+        if (cachedData) {
+          return this.Ok(res, JSON.parse(cachedData));
+        }
       }
       const [conversations, groupConversations] = await Promise.all([
         MessageService.getUserConversations(req._id),

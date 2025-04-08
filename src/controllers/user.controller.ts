@@ -9,9 +9,11 @@ import {
   getDataFromCache,
   REDIS_KEYS,
   setDataToCache,
+  CACHING,
 } from "utils";
 import { IUser } from "types";
 import { RequireActiveUser } from "middleware/requireActiveUser";
+import Config from "../config";
 
 class UserController extends BaseController {
   /**
@@ -112,11 +114,13 @@ class UserController extends BaseController {
         if (validate) {
           try {
             const { userId } = req.params;
-            const cachedData = await getDataFromCache(
-              `${REDIS_KEYS.GET_USER_PROFILE}`
-            );
-            if (cachedData) {
-              return this.Ok(res, JSON.parse(cachedData));
+            if (Config.CACHING === CACHING.ENABLED) {
+              const cachedData = await getDataFromCache(
+                `${REDIS_KEYS.GET_USER_PROFILE}`
+              );
+              if (cachedData) {
+                return this.Ok(res, JSON.parse(cachedData));
+              }
             }
             const [userDetails, isFollowing] = await Promise.all([
               AuthService.findUserById(userId),
@@ -194,9 +198,13 @@ class UserController extends BaseController {
   @RequireActiveUser()
   async getAllUsers(req: any, res: Response, next: NextFunction) {
     try {
-      const cachedData = await getDataFromCache(`${REDIS_KEYS.GET_ALL_USERS}`);
-      if (cachedData) {
-        return this.Ok(res, JSON.parse(cachedData));
+      if (Config.CACHING === CACHING.ENABLED) {
+        const cachedData = await getDataFromCache(
+          `${REDIS_KEYS.GET_ALL_USERS}`
+        );
+        if (cachedData) {
+          return this.Ok(res, JSON.parse(cachedData));
+        }
       }
       const users: IUser[] = await UserService.getAllUsers();
       setDataToCache(`${REDIS_KEYS.GET_ALL_USERS}`, JSON.stringify(users));

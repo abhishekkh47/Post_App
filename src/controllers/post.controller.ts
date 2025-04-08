@@ -3,6 +3,7 @@ import BaseController from "./base.controller";
 import { PostService, UserService, FollowService } from "services";
 import { ICreatePost } from "types";
 import {
+  CACHING,
   getDataFromCache,
   POST_TYPE,
   REDIS_KEYS,
@@ -11,6 +12,7 @@ import {
 } from "utils";
 import { postValidations } from "validations";
 import { RequireActiveUser } from "middleware";
+import Config from "../config";
 
 class PostController extends BaseController {
   @RequireActiveUser()
@@ -140,11 +142,13 @@ class PostController extends BaseController {
   @RequireActiveUser()
   async getMyFeed(req: any, res: Response, next: NextFunction) {
     try {
-      const cachedData = await getDataFromCache(
-        `${REDIS_KEYS.GET_MY_FEED}_${req._id}`
-      );
-      if (cachedData) {
-        return this.Ok(res, JSON.parse(cachedData));
+      if (Config.CACHING === CACHING.ENABLED) {
+        const cachedData = await getDataFromCache(
+          `${REDIS_KEYS.GET_MY_FEED}_${req._id}`
+        );
+        if (cachedData) {
+          return this.Ok(res, JSON.parse(cachedData));
+        }
       }
       const posts = await PostService.getUserFeed(req._id);
       setDataToCache(

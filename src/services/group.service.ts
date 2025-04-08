@@ -1,7 +1,7 @@
 import { NetworkError } from "middleware";
 import { GroupMessageTable, GroupTable } from "models";
 import { ObjectId } from "mongodb";
-import { IGroupConversation, IGroups } from "types";
+import { IGroupConversation } from "types";
 import { GROUP_CHAT_USER_ROLE } from "utils/constants";
 import { v4 as uuidv4 } from "uuid";
 

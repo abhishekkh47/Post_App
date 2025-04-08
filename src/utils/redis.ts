@@ -1,5 +1,10 @@
 import redis from "ioredis";
 
+export const CACHING = {
+  ENABLED: "enabled",
+  DISABLED: "disabled",
+};
+
 export const REDIS_KEYS = {
   GET_FRIENDS: "getFriends",
   GET_MY_FEED: "getMyFeed",

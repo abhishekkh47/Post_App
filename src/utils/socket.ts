@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
 import { GroupService, MessageService } from "services";
 import { verifyToken, WS_EVENTS } from "utils";
+import { NotificationTable } from "models/index";
 
 const setupWebSocket = (httpServer: HttpServer) => {
   const {
@@ -25,6 +26,10 @@ const setupWebSocket = (httpServer: HttpServer) => {
         GROUP_USER_TYPING,
         GROUP_MESSAGE_MARKED_READ,
       },
+    },
+    NOTIFICATIONS: {
+      LISTENER: { LIKE_A_POST, COMMENT_ON_POST, LIKE_A_COMMENT, REPLY_COMMENT },
+      EMITTER: { POST_LIKED, POST_COMMENT, COMMENT_LIKED, COMMENT_REPLY },
     },
   } = WS_EVENTS;
 
@@ -220,6 +225,29 @@ const setupWebSocket = (httpServer: HttpServer) => {
       } catch (error) {
         socket.emit("error", {
           message: "Failed to mark group message as read",
+        });
+      }
+    });
+
+    // Handle Engagement
+    socket.on(LIKE_A_POST, async (data) => {
+      try {
+        const receiverSocketId = userSockets.get(data.receiverId);
+
+        await NotificationTable.create({
+          senderId: userId,
+          receiverId: data.receiverId,
+          message: "liked your post",
+          isRead: false,
+        });
+
+        // Notify group that the user has read the message
+        if (receiverSocketId) {
+          socket.to(receiverSocketId).emit(POST_LIKED, { userId });
+        }
+      } catch (error) {
+        socket.emit("error", {
+          message: "Failed to like the post",
         });
       }
     });

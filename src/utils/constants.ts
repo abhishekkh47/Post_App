@@ -65,6 +65,20 @@ export const WS_EVENTS = {
       GROUP_MESSAGE_MARKED_READ: "group_message_marked_read",
     },
   },
+  NOTIFICATIONS: {
+    LISTENER: {
+      LIKE_A_POST: "liked_a_post",
+      COMMENT_ON_POST: "commented_on_post",
+      LIKE_A_COMMENT: "liked_a_comment",
+      REPLY_COMMENT: "replied_to_comment",
+    },
+    EMITTER: {
+      POST_LIKED: "liked_post",
+      POST_COMMENT: "comment_on_post",
+      COMMENT_LIKED: "comment_liked",
+      COMMENT_REPLY: "replied_to_comment",
+    },
+  },
 };
 
 export const GROUP_CHAT_USER_ROLE = { MEMBER: "member", ADMIN: "admin" };

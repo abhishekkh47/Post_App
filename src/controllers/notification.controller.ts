@@ -3,12 +3,14 @@ import BaseController from "./base.controller";
 import { NotificationService } from "services";
 import { authValidations } from "validations";
 import {
+  CACHING,
   getDataFromCache,
   REDIS_KEYS,
   setDataToCache,
   SUCCESS_MSGS,
 } from "utils";
 import { RequireActiveUser } from "middleware/requireActiveUser";
+import Config from "../config";
 
 class NotificationController extends BaseController {
   /**
@@ -20,11 +22,13 @@ class NotificationController extends BaseController {
   @RequireActiveUser()
   async getNotifications(req: any, res: Response, next: NextFunction) {
     try {
-      const cachedData = await getDataFromCache(
-        `${REDIS_KEYS.GET_NOTIFICATIONS}_${req._id}`
-      );
-      if (cachedData) {
-        return this.Ok(res, JSON.parse(cachedData));
+      if (Config.CACHING === CACHING.ENABLED) {
+        const cachedData = await getDataFromCache(
+          `${REDIS_KEYS.GET_NOTIFICATIONS}_${req._id}`
+        );
+        if (cachedData) {
+          return this.Ok(res, JSON.parse(cachedData));
+        }
       }
       const notifications = await NotificationService.getNotification(req.user);
       setDataToCache(

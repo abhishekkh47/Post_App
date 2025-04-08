@@ -3,6 +3,7 @@ import BaseController from "./base.controller";
 import { commentValidations } from "validations";
 import { CommentService } from "services";
 import {
+  CACHING,
   getDataFromCache,
   REDIS_KEYS,
   removeDataFromCache,
@@ -10,6 +11,7 @@ import {
   SUCCESS_MSGS,
 } from "utils";
 import { RequireActiveUser } from "middleware/requireActiveUser";
+import Config from "../config";
 
 class CommentController extends BaseController {
   /**
@@ -54,11 +56,13 @@ class CommentController extends BaseController {
             const {
               params: { postId },
             } = req;
-            const cachedData = await getDataFromCache(
-              `${REDIS_KEYS.GET_POST_COMMENTS}_${postId}`
-            );
-            if (cachedData) {
-              return this.Ok(res, JSON.parse(cachedData));
+            if (Config.CACHING === CACHING.ENABLED) {
+              const cachedData = await getDataFromCache(
+                `${REDIS_KEYS.GET_POST_COMMENTS}_${postId}`
+              );
+              if (cachedData) {
+                return this.Ok(res, JSON.parse(cachedData));
+              }
             }
             const comments = await CommentService.getCommentByPostId(postId);
             setDataToCache(
@@ -143,11 +147,13 @@ class CommentController extends BaseController {
             const {
               params: { userId },
             } = req;
-            const cachedData = await getDataFromCache(
-              `${REDIS_KEYS.GET_COMMENTS_BY_USER}_${userId}`
-            );
-            if (cachedData) {
-              return this.Ok(res, JSON.parse(cachedData));
+            if (Config.CACHING === CACHING.ENABLED) {
+              const cachedData = await getDataFromCache(
+                `${REDIS_KEYS.GET_COMMENTS_BY_USER}_${userId}`
+              );
+              if (cachedData) {
+                return this.Ok(res, JSON.parse(cachedData));
+              }
             }
             const comments = await CommentService.getAllCommentsByUserId(
               userId

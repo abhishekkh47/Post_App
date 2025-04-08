@@ -3,13 +3,14 @@ import BaseController from "./base.controller";
 import { followValidations } from "validations";
 import { FollowService } from "services";
 import {
+  CACHING,
   getDataFromCache,
   REDIS_KEYS,
-  redisClient,
   setDataToCache,
   SUCCESS_MSGS,
 } from "utils";
 import { RequireActiveUser } from "middleware/requireActiveUser";
+import Config from "../config";
 
 class FollowController extends BaseController {
   /**
@@ -121,11 +122,13 @@ class FollowController extends BaseController {
   @RequireActiveUser()
   async getFriends(req: any, res: Response, next: NextFunction) {
     try {
-      const cachedData = await getDataFromCache(
-        `${REDIS_KEYS.GET_FRIENDS}_${req._id}`
-      );
-      if (cachedData) {
-        return this.Ok(res, { friends: JSON.parse(cachedData) });
+      if (Config.CACHING === CACHING.ENABLED) {
+        const cachedData = await getDataFromCache(
+          `${REDIS_KEYS.GET_FRIENDS}_${req._id}`
+        );
+        if (cachedData) {
+          return this.Ok(res, { friends: JSON.parse(cachedData) });
+        }
       }
       const friends = await FollowService.getUserFriends(req._id);
       setDataToCache(

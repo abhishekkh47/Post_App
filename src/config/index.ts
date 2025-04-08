@@ -26,4 +26,7 @@ export default {
   get UPLOADS_DIR() {
     return process.env.UPLOADS_DIR;
   },
+  get CACHING() {
+    return process.env.CACHING;
+  },
 };
