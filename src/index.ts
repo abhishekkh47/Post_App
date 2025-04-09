@@ -5,7 +5,7 @@ import DotEnv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { createServer } from "http";
-import { setupWebSocket } from "utils";
+import { createRedisClient, setupWebSocket, currentDateOnly } from "utils";
 DotEnv.config();
 import Config from "./config";
 import i18n from "./i18n/i18n";
@@ -14,7 +14,6 @@ import * as rfs from "rotating-file-stream";
 import Path from "path";
 import router from "./routes";
 import { errorHandler } from "middleware";
-import { currentDateOnly } from "utils";
 
 const server = async () => {
   try {
@@ -69,6 +68,13 @@ const server = async () => {
       ) => void
     );
 
+    /*
+    while using redis labs server, we can create the redis client here, since we are using env variables 
+    env variables are loaded once this file is executed and env data is loaded here 
+    and then only we should create the redis client
+    but if we are using local redis server, we can create the redis client in utils/redis.ts file
+    */
+    createRedisClient();
     await mongoose.connect(Config.DB_PATH as string);
 
     // app.listen(Config.PORT, () => {

@@ -29,4 +29,13 @@ export default {
   get CACHING() {
     return process.env.CACHING;
   },
+  get REDIS_HOST() {
+    return process.env.REDIS_HOST;
+  },
+  get REDIS_USERNAME() {
+    return process.env.REDIS_USERNAME;
+  },
+  get REDIS_PASSWORD() {
+    return process.env.REDIS_PASSWORD;
+  },
 };

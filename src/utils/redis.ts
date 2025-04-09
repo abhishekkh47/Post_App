@@ -1,4 +1,6 @@
 import redis from "ioredis";
+import Config from "config";
+import { createClient } from "redis";
 
 export const CACHING = {
   ENABLED: "enabled",
@@ -16,12 +18,13 @@ export const REDIS_KEYS = {
   GET_USER_PROFILE: "getUserProfile",
 };
 
+// Local Redis Server config : (client created using ioredis)
+/*
 export const redisClient = new redis({
-  host: "localhost", // e.g. 'localhost' or an IP address
+  host: Config.REDIS_HOST || "localhost", // e.g. 'localhost' or an IP address
   port: 6379,
   maxRetriesPerRequest: 5,
 });
-
 redisClient
   .ping()
   .then((result) => {
@@ -30,6 +33,26 @@ redisClient
   .catch((err) => {
     console.error("Error connecting to Redis:", err);
   });
+*/
+
+// Redis Labs Server config : (client created using redis)
+let redisClient: any;
+export const createRedisClient = () => {
+  redisClient = createClient({
+    username: Config.REDIS_USERNAME,
+    password: Config.REDIS_PASSWORD,
+    socket: {
+      host: Config.REDIS_HOST,
+      port: 18368,
+    },
+  });
+
+  redisClient.on("error", (err: any) => console.log("Redis Client Error", err));
+
+  redisClient.connect().then((result: any) => {
+    console.log("Connection successful to redislabs"); // Should log 'PONG'
+  });
+};
 
 export const getDataFromCache = async (key: string) => {
   try {
@@ -51,7 +74,11 @@ export const setDataToCache = async (
 ) => {
   try {
     if (!isRedisAvailable()) return null;
-    await redisClient.set(key, value, "EX", ttl); // 1 min
+    // For local redis server :
+    /*
+     await redisClient.set(key, value, "EX", ttl); // 1 min 
+    */
+    await redisClient.set(key, value, { EX: ttl }); // 1 min
   } catch (error) {
     console.log("redis error > ", error);
     return null;
