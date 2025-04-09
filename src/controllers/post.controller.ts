@@ -150,12 +150,20 @@ class PostController extends BaseController {
           return this.Ok(res, JSON.parse(cachedData));
         }
       }
-      const posts = await PostService.getUserFeed(req._id);
+      const page = parseInt(req.query.page as string) || 1; // Default page is 1
+      const limit = 10; // Number of posts per page
+
+      const {
+        feed: posts,
+        currentPage,
+        totalPosts,
+        totalPages,
+      } = await PostService.getUserFeed(req._id, page, limit);
       setDataToCache(
         `${REDIS_KEYS.GET_MY_FEED}_${req._id}`,
         JSON.stringify({ posts })
       );
-      this.Ok(res, { posts });
+      this.Ok(res, { posts, currentPage, totalPosts, totalPages });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }

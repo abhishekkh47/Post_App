@@ -119,9 +119,15 @@ class PostService {
   /**
    * @description get feed content for user
    * @param userId
+   * @param page
+   * @param limit
    * @returns {posts} list of posts
    */
-  public async getUserFeed(userId: string): Promise<any> {
+  public async getUserFeed(
+    userId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<any> {
     try {
       const usersFollowed = await FriendsTable.find({
         followerId: new ObjectId(userId),
@@ -130,6 +136,8 @@ class PostService {
         new ObjectId(userId),
         ...usersFollowed.map((f) => f.followeeId),
       ];
+
+      const skip = (page - 1) * limit;
       const feed = await PostTable.aggregate([
         {
           $match: {
@@ -197,8 +205,25 @@ class PostService {
             createdAt: -1,
           },
         },
+        {
+          $skip: skip,
+        },
+        {
+          $limit: limit,
+        },
       ]).exec();
-      return feed;
+
+      const totalPosts = await PostTable.countDocuments({
+        userId: { $in: userIds },
+      });
+
+      return {
+        feed,
+        currentPage: page,
+        totalPosts,
+        totalPages: Math.ceil(totalPosts / limit),
+      };
+      // return feed;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }
