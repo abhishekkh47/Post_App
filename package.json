@@ -1,9 +1,10 @@
 {
-  "name": "todo-app",
+  "name": "postal",
   "version": "1.0.0",
   "description": "",
   "main": "index.ts",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon --watch './*/' -e ts --exec ts-node src/index.ts"
   },
@@ -44,14 +45,14 @@
     "nodemon": "^3.1.7"
   },
   "_moduleAliases": {
-    "controllers": "src/controllers",
-    "models": "src/models",
-    "services": "src/services",
-    "middleware": "src/middleware",
-    "routes": "src/routes",
-    "types": "src/types",
-    "utils": "src/utils",
-    "validations": "src/validations",
-    "config": "src/config"
+    "controllers": "dist/controllers",
+    "models": "dist/models",
+    "services": "dist/services",
+    "middleware": "dist/middleware",
+    "routes": "dist/routes",
+    "types": "dist/types",
+    "utils": "dist/utils",
+    "validations": "dist/validations",
+    "config": "dist/config"
   }
 }
