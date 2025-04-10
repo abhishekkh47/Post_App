@@ -231,6 +231,39 @@ class UserController extends BaseController {
       this.InternalServerError(res, (error as Error).message);
     }
   }
+
+  /**
+   * @description update profile details
+   */
+  @RequireActiveUser()
+  async updateProfileDetails(req: any, res: Response, next: NextFunction) {
+    authValidations.updateProfileValidation(
+      req.body,
+      res,
+      async (validate: boolean) => {
+        if (validate) {
+          try {
+            const { firstName, lastName = "", bio = "" } = req.body;
+            if (!firstName || !firstName.length) {
+              return this.BadRequest(res, "Please provide a valid firstName");
+            }
+
+            const updatedProfile = await UserService.updateProfileDetails(
+              req.user,
+              {
+                firstName,
+                lastName,
+                bio,
+              }
+            );
+            this.Ok(res, { updatedProfile });
+          } catch (error) {
+            this.InternalServerError(res, (error as Error).message);
+          }
+        }
+      }
+    );
+  }
 }
 
 export default new UserController();

@@ -126,4 +126,20 @@ export const authValidations = {
     }
     return callback(true);
   },
+
+  updateProfileValidation: (req: any, res: any, callback: any) => {
+    const schema = Joi.object({
+      firstName: Joi.string().required(),
+      lastName: Joi.string().optional().allow(""),
+      bio: Joi.string().optional().allow(""),
+    });
+    const { error } = schema.validate(req);
+
+    if (error) {
+      return res
+        .status(400)
+        .json(i18n.__(validationMessageKey("updateProfileValidation", error)));
+    }
+    return callback(true);
+  },
 };

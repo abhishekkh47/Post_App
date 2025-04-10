@@ -120,4 +120,19 @@ userRoutes.put(
   }
 );
 
+/**
+ * update name and desription
+ */
+userRoutes.put(
+  "/update-my-details",
+  AuthMiddleware.Auth,
+  async (req: any, res: any, next: any) => {
+    try {
+      await UserController.updateProfileDetails(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default userRoutes;

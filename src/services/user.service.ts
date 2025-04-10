@@ -178,6 +178,26 @@ class UserService {
       throw new NetworkError((error as Error).message, 400);
     }
   }
+
+  /**
+   * @description get all users details
+   * @param user user details
+   * @param data name and bio
+   * @returns {*}
+   */
+  async updateProfileDetails(
+    user: IUser,
+    data: { firstName: string; lastName: string; bio: string | null }
+  ): Promise<void> {
+    try {
+      await UserTable.findOneAndUpdate(
+        { _id: user._id },
+        { firstName: data.firstName, lastName: data.lastName, bio: data?.bio }
+      );
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
 }
 
 export default new UserService();
