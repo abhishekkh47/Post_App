@@ -144,13 +144,13 @@ class PostController extends BaseController {
     try {
       if (Config.CACHING === CACHING.ENABLED) {
         const cachedData = await getDataFromCache(
-          `${REDIS_KEYS.GET_MY_FEED}_${req._id}`
+          `${REDIS_KEYS.GET_MY_FEED}_${req._id}_page_${req.query.page}`
         );
         if (cachedData) {
           return this.Ok(res, JSON.parse(cachedData));
         }
       }
-      const page = parseInt(req.query.page as string) || 1; // Default page is 1
+      const page = Number(req.query.page as string) || 1; // Default page is 1
       const limit = 10; // Number of posts per page
 
       const {
@@ -160,7 +160,7 @@ class PostController extends BaseController {
         totalPages,
       } = await PostService.getUserFeed(req._id, page, limit);
       setDataToCache(
-        `${REDIS_KEYS.GET_MY_FEED}_${req._id}`,
+        `${REDIS_KEYS.GET_MY_FEED}_${req._id}_page_${req.query.page}`,
         JSON.stringify({ posts })
       );
       this.Ok(res, { posts, currentPage, totalPosts, totalPages });
