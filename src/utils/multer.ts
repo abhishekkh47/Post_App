@@ -5,16 +5,19 @@ import Config from "config";
 import { v4 as uuidV4 } from "uuid";
 
 const UPLOADS_DIR = (Config.UPLOADS_DIR as string) || "src/uploads";
-if (!fs.existsSync(UPLOADS_DIR as string)) {
-  fs.mkdirSync(UPLOADS_DIR as string, { recursive: true });
+// const UPLOADS_DIR = path.resolve(__dirname, "uploads");
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, UPLOADS_DIR as string);
+    cb(null, UPLOADS_DIR);
   },
   filename: (req, file, cb) => {
-    cb(null, uuidV4() + path.extname(file.originalname));
+    const uniqueSuffix = uuidV4();
+    const extname = path.extname(file.originalname);
+    cb(null, `${uniqueSuffix}${extname}`);
   },
 });
 

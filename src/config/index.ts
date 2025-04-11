@@ -38,4 +38,10 @@ export default {
   get REDIS_PASSWORD() {
     return process.env.REDIS_PASSWORD;
   },
+  get MEGA_EMAIL() {
+    return process.env.MEGA_EMAIL;
+  },
+  get MEGA_PASSWORD() {
+    return process.env.MEGA_PASSWORD;
+  },
 };

@@ -7,3 +7,4 @@ export * from "./email";
 export { default as setupWebSocket } from "./socket";
 export * from "./multer";
 export * from "./redis";
+export * from "./mega";

@@ -14,6 +14,10 @@ import {
 import { IUser } from "types";
 import { RequireActiveUser } from "middleware/requireActiveUser";
 import Config from "../config";
+import path from "path";
+import fs from "fs";
+import { storage } from "../utils";
+import crypto from "crypto";
 
 class UserController extends BaseController {
   /**
@@ -222,11 +226,41 @@ class UserController extends BaseController {
     try {
       const { file } = req;
       const filename = file?.filename;
-      if (!filename) {
+      if (!file) {
         return this.BadRequest(res, "Upload a valid file");
       }
-      await UserService.updateProfilePicture(req.user, filename);
-      this.Ok(res, { message: "success", filename });
+
+      const UPLOADS_DIR = (Config.UPLOADS_DIR as string) || "src/uploads";
+      // const UPLOADS_DIR = path.resolve(__dirname, "uploads");
+      const filePath = path.resolve(UPLOADS_DIR, req.file.filename);
+      // const fileName = req.file.filename;
+      const fileBuffer = fs.readFileSync(filePath);
+
+      // Polyfill for crypto.getRandomValues if needed
+      if (!globalThis.crypto) {
+        globalThis.crypto = {
+          getRandomValues: (buffer: Uint8Array) =>
+            crypto.randomFillSync(buffer),
+        } as Crypto;
+      }
+
+      const uploadResult = storage.upload(
+        {
+          name: filename,
+          size: fileBuffer.length,
+        },
+        fileBuffer
+      );
+      // );
+      const files = await uploadResult.complete;
+
+      // Generate a public link to the uploaded file
+      const fileUrl = await files.link({
+        noKey: false, // This ensures the key is included in the URL
+      }); // Pass appropriate argument(s) based on the method's requirements
+      console.log("fileUrl : ", fileUrl);
+      await UserService.updateProfilePicture(req.user, fileUrl);
+      this.Ok(res, { message: "success", fileUrl });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }

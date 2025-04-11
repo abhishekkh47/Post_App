@@ -5,7 +5,12 @@ import DotEnv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { createServer } from "http";
-import { createRedisClient, setupWebSocket, currentDateOnly } from "utils";
+import {
+  createRedisClient,
+  setupWebSocket,
+  currentDateOnly,
+  mega,
+} from "utils";
 DotEnv.config();
 import Config from "./config";
 import i18n from "./i18n/i18n";
@@ -75,6 +80,7 @@ const server = async () => {
     but if we are using local redis server, we can create the redis client in utils/redis.ts file
     */
     createRedisClient();
+    await mega();
     await mongoose.connect(Config.DB_PATH as string);
 
     // app.listen(Config.PORT, () => {

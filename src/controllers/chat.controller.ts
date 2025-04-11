@@ -17,16 +17,13 @@ class ChatController extends BaseController {
   async getConversations(req: any, res: Response, next: NextFunction) {
     try {
       if (Config.CACHING === CACHING.ENABLED) {
-        console.log("Redis caching enabled");
         const cachedData = await getDataFromCache(
           `${REDIS_KEYS.GET_CONVERSATIONS}_${req._id}`
         );
         if (cachedData) {
-          console.log("CACHE HIT");
           return this.Ok(res, JSON.parse(cachedData));
         }
       }
-      console.log("CACHE MISS");
       const [conversations, groupConversations] = await Promise.all([
         MessageService.getUserConversations(req._id),
         GroupService.getGroupConversations(req._id),
