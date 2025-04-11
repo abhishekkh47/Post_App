@@ -4,6 +4,8 @@ import { GroupService } from "services";
 import { groupValidations } from "validations/group.validation";
 import { RequireActiveUser } from "middleware/requireActiveUser";
 import { IGroups } from "types";
+import { cloudinary } from "utils";
+import { Readable } from "stream";
 
 class GroupController extends BaseController {
   @RequireActiveUser()
@@ -292,8 +294,7 @@ class GroupController extends BaseController {
         params: { groupId },
         file,
       } = req;
-      const filename = file?.filename;
-      if (!filename) {
+      if (!file) {
         return this.BadRequest(res, "Upload a valid file");
       }
 
@@ -304,8 +305,28 @@ class GroupController extends BaseController {
       if (this.ifAdmin(group, req._id)) {
         return this.BadRequest(res, "You are not an admin of this group");
       }
-      await GroupService.updateGroupProfilePicture(groupId, filename);
-      this.Ok(res, { message: "success", filename });
+
+      const result = cloudinary.v2.uploader.upload_stream(
+        { resource_type: "auto" }, // Automatically detect file type
+        async (error, result) => {
+          if (error) {
+            return next(error); // Pass error to the error handler
+          }
+          await GroupService.updateGroupProfilePicture(
+            req.user,
+            result?.secure_url || ""
+          );
+          // Send the Cloudinary image URL to the frontend
+          this.Ok(res, { message: "success", filename: result?.secure_url });
+        }
+      );
+
+      // Pipe the file into Cloudinary's upload stream
+      const bufferStream = new Readable();
+      bufferStream._read = () => {}; // Required to make the stream readable
+      bufferStream.push(file?.buffer);
+      bufferStream.push(null);
+      bufferStream.pipe(result);
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }

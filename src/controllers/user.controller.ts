@@ -233,21 +233,19 @@ class UserController extends BaseController {
           if (error) {
             return next(error); // Pass error to the error handler
           }
-          console.log("result?.secure_url : ", result?.secure_url);
           await UserService.updateProfilePicture(
             req.user,
             result?.secure_url || ""
           );
           // Send the Cloudinary image URL to the frontend
           this.Ok(res, { message: "success", filename: result?.secure_url });
-          // res.status(200).json({ url: result?.secure_url });
         }
       );
 
       // Pipe the file into Cloudinary's upload stream
       const bufferStream = new Readable();
       bufferStream._read = () => {}; // Required to make the stream readable
-      bufferStream.push(req.file?.buffer);
+      bufferStream.push(file?.buffer);
       bufferStream.push(null);
       bufferStream.pipe(result);
     } catch (error) {
