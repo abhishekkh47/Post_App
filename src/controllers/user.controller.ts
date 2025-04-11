@@ -10,10 +10,12 @@ import {
   REDIS_KEYS,
   setDataToCache,
   CACHING,
+  cloudinary,
 } from "utils";
 import { IUser } from "types";
 import { RequireActiveUser } from "middleware/requireActiveUser";
 import Config from "../config";
+import { Readable } from "stream";
 
 class UserController extends BaseController {
   /**
@@ -221,12 +223,33 @@ class UserController extends BaseController {
   async updateProfilePicture(req: any, res: Response, next: NextFunction) {
     try {
       const { file } = req;
-      const filename = file?.filename;
-      if (!filename) {
+      if (!file) {
         return this.BadRequest(res, "Upload a valid file");
       }
-      await UserService.updateProfilePicture(req.user, filename);
-      this.Ok(res, { message: "success", filename });
+
+      const result = cloudinary.v2.uploader.upload_stream(
+        { resource_type: "auto" }, // Automatically detect file type
+        async (error, result) => {
+          if (error) {
+            return next(error); // Pass error to the error handler
+          }
+          console.log("result?.secure_url : ", result?.secure_url);
+          await UserService.updateProfilePicture(
+            req.user,
+            result?.secure_url || ""
+          );
+          // Send the Cloudinary image URL to the frontend
+          this.Ok(res, { message: "success", filename: result?.secure_url });
+          // res.status(200).json({ url: result?.secure_url });
+        }
+      );
+
+      // Pipe the file into Cloudinary's upload stream
+      const bufferStream = new Readable();
+      bufferStream._read = () => {}; // Required to make the stream readable
+      bufferStream.push(req.file?.buffer);
+      bufferStream.push(null);
+      bufferStream.pipe(result);
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }

@@ -38,4 +38,16 @@ export default {
   get REDIS_PASSWORD() {
     return process.env.REDIS_PASSWORD;
   },
+  get CLOUDINARY_CLOUD_NAME() {
+    return process.env.CLOUDINARY_CLOUD_NAME;
+  },
+  get CLOUDINARY_API_KEY() {
+    return process.env.CLOUDINARY_API_KEY;
+  },
+  get CLOUDINARY_API_SECRET() {
+    return process.env.CLOUDINARY_API_SECRET;
+  },
+  get CLOUDINARY_API_ENV() {
+    return process.env.CLOUDINARY_API_ENV;
+  },
 };
