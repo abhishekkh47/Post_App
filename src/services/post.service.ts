@@ -77,17 +77,17 @@ class PostService {
 
   /**
    * @description delete the given post of the logged user
-   * @param user
+   * @param userId
    * @param postId post to be deleted
    */
-  public async deleteUserPost(user: any, postId: any): Promise<void> {
+  public async deleteUserPost(userId: string, postId: string): Promise<void> {
     try {
       await Promise.all([
-        PostTable.findOneAndDelete({
-          _id: postId,
-          userId: user?._id,
-        }).lean(),
-        UserTable.findOneAndUpdate({ _id: user._id }, { $inc: { posts: -1 } }),
+        PostTable.deleteOne({
+          _id: new ObjectId(postId),
+          userId: new ObjectId(userId),
+        }),
+        UserTable.findOneAndUpdate({ _id: userId }, { $inc: { posts: -1 } }),
       ]);
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
