@@ -14,7 +14,8 @@ class NotificationService {
         receiverId: user._id,
       })
         .populate("senderId", "firstName lastName profile_pic")
-        .lean();
+        .lean()
+        .sort({ createdAt: -1 });
       return notifications;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
