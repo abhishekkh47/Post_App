@@ -313,7 +313,7 @@ class GroupController extends BaseController {
             return next(error); // Pass error to the error handler
           }
           await GroupService.updateGroupProfilePicture(
-            req.user,
+            group._id,
             result?.secure_url || ""
           );
           // Send the Cloudinary image URL to the frontend
