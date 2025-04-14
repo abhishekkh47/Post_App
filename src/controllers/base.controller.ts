@@ -18,6 +18,13 @@ class BaseController {
       .status(500)
       .json({ status: 500, message: message || "Internal Server Error" });
   }
+
+  protected UnderMaintenance<T>(res: Response, message: T) {
+    res.status(503).json({
+      status: "maintenance",
+      message: message || "Service under maintenance. Please try again later",
+    });
+  }
 }
 
 export default BaseController;

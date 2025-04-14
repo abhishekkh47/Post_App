@@ -1,6 +1,7 @@
 import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
 import { RequireActiveUser } from "middleware";
+import Config from "../config";
 
 class CommonController extends BaseController {
   @RequireActiveUser()
@@ -18,6 +19,26 @@ class CommonController extends BaseController {
         }
       }
       this.Ok(res, { message: "success", filename });
+    } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
+  }
+
+  /**
+   * @description Check the app status if it is in maintenance mode
+   * @param req
+   * @param res
+   * @param next
+   */
+  public async status(req: any, res: Response, next: NextFunction) {
+    try {
+      if (Config.MAINTENANCE_MODE === "true") {
+        this.UnderMaintenance(res, {
+          message: "Service in maintenance mode",
+        });
+      } else {
+        this.Ok(res, { message: "Service is up and running" });
+      }
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }

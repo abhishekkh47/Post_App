@@ -13,7 +13,7 @@ import Morgan from "morgan";
 import * as rfs from "rotating-file-stream";
 import Path from "path";
 import router from "./routes";
-import { errorHandler } from "middleware";
+import { errorHandler, maintenanceModeHandler } from "middleware";
 
 const server = async () => {
   try {
@@ -49,6 +49,14 @@ const server = async () => {
       req.io = io;
       next();
     });
+
+    // app.use(
+    //   maintenanceModeHandler as (
+    //     req: express.Request,
+    //     res: express.Response,
+    //     next: express.NextFunction
+    //   ) => void
+    // );
 
     app.use("/", router);
     app.use(

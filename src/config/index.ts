@@ -50,4 +50,7 @@ export default {
   get CLOUDINARY_API_ENV() {
     return process.env.CLOUDINARY_API_ENV;
   },
+  get MAINTENANCE_MODE() {
+    return process.env.MAINTENANCE_MODE;
+  },
 };

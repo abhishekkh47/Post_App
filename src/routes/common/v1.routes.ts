@@ -16,5 +16,12 @@ commonRoutes.post(
     }
   }
 );
+commonRoutes.get("/status", async (req, res, next) => {
+  try {
+    await CommonController.status(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default commonRoutes;
