@@ -33,4 +33,19 @@ notificaitionRoutes.put(
   }
 );
 
+/**
+ * mark read all notifications
+ */
+notificaitionRoutes.put(
+  "/mark-read-all-notifications",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await NotificationController.markReadAll(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default notificaitionRoutes;

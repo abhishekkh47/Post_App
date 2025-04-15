@@ -1,6 +1,6 @@
 import { UserTable, NotificationTable } from "models";
 import { NetworkError } from "middleware";
-import { ITokenResponse, IUser } from "types";
+import { EnotificationType, ITokenResponse, IUser } from "types";
 import { AuthService, TokenService } from "services";
 import { getHashedPassword, sendResetEmail } from "utils";
 
@@ -142,6 +142,7 @@ class UserService {
         receiverId,
         message,
         isRead,
+        type: EnotificationType.FOLLOW,
       });
       return true;
     } catch (error) {

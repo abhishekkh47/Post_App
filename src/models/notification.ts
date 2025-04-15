@@ -31,6 +31,11 @@ const schema = new mongoose.Schema<INotificationSchema>(
       required: true,
       default: 0,
     },
+    contentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: false,
+      default: null,
+    },
   },
   { timestamps: true }
 );

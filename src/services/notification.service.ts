@@ -39,6 +39,22 @@ class NotificationService {
       throw new NetworkError((error as Error).message, 400);
     }
   }
+
+  /**
+   * @description mark notification as read
+   * @param userId
+   * @returns {*}
+   */
+  async markReadAll(userId: string): Promise<any> {
+    try {
+      await NotificationTable.updateMany(
+        { receiverId: userId },
+        { $set: { isRead: true } }
+      );
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
 }
 
 export default new NotificationService();
