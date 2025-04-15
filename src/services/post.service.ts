@@ -64,8 +64,18 @@ class PostService {
     try {
       const post = await PostTable.findById(
         { _id: postId },
-        { _id: 1, post: 1, type: 1, edited: 1, createdAt: 1, reactions: 1 }
-      ).lean();
+        {
+          _id: 1,
+          post: 1,
+          type: 1,
+          edited: 1,
+          createdAt: 1,
+          reactions: 1,
+          comments: 1,
+        }
+      )
+        .lean()
+        .populate("userId");
       if (!post) {
         throw new NetworkError("Post not found", 400);
       }

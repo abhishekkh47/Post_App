@@ -2,7 +2,8 @@ import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
 import { GroupService, MessageService, PostService } from "services";
 import { verifyToken, WS_EVENTS } from "utils";
-import { NotificationTable } from "models/index";
+import { NotificationTable } from "models";
+import { EnotificationType } from "types";
 
 const setupWebSocket = (httpServer: HttpServer) => {
   const {
@@ -236,12 +237,16 @@ const setupWebSocket = (httpServer: HttpServer) => {
 
         await Promise.all([
           PostService.likePost(userId, data.postId),
-          NotificationTable.create({
-            senderId: userId,
-            receiverId: data.receiverId,
-            message: "liked your post",
-            isRead: false,
-          }),
+          userId !== data.receiverId
+            ? NotificationTable.create({
+                senderId: userId,
+                receiverId: data.receiverId,
+                message: "liked your post",
+                isRead: false,
+                contentId: data.postId,
+                type: EnotificationType.LIKE,
+              })
+            : Promise.resolve(),
         ]);
 
         // Notify group that the user has read the message
@@ -261,12 +266,16 @@ const setupWebSocket = (httpServer: HttpServer) => {
 
         await Promise.all([
           PostService.likePost(userId, data.postId),
-          NotificationTable.create({
-            senderId: userId,
-            receiverId: data.receiverId,
-            message: "commented on your post",
-            isRead: false,
-          }),
+          userId !== data.receiverId
+            ? NotificationTable.create({
+                senderId: userId,
+                receiverId: data.receiverId,
+                message: "commented on your post",
+                isRead: false,
+                contentId: data.postId,
+                type: EnotificationType.COMMENT,
+              })
+            : Promise.resolve(),
         ]);
 
         // Notify group that the user has read the message
@@ -286,12 +295,14 @@ const setupWebSocket = (httpServer: HttpServer) => {
 
         await Promise.all([
           PostService.likePost(userId, data.postId),
-          NotificationTable.create({
-            senderId: userId,
-            receiverId: data.receiverId,
-            message: "replied to your comment",
-            isRead: false,
-          }),
+          userId !== data.receiverId
+            ? NotificationTable.create({
+                senderId: userId,
+                receiverId: data.receiverId,
+                message: "replied to your comment",
+                isRead: false,
+              })
+            : Promise.resolve(),
         ]);
 
         // Notify group that the user has read the message

@@ -7,8 +7,13 @@ export interface INotification extends IBase {
   message: string;
   isRead: boolean;
   type: EnotificationType;
+  contentId: mongoose.Schema.Types.ObjectId;
 }
 
-enum EnotificationType {
+export enum EnotificationType {
   OTHER = 0,
+  FOLLOW = 1,
+  POST = 2,
+  LIKE = 3,
+  COMMENT = 4,
 }

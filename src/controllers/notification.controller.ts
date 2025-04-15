@@ -65,6 +65,22 @@ class NotificationController extends BaseController {
       }
     );
   }
+
+  /**
+   * @description update and mark all notifications as read
+   * @param req
+   * @param res
+   * @param next
+   */
+  @RequireActiveUser()
+  async markReadAll(req: any, res: Response, next: NextFunction) {
+    try {
+      await NotificationService.markReadAll(req._id);
+      this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
+    } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
+  }
 }
 
 export default new NotificationController();
