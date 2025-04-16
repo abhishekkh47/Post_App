@@ -1,8 +1,13 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
-import { GroupService, MessageService, PostService } from "services";
+import {
+  GroupService,
+  MessageService,
+  PostService,
+  WebPushService,
+} from "services";
 import { verifyToken, WS_EVENTS } from "utils";
-import { NotificationTable } from "models";
+import { NotificationTable, UserTable } from "models";
 import { EnotificationType } from "types";
 
 const setupWebSocket = (httpServer: HttpServer) => {
@@ -63,6 +68,7 @@ const setupWebSocket = (httpServer: HttpServer) => {
 
   io.on("connection", async (socket) => {
     const userId = socket.data.user._id;
+    const userDetails = await UserTable.findOne({ _id: userId });
     userSockets.set(userId, socket.id);
     socketRooms.set(socket.id, new Set());
 
@@ -80,14 +86,27 @@ const setupWebSocket = (httpServer: HttpServer) => {
 
     socket.on(PRIVATE_MSG, async (data) => {
       try {
+        const { receiverId, content = "", attachments = [] } = data.receiverId;
         const message = await MessageService.sendMessage(
           userId,
-          data.receiverId,
-          data.content,
-          data.attachments
+          receiverId,
+          content,
+          attachments
         );
 
-        const receiverSocketId = userSockets.get(data.receiverId);
+        const receiverSocketId = userSockets.get(receiverId);
+        if (receiverSocketId) {
+          // Create a preview (first 50 characters)
+          const messagePreview =
+            content.length > 50 ? `${content.substring(0, 47)}...` : content;
+          await WebPushService.sendMessageNotification(
+            userId,
+            receiverId,
+            "Abhishek",
+            messagePreview
+          );
+        }
+
         if (receiverSocketId) {
           io.to(receiverSocketId).emit(NEW_MESSAGE, message);
         }
@@ -233,17 +252,36 @@ const setupWebSocket = (httpServer: HttpServer) => {
     // Handle Post Engagement
     socket.on(LIKE_A_POST, async (data) => {
       try {
-        const receiverSocketId = userSockets.get(data.receiverId);
+        const { receiverId, postId } = data;
+        const receiverSocketId = userSockets.get(receiverId);
+        if (receiverSocketId) {
+          try {
+            // Get sender's name
+            const senderName = userDetails
+              ? userDetails.firstName || "Someone"
+              : "Someone";
+
+            // Send push notification
+            await WebPushService.sendLikeNotification(
+              userId,
+              receiverId,
+              senderName,
+              postId
+            );
+          } catch (error) {
+            console.error("Error sending like notification:", error);
+          }
+        }
 
         await Promise.all([
           PostService.likePost(userId, data.postId),
-          userId !== data.receiverId
+          userId !== receiverId
             ? NotificationTable.create({
                 senderId: userId,
-                receiverId: data.receiverId,
+                receiverId: receiverId,
                 message: "liked your post",
                 isRead: false,
-                contentId: data.postId,
+                contentId: postId,
                 type: EnotificationType.LIKE,
               })
             : Promise.resolve(),
@@ -262,7 +300,26 @@ const setupWebSocket = (httpServer: HttpServer) => {
 
     socket.on(COMMENT_ON_POST, async (data) => {
       try {
+        const { receiverId, postId } = data;
         const receiverSocketId = userSockets.get(data.receiverId);
+
+        if (receiverSocketId) {
+          try {
+            const senderName = userDetails
+              ? userDetails.firstName || "Someone"
+              : "Someone";
+
+            // Send push notification
+            await WebPushService.sendCommentNotification(
+              userId,
+              receiverId,
+              senderName,
+              postId
+            );
+          } catch (error) {
+            console.error("Error sending like notification:", error);
+          }
+        }
 
         await Promise.all([
           PostService.likePost(userId, data.postId),

@@ -16,9 +16,18 @@ commonRoutes.post(
     }
   }
 );
+
 commonRoutes.get("/status", async (req, res, next) => {
   try {
     await CommonController.status(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
+commonRoutes.post("/subscribe", AuthMiddleware.Auth, async (req, res, next) => {
+  try {
+    await CommonController.subscribeWebPush(req, res, next);
   } catch (error) {
     next(error);
   }
