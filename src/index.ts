@@ -14,6 +14,7 @@ import * as rfs from "rotating-file-stream";
 import Path from "path";
 import router from "./routes";
 import { errorHandler, maintenanceModeHandler } from "middleware";
+import { vapidConfig } from "services/webPush.service";
 
 const server = async () => {
   try {
@@ -83,6 +84,7 @@ const server = async () => {
     but if we are using local redis server, we can create the redis client in utils/redis.ts file
     */
     createRedisClient();
+    vapidConfig();
     await mongoose.connect(Config.DB_PATH as string);
 
     // app.listen(Config.PORT, () => {

@@ -34,7 +34,8 @@
     "rotating-file-stream": "^3.2.6",
     "socket.io": "^4.8.1",
     "ts-node": "^10.9.2",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -43,17 +44,18 @@
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.12",
     "@types/nodemailer": "^6.4.17",
+    "@types/web-push": "^3.6.4",
     "nodemon": "^3.1.7"
   },
   "_moduleAliases": {
-    "controllers": "dist/controllers",
-    "models": "dist/models",
-    "services": "dist/services",
-    "middleware": "dist/middleware",
-    "routes": "dist/routes",
-    "types": "dist/types",
-    "utils": "dist/utils",
-    "validations": "dist/validations",
-    "config": "dist/config"
+    "controllers": "src/controllers",
+    "models": "src/models",
+    "services": "src/services",
+    "middleware": "src/middleware",
+    "routes": "src/routes",
+    "types": "src/types",
+    "utils": "src/utils",
+    "validations": "src/validations",
+    "config": "src/config"
   }
 }

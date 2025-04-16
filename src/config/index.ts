@@ -53,4 +53,10 @@ export default {
   get MAINTENANCE_MODE() {
     return process.env.MAINTENANCE_MODE;
   },
+  get PUBLIC_VAPID_KEY() {
+    return process.env.PUBLIC_VAPID_KEY;
+  },
+  get PRIVATE_VAPID_KEY() {
+    return process.env.PRIVATE_VAPID_KEY;
+  },
 };

@@ -2,6 +2,7 @@ import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
 import { RequireActiveUser } from "middleware";
 import Config from "../config";
+import { WebPushService } from "services";
 
 class CommonController extends BaseController {
   @RequireActiveUser()
@@ -40,6 +41,41 @@ class CommonController extends BaseController {
         this.Ok(res, { message: "Service is up and running" });
       }
     } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
+  }
+
+  /**
+   * @description subscribe for web push notification service
+   * @param req
+   * @param res
+   * @param next
+   */
+  @RequireActiveUser()
+  async subscribeWebPush(req: any, res: Response, next: NextFunction) {
+    try {
+      const { subscription } = req.body;
+      console.log("subscription : ", subscription);
+      const userId = req._id; // Assuming authMiddleware adds user to req
+
+      if (!subscription || !subscription.endpoint) {
+        return this.BadRequest(res, "Subscription information is required");
+      }
+
+      const success = await WebPushService.saveSubscription(
+        userId,
+        subscription
+      );
+
+      if (success) {
+        this.Ok(res, { message: "Subscription saved successfully" });
+      } else {
+        this.InternalServerError(res, {
+          message: "Failed to save subscription",
+        });
+      }
+    } catch (error) {
+      console.error("Error in subscribe endpoint:", error);
       this.InternalServerError(res, (error as Error).message);
     }
   }
