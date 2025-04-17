@@ -13,6 +13,8 @@ import {
 import { postValidations } from "validations";
 import { RequireActiveUser } from "middleware";
 import Config from "../config";
+import { cloudinary } from "utils";
+import { Readable } from "stream";
 
 class PostController extends BaseController {
   @RequireActiveUser()
@@ -23,11 +25,42 @@ class PostController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { _id, body } = req;
+            const { _id, body, files } = req;
+            if (!files || !files.length) {
+              return this.BadRequest(res, "Please upload at least one file.");
+            }
+
+            const uploadedUrls: string[] = [];
+            const uploadToCloudinary = (
+              fileBuffer: Buffer
+            ): Promise<string> => {
+              return new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.v2.uploader.upload_stream(
+                  { resource_type: "auto" },
+                  (error, result) => {
+                    if (error) return reject(error);
+                    resolve(result?.secure_url || "");
+                  }
+                );
+
+                const stream = new Readable();
+                stream._read = () => {};
+                stream.push(fileBuffer);
+                stream.push(null);
+                stream.pipe(uploadStream);
+              });
+            };
+
+            // Upload all files in parallel
+            for (const file of files) {
+              const url = await uploadToCloudinary(file.buffer);
+              uploadedUrls.push(url);
+            }
             const postObj: ICreatePost = {
               userId: _id,
               post: body.post,
               type: POST_TYPE.TEXT,
+              attachments: uploadedUrls,
             };
 
             await PostService.createPost(postObj);

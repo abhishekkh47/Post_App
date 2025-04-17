@@ -1,16 +1,21 @@
 import { Router } from "express";
 import { AuthMiddleware } from "middleware";
 import { PostController } from "controllers";
+import { MEDIA, upload } from "utils";
 
 const postRoutes = Router();
 
-postRoutes.post("/create-post", AuthMiddleware.Auth, async (req, res, next) => {
-  try {
-    await PostController.createPost(req, res, next);
-  } catch (error) {
-    next(error);
+postRoutes.post(
+  "/create-post",
+  [AuthMiddleware.Auth, upload.array(MEDIA.ATTACHMENT, 10)],
+  async (req: any, res: any, next: any) => {
+    try {
+      await PostController.createPost(req, res, next);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 postRoutes.get(
   "/get-posts-by-user/:userId",

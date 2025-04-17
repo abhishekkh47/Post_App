@@ -27,7 +27,7 @@ export const upload = multer({
   } /** Optional: set file size limit (e.g., 10MB) */,
   fileFilter: (req, file, cb) => {
     // Optional: filter for specific file types
-    const filetypes = /jpg|jpeg|png|gif|webp/;
+    const filetypes = /jpg|jpeg|png|gif|webp|mp4/;
     const extname = filetypes.test(
       path.extname(file.originalname).toLowerCase()
     );

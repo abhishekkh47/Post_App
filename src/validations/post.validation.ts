@@ -11,6 +11,7 @@ export const postValidations = {
         .optional()
         .valid(...Object.values(POST_TYPE)),
       edited: Joi.boolean().optional(),
+      attachments: Joi.optional(),
     });
     const { error } = schema.validate(req);
 

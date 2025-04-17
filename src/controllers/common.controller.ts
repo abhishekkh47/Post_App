@@ -14,7 +14,7 @@ class CommonController extends BaseController {
       } = req;
       let filename: string[] = [];
       for (let file of files) {
-        filename.push(file?.filename);
+        filename.push(file?.originalname);
         if (!filename) {
           return this.BadRequest(res, "Upload a valid file");
         }
