@@ -20,4 +20,5 @@ export interface ICreatePost {
   userId: string;
   post: string;
   type: EPostType;
+  attachments: string[];
 }
