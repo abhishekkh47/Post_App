@@ -55,7 +55,6 @@ class CommonController extends BaseController {
   async subscribeWebPush(req: any, res: Response, next: NextFunction) {
     try {
       const { subscription } = req.body;
-      console.log("subscription : ", subscription);
       const userId = req._id; // Assuming authMiddleware adds user to req
 
       if (!subscription || !subscription.endpoint) {

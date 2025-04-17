@@ -7,7 +7,7 @@ import {
   WebPushService,
 } from "services";
 import { verifyToken, WS_EVENTS } from "utils";
-import { NotificationTable, UserTable } from "models";
+import { NotificationTable, UserTable, GroupTable } from "models";
 import { EnotificationType } from "types";
 
 const setupWebSocket = (httpServer: HttpServer) => {
@@ -86,7 +86,7 @@ const setupWebSocket = (httpServer: HttpServer) => {
 
     socket.on(PRIVATE_MSG, async (data) => {
       try {
-        const { receiverId, content = "", attachments = [] } = data.receiverId;
+        const { receiverId, content = "", attachments = [] } = data;
         const message = await MessageService.sendMessage(
           userId,
           receiverId,
@@ -99,10 +99,13 @@ const setupWebSocket = (httpServer: HttpServer) => {
           // Create a preview (first 50 characters)
           const messagePreview =
             content.length > 50 ? `${content.substring(0, 47)}...` : content;
+          const senderName = userDetails
+            ? userDetails.firstName || "Someone"
+            : "Someone";
           await WebPushService.sendMessageNotification(
             userId,
             receiverId,
-            "Abhishek",
+            senderName,
             messagePreview
           );
         }
@@ -198,6 +201,28 @@ const setupWebSocket = (httpServer: HttpServer) => {
       try {
         const { groupId, content, attachments } = data;
         const roomId = `group:${groupId}`;
+
+        if (groupId) {
+          // 1. Get all userIds in the group (excluding sender)
+          const groupDetails = await GroupTable.findOne({ _id: groupId }); // returns array of userIds
+          const recipients = groupDetails?.members?.filter(
+            (user) => user.userId !== userId
+          );
+          // Create a preview (first 50 characters)
+          const messagePreview =
+            content.length > 50 ? `${content.substring(0, 47)}...` : content;
+          const senderName = userDetails
+            ? userDetails.firstName || "Someone"
+            : "Someone";
+          for (let recipient of recipients!) {
+            await WebPushService.sendMessageNotification(
+              userId,
+              recipient.userId.toString(),
+              senderName,
+              messagePreview
+            );
+          }
+        }
 
         // Save message to database
         const message = await GroupService.sendGroupMessage(
