@@ -20,15 +20,15 @@ class PostController extends BaseController {
   @RequireActiveUser()
   async createPost(req: any, res: Response, next: NextFunction) {
     return postValidations.createPostValidation(
-      req.body,
+      req,
       res,
       async (validate: boolean) => {
         if (validate) {
           try {
             const { _id, body, files } = req;
-            if (!files || !files.length) {
-              return this.BadRequest(res, "Please upload at least one file.");
-            }
+            // if (!files || !files.length) {
+            //   return this.BadRequest(res, "Please upload at least one file.");
+            // }
 
             const uploadedUrls: string[] = [];
             const uploadToCloudinary = (

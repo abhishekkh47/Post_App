@@ -6,12 +6,12 @@ import { objectIdValidation } from "validations";
 export const postValidations = {
   createPostValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
-      post: Joi.string().required(),
+      post: Joi.string().allow("").optional(),
       type: Joi.number()
         .optional()
         .valid(...Object.values(POST_TYPE)),
       edited: Joi.boolean().optional(),
-      attachments: Joi.optional(),
+      // attachment: Joi.any().optional(),
     });
     const { error } = schema.validate(req);
 
@@ -19,6 +19,17 @@ export const postValidations = {
       return res
         .status(400)
         .json(i18n.__(validationMessageKey("createPostValidation", error)));
+    }
+
+    // ✅ At least post or one file is required
+    const hasPost =
+      typeof req.body.post === "string" && req.body.post.trim().length > 0;
+    const hasAttachment = Array.isArray(req.files) && req.files.length > 0;
+
+    if (!hasPost && !hasAttachment) {
+      return res.status(400).json({
+        message: "Either post content or at least one attachment is required.",
+      });
     }
     return callback(true);
   },

@@ -10,7 +10,11 @@ const schema = new mongoose.Schema<IPostSchema>(
       required: true,
       ref: "user",
     },
-    post: { type: mongoose.Schema.Types.String, required: true },
+    post: {
+      type: mongoose.Schema.Types.String,
+      required: false,
+      default: null,
+    },
     type: { type: mongoose.Schema.Types.Number, required: true },
     edited: {
       type: mongoose.Schema.Types.Boolean,
