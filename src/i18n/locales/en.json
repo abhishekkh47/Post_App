@@ -23,5 +23,6 @@
 	"groupDetailsValidationGroupidCustom": "groupDetailsValidationGroupidCustom",
 	"inviteLinkRequiredGroupidRequired": "inviteLinkRequiredGroupidRequired",
 	"likeCommentValidationPostidRequired": "likeCommentValidationPostidRequired",
-	"createCommentValidationParentidBase": "createCommentValidationParentidBase"
+	"createCommentValidationParentidBase": "createCommentValidationParentidBase",
+	"createPostValidationPostEmpty": "createPostValidationPostEmpty"
 }

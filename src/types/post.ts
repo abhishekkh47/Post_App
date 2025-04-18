@@ -18,7 +18,7 @@ enum EPostType {
 
 export interface ICreatePost {
   userId: string;
-  post: string;
+  post: string | null;
   type: EPostType;
   attachments: string[];
 }
