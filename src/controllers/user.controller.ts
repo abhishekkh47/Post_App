@@ -42,7 +42,6 @@ class UserController extends BaseController {
    * @param res
    * @param next
    */
-  @RequireActiveUser()
   async sendPasswordResetLink(req: any, res: Response, next: NextFunction) {
     return authValidations.sendPasswordResetLinkValidation(
       req.body,
