@@ -4,7 +4,7 @@ import nodemailer, { TransportOptions } from "nodemailer";
 
 export const sendResetEmail = async (userEmail: string, resetToken: string) => {
   try {
-    const resetUrl = `${Config.BASEURL}/reset-pasword?token=${resetToken}`;
+    const resetUrl = `${Config.BASEURL}/login/reset-password?token=${resetToken}`;
     let transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -17,7 +17,7 @@ export const sendResetEmail = async (userEmail: string, resetToken: string) => {
       from: "No-Reply Postal",
       to: userEmail,
       subject: "Reset Your Password",
-      html: `To reset your password, click the following link: ${resetUrl}`,
+      html: `To reset your password, click the following link: ${resetUrl} <br/><br/> This link is valid only for 5 minutes`,
     };
 
     await transporter.sendMail(mailOptions);

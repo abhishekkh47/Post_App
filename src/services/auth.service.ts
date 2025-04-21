@@ -17,6 +17,9 @@ class AuthService {
       posts: 1,
       followers: 1,
       following: 1,
+      gender: 1,
+      contact: 1,
+      resetPasswordToken: 1,
     });
   }
 

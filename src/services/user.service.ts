@@ -46,8 +46,8 @@ class UserService {
   async sendResetLink(user: IUser): Promise<boolean> {
     try {
       let email: string = user.email;
-      const resetToken: ITokenResponse = TokenService.generateToken(user);
-      await sendResetEmail(email, resetToken.token);
+      const resetToken: string = TokenService.generatePasswordResetToken(user);
+      await sendResetEmail(email, resetToken);
       return true;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);

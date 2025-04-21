@@ -70,7 +70,6 @@ class UserController extends BaseController {
    * @param res
    * @param next
    */
-  @RequireActiveUser()
   async resetPasswordUsingEmailLink(
     req: any,
     res: Response,
@@ -82,15 +81,21 @@ class UserController extends BaseController {
       async (validate: boolean) => {
         if (validate) {
           try {
-            const { newPassword, confirmPassword, token } = req.body;
-            if (newPassword !== confirmPassword) {
-              return this.BadRequest(res, ERR_MSGS.PASSWORD_DONT_MATCH);
-            }
+            const { password, token } = req.body;
             const validateToken = verifyToken(token);
             if (validateToken?.status && validateToken.status == 401) {
-              return this.UnAuthorized(res as any, ERR_MSGS.INVALID_REQUEST);
+              return this.UnAuthorized(res as any, ERR_MSGS.TOKEN_EXPIRED);
             }
-            await UserService.resetPassword(req.user, newPassword);
+            const user: IUser | null = await AuthService.findUserByEmail(
+              validateToken?.email
+            );
+            if (!user) {
+              return res.status(401).json({
+                status: 401,
+                message: ERR_MSGS.USER_NOT_FOUND,
+              });
+            }
+            await UserService.resetPassword(user, password);
             this.Ok(res, { message: ERR_MSGS.PASSWORD_UPDATED });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);

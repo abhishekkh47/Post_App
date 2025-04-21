@@ -14,6 +14,17 @@ class TokenService {
     const token = getJwtToken(authInfo);
     return { token, refreshToken };
   }
+
+  /**
+   * @description Generate auth token to reset password
+   * @param user user object
+   * @returns {token}
+   */
+  generatePasswordResetToken(user: IUser): string {
+    const authInfo = AuthService.getJwtAuthInfo(user);
+    const token = getJwtToken(authInfo, 300);
+    return token;
+  }
 }
 
 export default new TokenService();

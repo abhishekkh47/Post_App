@@ -11,4 +11,12 @@ export interface IUser extends IBase {
   posts: number;
   followers: number;
   following: number;
+  gender: EGender;
+  contact: number;
+  resetPasswordToken: string;
+}
+
+export enum EGender {
+  FEMALE = 0,
+  MALE = 1,
 }
