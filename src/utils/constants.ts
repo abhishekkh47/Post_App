@@ -14,6 +14,7 @@ export const ERR_MSGS = {
   PASSWORD_UPDATED: "Password Updated",
   INVALID_REFRESH_TOKEN: "Invalid refresh token",
   INVALID_CREDENTIALS: "Invalid credentials",
+  TOKEN_EXPIRED: "Invalid or expired token! Please try again.",
 };
 
 export const SUCCESS_MSGS = {
@@ -86,4 +87,9 @@ export const MEDIA = {
   CHAT: "chatMedia",
   PROFILE: "profilePicture",
   ATTACHMENT: "attachment",
+};
+
+export const GENDER = {
+  FEMALE: 0,
+  MALE: 1,
 };

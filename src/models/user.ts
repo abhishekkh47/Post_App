@@ -50,6 +50,20 @@ const schema = new mongoose.Schema<IUserSchema>(
       required: true,
       default: 0,
     },
+    gender: {
+      type: mongoose.Schema.Types.Number,
+      required: true,
+    },
+    contact: {
+      type: mongoose.Schema.Types.Number,
+      required: true,
+      default: 0,
+    },
+    resetPasswordToken: {
+      type: mongoose.Schema.Types.String,
+      required: true,
+      default: null,
+    },
   },
   { timestamps: true }
 );

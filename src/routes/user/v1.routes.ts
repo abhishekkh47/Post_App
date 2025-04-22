@@ -54,6 +54,22 @@ userRoutes.post("/reset-password", async (req, res, next) => {
 });
 
 /**
+ * To update password from settings using old password
+ */
+userRoutes.post(
+  "/update-password",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await UserController.updatePasswordFromAppSettings(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * Get user profile using user id
  * To reset password using email link
  */
 userRoutes.get(
