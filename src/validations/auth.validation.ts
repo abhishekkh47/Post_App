@@ -27,10 +27,9 @@ export const authValidations = {
 
     const { error } = schema.validate(req);
     if (error) {
-      return res.throw(
-        400,
-        res.__(validationMessageKey("userLoginValidation", error))
-      );
+      return res
+        .status(400)
+        .json(i18n.__(validationMessageKey("userLoginValidation", error)));
     }
     return callback(true);
   },
@@ -42,10 +41,13 @@ export const authValidations = {
 
     const { error } = schema.validate(req);
     if (error) {
-      return res.throw(
-        400,
-        res.__(validationMessageKey("sendPasswordResetLinkValidation", error))
-      );
+      return res
+        .status(400)
+        .json(
+          i18n.__(
+            validationMessageKey("sendPasswordResetLinkValidation", error)
+          )
+        );
     }
     return callback(true);
   },
@@ -58,10 +60,13 @@ export const authValidations = {
 
     const { error } = schema.validate(req);
     if (error) {
-      return res.throw(
-        400,
-        res.__(validationMessageKey("resetPasswordUsingLinkValidation", error))
-      );
+      return res
+        .status(400)
+        .json(
+          i18n.__(
+            validationMessageKey("resetPasswordUsingLinkValidation", error)
+          )
+        );
     }
     return callback(true);
   },
@@ -73,10 +78,9 @@ export const authValidations = {
 
     const { error } = schema.validate(req);
     if (error) {
-      return res.throw(
-        400,
-        res.__(validationMessageKey("getUserProfileValidation", error))
-      );
+      return res
+        .status(400)
+        .json(i18n.__(validationMessageKey("getUserProfileValidation", error)));
     }
     return callback(true);
   },
@@ -88,10 +92,11 @@ export const authValidations = {
 
     const { error } = schema.validate(req);
     if (error) {
-      return res.throw(
-        400,
-        res.__(validationMessageKey("searchUserProfileValidation", error))
-      );
+      return res
+        .status(400)
+        .json(
+          i18n.__(validationMessageKey("searchUserProfileValidation", error))
+        );
     }
     return callback(true);
   },
@@ -104,10 +109,11 @@ export const authValidations = {
 
     const { error } = schema.validate(req);
     if (error) {
-      return res.throw(
-        400,
-        res.__(validationMessageKey("sendNotificationValidation", error))
-      );
+      return res
+        .status(400)
+        .json(
+          i18n.__(validationMessageKey("sendNotificationValidation", error))
+        );
     }
     return callback(true);
   },
@@ -119,10 +125,11 @@ export const authValidations = {
 
     const { error } = schema.validate(req);
     if (error) {
-      return res.throw(
-        400,
-        res.__(validationMessageKey("readNotificationValidation", error))
-      );
+      return res
+        .status(400)
+        .json(
+          i18n.__(validationMessageKey("readNotificationValidation", error))
+        );
     }
     return callback(true);
   },
@@ -139,6 +146,32 @@ export const authValidations = {
       return res
         .status(400)
         .json(i18n.__(validationMessageKey("updateProfileValidation", error)));
+    }
+    return callback(true);
+  },
+
+  updatePasswordFromAppSettingsValidation: (
+    req: any,
+    res: any,
+    callback: any
+  ) => {
+    const schema = Joi.object({
+      password: Joi.string().required(),
+      newPassword: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(req);
+    if (error) {
+      return res
+        .status(400)
+        .json(
+          i18n.__(
+            validationMessageKey(
+              "updatePasswordFromAppSettingsValidation",
+              error
+            )
+          )
+        );
     }
     return callback(true);
   },
