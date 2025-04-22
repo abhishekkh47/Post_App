@@ -50,14 +50,14 @@
     "nodemon": "^3.1.7"
   },
   "_moduleAliases": {
-    "controllers": "dist/controllers",
-    "models": "dist/models",
-    "services": "dist/services",
-    "middleware": "dist/middleware",
-    "routes": "dist/routes",
-    "types": "dist/types",
-    "utils": "dist/utils",
-    "validations": "dist/validations",
-    "config": "dist/config"
+    "controllers": "src/controllers",
+    "models": "src/models",
+    "services": "src/services",
+    "middleware": "src/middleware",
+    "routes": "src/routes",
+    "types": "src/types",
+    "utils": "src/utils",
+    "validations": "src/validations",
+    "config": "src/config"
   }
 }
