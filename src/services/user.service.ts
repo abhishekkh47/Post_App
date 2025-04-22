@@ -2,7 +2,7 @@ import { UserTable, NotificationTable } from "models";
 import { NetworkError } from "middleware";
 import { EnotificationType, ITokenResponse, IUser } from "types";
 import { AuthService, TokenService } from "services";
-import { getHashedPassword, sendResetEmail, verifyPassword } from "utils";
+import { getHashedPassword, sendResetEmail } from "utils";
 
 class UserService {
   /**
@@ -195,34 +195,6 @@ class UserService {
         { _id: user._id },
         { firstName: data.firstName, lastName: data.lastName, bio: data?.bio }
       );
-    } catch (error) {
-      throw new NetworkError((error as Error).message, 400);
-    }
-  }
-
-  /**
-   * @description send email to user containing password reset link
-   * @param user user details
-   * @param password old password
-   * @param newPassword password to be updated
-   * @returns {true} if password reset successfully
-   */
-  async updatePassword(
-    user: IUser,
-    password: string,
-    newPassword: string
-  ): Promise<boolean> {
-    try {
-      const oldPasswordHash: boolean = verifyPassword(user.password, password);
-      if (!oldPasswordHash) {
-        throw new NetworkError("Incorrect password", 400);
-      }
-      const newPasswordHash: string = getHashedPassword(newPassword);
-      await UserTable.findOneAndUpdate(
-        { _id: user?._id },
-        { $set: { password: newPasswordHash } }
-      );
-      return true;
     } catch (error) {
       throw new NetworkError((error as Error).message, 400);
     }

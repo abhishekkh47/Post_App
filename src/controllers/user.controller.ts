@@ -289,44 +289,6 @@ class UserController extends BaseController {
       }
     );
   }
-
-  /**
-   * @description Reset password using link sent on email
-   * @param req
-   * @param res
-   * @param next
-   */
-  @RequireActiveUser()
-  async updatePasswordFromAppSettings(
-    req: any,
-    res: Response,
-    next: NextFunction
-  ) {
-    return authValidations.updatePasswordFromAppSettingsValidation(
-      req.body,
-      res,
-      async (validate: boolean) => {
-        if (validate) {
-          try {
-            const { password, newPassword } = req.body;
-            const user: IUser | null = await AuthService.findUserByEmail(
-              req?.user?.email
-            );
-            if (!user) {
-              return res.status(401).json({
-                status: 401,
-                message: ERR_MSGS.USER_NOT_FOUND,
-              });
-            }
-            await UserService.updatePassword(user, password, newPassword);
-            this.Ok(res, { message: ERR_MSGS.PASSWORD_UPDATED });
-          } catch (error) {
-            this.InternalServerError(res, (error as Error).message);
-          }
-        }
-      }
-    );
-  }
 }
 
 export default new UserController();
