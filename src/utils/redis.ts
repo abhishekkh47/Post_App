@@ -16,6 +16,7 @@ export const REDIS_KEYS = {
   GET_COMMENTS_BY_USER: "getCommentsByUserId",
   GET_ALL_USERS: "getAllUsers",
   GET_USER_PROFILE: "getUserProfile",
+  GET_FRIEND_RECOMMENDATIONS: "getFriendsRecommendations",
 };
 
 // Local Redis Server config : (client created using ioredis)

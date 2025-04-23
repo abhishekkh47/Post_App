@@ -60,4 +60,16 @@ followRoutes.get("/my-friends", AuthMiddleware.Auth, async (req, res, next) => {
   }
 });
 
+followRoutes.get(
+  "/friend-recommendations",
+  AuthMiddleware.Auth,
+  async (req, res, next) => {
+    try {
+      await FollowController.getFriendRecommendations(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default followRoutes;
