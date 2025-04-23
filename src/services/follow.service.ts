@@ -308,6 +308,120 @@ class FollowService {
       throw new NetworkError((error as Error).message, 400);
     }
   }
+
+  /**
+   * @description Get recommended users who are not yet followed
+   * @param userId
+   * @returns {*} List of users who are not followed by the users
+   */
+  async getFriendRecommendations(
+    userId: string,
+    limit: number = 10
+  ): Promise<IUser[]> {
+    try {
+      // Convert userId to ObjectId
+      const userObjectId = new ObjectId(userId);
+
+      // Find users that the current user is following
+      const following = await FriendsTable.find({ followerId: userObjectId })
+        .select("followeeId")
+        .lean();
+
+      // Extract just the IDs of followed users
+      const followingIds = following.map((f) => f.followeeId);
+
+      // Find popular users that aren't followed yet
+      const recommendedUsers = await UserTable.aggregate([
+        {
+          $match: {
+            _id: { $nin: [...followingIds, userObjectId] },
+            // isPrivate: false, // Only recommend public profiles
+          },
+        },
+        // Sort by popularity (followers count)
+        { $sort: { followers: -1 } },
+        { $limit: limit },
+        {
+          $project: {
+            _id: 1,
+            firstName: 1,
+            lastName: 1,
+            profile_pic: 1,
+            bio: 1,
+            followers: 1,
+            posts: 1,
+          },
+        },
+      ]);
+
+      return recommendedUsers;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getFriendsOfFriendsRecommendations(
+    userId: string,
+    limit: number = 10
+  ): Promise<IUser[]> {
+    try {
+      const userObjectId = new ObjectId(userId);
+
+      // Find users that the current user is already following
+      const following = await FriendsTable.find({ followerId: userObjectId })
+        .select("followeeId")
+        .lean();
+
+      const followingIds = following.map((f) => f.followeeId);
+      // followingIds.push(userObjectId); // Add the user's own ID to exclude
+
+      // Find friends of friends
+      const recommendations = await FriendsTable.aggregate([
+        { $match: { followerId: { $in: [...followingIds, userObjectId] } } },
+        // Group by the followee to count how many connections they have
+        {
+          $group: {
+            _id: "$followeeId",
+            connectionCount: { $sum: 1 },
+          },
+        },
+        // Filter out users that are already followed
+        { $match: { _id: { $nin: [...followingIds, userObjectId] } } },
+        // Sort by the number of mutual connections
+        { $sort: { connectionCount: -1 } },
+        { $limit: limit },
+        {
+          $lookup: {
+            from: "users",
+            localField: "_id",
+            foreignField: "_id",
+            as: "userDetails",
+          },
+        },
+        { $unwind: "$userDetails" },
+
+        // Only recommend public profiles
+        // { $match: { "userDetails.isPrivate": false } },
+
+        {
+          $project: {
+            _id: "$userDetails._id",
+            firstName: "$userDetails.firstName",
+            lastName: "$userDetails.lastName",
+            profile_pic: "$userDetails.profile_pic",
+            bio: "$userDetails.bio",
+            followers: "$userDetails.followers",
+            posts: "$userDetails.posts",
+            mutualConnections: "$connectionCount",
+          },
+        },
+      ]);
+
+      return recommendations;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default new FollowService();

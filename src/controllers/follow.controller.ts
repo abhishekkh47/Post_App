@@ -140,6 +140,29 @@ class FollowController extends BaseController {
       this.InternalServerError(res, (error as Error).message);
     }
   }
+
+  /**
+   * @description get profiles recommended for user to follow
+   * @param req
+   * @param res
+   * @param next
+   */
+  @RequireActiveUser()
+  async getFriendRecommendations(req: any, res: Response, next: NextFunction) {
+    try {
+      let friends = [];
+      if (req.user.following < 5) {
+        friends = await FollowService.getFriendRecommendations(req._id);
+      } else {
+        friends = await FollowService.getFriendsOfFriendsRecommendations(
+          req._id
+        );
+      }
+      this.Ok(res, { friends });
+    } catch (error) {
+      this.InternalServerError(res, (error as Error).message);
+    }
+  }
 }
 
 export default new FollowController();
