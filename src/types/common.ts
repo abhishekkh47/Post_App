@@ -1,3 +1,5 @@
+import { EGender } from "./user";
+
 export interface IRequestUser {
   _id: string;
 }
@@ -5,10 +7,11 @@ export interface IUserSignup {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
   bio?: string;
   profile_pic?: string;
   isPrivate?: boolean;
+  contact: string;
+  gender: EGender;
 }
 
 export interface IUserAuthInfo {

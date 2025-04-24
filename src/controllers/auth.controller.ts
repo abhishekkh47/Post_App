@@ -17,18 +17,15 @@ class AuthController extends BaseController {
             const {
               body: {
                 email,
-                password,
                 firstName,
                 lastName,
                 bio = null,
                 profile_pic = null,
                 isPrivate = true,
+                contact,
+                gender,
               },
             } = req;
-
-            if (!email || !password || !firstName || !lastName) {
-              return this.BadRequest(res, ERR_MSGS.PROVIDE_ALL_DETAILS);
-            }
 
             const userIfExists: IUser | null =
               await AuthService.findUserByEmail(email);
@@ -38,17 +35,18 @@ class AuthController extends BaseController {
 
             const userObj: IUserSignup = {
               email,
-              password,
               firstName,
               lastName,
               bio,
               profile_pic,
               isPrivate,
+              contact,
+              gender,
             };
-            const { response, user } = await AuthService.userSignup(userObj);
+            const { user } = await AuthService.userSignup(userObj);
             const userDetails = await AuthService.findUserById(user._id);
 
-            this.Ok(res, { ...response, user: userDetails });
+            this.Ok(res, { user: userDetails });
           } catch (error) {
             this.BadRequest(res, ERR_MSGS.PROVIDE_ALL_DETAILS);
           }

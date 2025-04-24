@@ -12,11 +12,11 @@ export interface IUser extends IBase {
   followers: number;
   following: number;
   gender: EGender;
-  contact: number;
+  contact: string;
   resetPasswordToken: string;
 }
 
 export enum EGender {
-  FEMALE = 0,
-  MALE = 1,
+  FEMALE = "F",
+  MALE = "M",
 }
