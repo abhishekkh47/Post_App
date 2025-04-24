@@ -5,7 +5,9 @@ export const authValidations = {
   userSignupValidation: (req: any, res: any, callback: any) => {
     const schema = Joi.object({
       email: Joi.string().email().required(),
-      password: Joi.string().required(),
+      contact: Joi.string()
+        .required()
+        .regex(/(?:\+91|91)?[6-9]\d{9}$/),
       firstName: Joi.string().required(),
       lastName: Joi.string().required(),
     });

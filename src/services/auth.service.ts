@@ -1,7 +1,7 @@
 import { NetworkError } from "middleware";
 import { UserTable } from "models";
 import { IUserSignup, IUser } from "types";
-import { TokenService } from "services";
+import { TokenService, UserService } from "services";
 import { verifyPassword, getHashedPassword, decodeJwtToken } from "utils";
 
 class AuthService {
@@ -50,17 +50,15 @@ class AuthService {
 
   async userSignup(body: IUserSignup) {
     try {
-      let response = {};
-      const hashedPassword = getHashedPassword(body.password);
       const user = await UserTable.create({
         ...body,
-        password: hashedPassword,
       });
       if (user) {
-        response = TokenService.generateToken(user);
+        UserService.sendResetLink(user);
       }
-      return { response, user };
+      return { user };
     } catch (error) {
+      console.log("Err : ", error);
       throw new NetworkError("Error occurred while creating a user", 400);
     }
   }

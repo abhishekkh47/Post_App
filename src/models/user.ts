@@ -12,7 +12,8 @@ const schema = new mongoose.Schema<IUserSchema>(
     },
     password: {
       type: mongoose.Schema.Types.String,
-      required: true,
+      required: false,
+      default: null,
     },
     firstName: {
       type: mongoose.Schema.Types.String,
@@ -51,15 +52,10 @@ const schema = new mongoose.Schema<IUserSchema>(
       default: 0,
     },
     gender: {
-      type: mongoose.Schema.Types.Number,
+      type: mongoose.Schema.Types.String,
       required: true,
     },
     contact: {
-      type: mongoose.Schema.Types.Number,
-      required: true,
-      default: 0,
-    },
-    resetPasswordToken: {
       type: mongoose.Schema.Types.String,
       required: true,
       default: null,
