@@ -132,10 +132,12 @@ class UserController extends BaseController {
               AuthService.findUserById(userId),
               FollowService.ifUserFollowed(req._id, userId),
             ]);
-            setDataToCache(
-              `${REDIS_KEYS.GET_ALL_USERS}`,
-              JSON.stringify({ userDetails, isFollowing })
-            );
+            if (Config.CACHING === CACHING.ENABLED) {
+              setDataToCache(
+                `${REDIS_KEYS.GET_ALL_USERS}`,
+                JSON.stringify({ userDetails, isFollowing })
+              );
+            }
             this.Ok(res, { userDetails, isFollowing });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
@@ -213,7 +215,9 @@ class UserController extends BaseController {
         }
       }
       const users: IUser[] = await UserService.getAllUsers();
-      setDataToCache(`${REDIS_KEYS.GET_ALL_USERS}`, JSON.stringify(users));
+      if (Config.CACHING === CACHING.ENABLED) {
+        setDataToCache(`${REDIS_KEYS.GET_ALL_USERS}`, JSON.stringify(users));
+      }
       this.Ok(res, { users });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);

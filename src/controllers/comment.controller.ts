@@ -65,10 +65,12 @@ class CommentController extends BaseController {
               }
             }
             const comments = await CommentService.getCommentByPostId(postId);
-            setDataToCache(
-              `${REDIS_KEYS.GET_POST_COMMENTS}_${postId}`,
-              JSON.stringify({ comments })
-            );
+            if (Config.CACHING === CACHING.ENABLED) {
+              setDataToCache(
+                `${REDIS_KEYS.GET_POST_COMMENTS}_${postId}`,
+                JSON.stringify({ comments })
+              );
+            }
             this.Ok(res, { comments });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);
@@ -158,10 +160,12 @@ class CommentController extends BaseController {
             const comments = await CommentService.getAllCommentsByUserId(
               userId
             );
-            setDataToCache(
-              `${REDIS_KEYS.GET_COMMENTS_BY_USER}_${userId}`,
-              JSON.stringify({ comments })
-            );
+            if (Config.CACHING === CACHING.ENABLED) {
+              setDataToCache(
+                `${REDIS_KEYS.GET_COMMENTS_BY_USER}_${userId}`,
+                JSON.stringify({ comments })
+              );
+            }
             this.Ok(res, { comments });
           } catch (error) {
             this.InternalServerError(res, (error as Error).message);

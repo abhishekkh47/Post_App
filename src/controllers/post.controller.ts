@@ -192,10 +192,12 @@ class PostController extends BaseController {
         totalPosts,
         totalPages,
       } = await PostService.getUserFeed(req._id, page, limit);
-      setDataToCache(
-        `${REDIS_KEYS.GET_MY_FEED}_${req._id}_page_${req.query.page}`,
-        JSON.stringify({ posts })
-      );
+      if (Config.CACHING === CACHING.ENABLED) {
+        setDataToCache(
+          `${REDIS_KEYS.GET_MY_FEED}_${req._id}_page_${req.query.page}`,
+          JSON.stringify({ posts })
+        );
+      }
       this.Ok(res, { posts, currentPage, totalPosts, totalPages });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);

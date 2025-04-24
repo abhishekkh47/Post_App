@@ -31,10 +31,12 @@ class NotificationController extends BaseController {
         }
       }
       const notifications = await NotificationService.getNotification(req.user);
-      setDataToCache(
-        `${REDIS_KEYS.GET_NOTIFICATIONS}_${req._id}`,
-        JSON.stringify({ notifications })
-      );
+      if (Config.CACHING === CACHING.ENABLED) {
+        setDataToCache(
+          `${REDIS_KEYS.GET_NOTIFICATIONS}_${req._id}`,
+          JSON.stringify({ notifications })
+        );
+      }
       this.Ok(res, { notifications });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);

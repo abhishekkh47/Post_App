@@ -83,7 +83,7 @@ const server = async () => {
     and then only we should create the redis client
     but if we are using local redis server, we can create the redis client in utils/redis.ts file
     */
-    createRedisClient();
+    // createRedisClient();
     vapidConfig();
     await mongoose.connect(Config.DB_PATH as string);
 

@@ -131,10 +131,12 @@ class FollowController extends BaseController {
         }
       }
       const friends = await FollowService.getUserFriends(req._id);
-      setDataToCache(
-        `${REDIS_KEYS.GET_FRIENDS}_${req._id}`,
-        JSON.stringify(friends)
-      );
+      if (Config.CACHING === CACHING.ENABLED) {
+        setDataToCache(
+          `${REDIS_KEYS.GET_FRIENDS}_${req._id}`,
+          JSON.stringify(friends)
+        );
+      }
       this.Ok(res, { friends });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);

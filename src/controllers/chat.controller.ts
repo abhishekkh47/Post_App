@@ -31,10 +31,12 @@ class ChatController extends BaseController {
         MessageService.getUserConversations(req._id),
         GroupService.getGroupConversations(req._id),
       ]);
-      setDataToCache(
-        `${REDIS_KEYS.GET_CONVERSATIONS}_${req._id}`,
-        JSON.stringify({ conversations, groupConversations })
-      );
+      if (Config.CACHING === CACHING.ENABLED) {
+        setDataToCache(
+          `${REDIS_KEYS.GET_CONVERSATIONS}_${req._id}`,
+          JSON.stringify({ conversations, groupConversations })
+        );
+      }
       this.Ok(res, { conversations, groupConversations });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
