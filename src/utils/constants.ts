@@ -41,12 +41,14 @@ export const WS_EVENTS = {
       MESSAGE_READ: "message_read", // not used
       TYPING: "typing",
       MARK_READ: "mark_read",
+      GET_ACTIVE_USERS: "get_active_users",
     },
     EMITTER: {
       MESSAGE_MARKED_READ: "message_marked_read",
       USER_TYPING: "user_typing",
       PRIVATE_MSG: "private_message",
       MESSAGE_SENT: "message_sent",
+      ACTIVE_USERS: "active_users",
     },
   },
   GROUP: {
