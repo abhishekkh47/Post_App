@@ -13,8 +13,14 @@ import { EnotificationType } from "types";
 const setupWebSocket = (httpServer: HttpServer) => {
   const {
     CHAT: {
-      LISTENER: { MARK_READ, NEW_MESSAGE, TYPING },
-      EMITTER: { PRIVATE_MSG, MESSAGE_SENT, USER_TYPING, MESSAGE_MARKED_READ },
+      LISTENER: { MARK_READ, NEW_MESSAGE, TYPING, GET_ACTIVE_USERS },
+      EMITTER: {
+        PRIVATE_MSG,
+        MESSAGE_SENT,
+        USER_TYPING,
+        MESSAGE_MARKED_READ,
+        // ACIVE_USERS,
+      },
     },
     GROUP: {
       LISTENER: {
@@ -396,6 +402,17 @@ const setupWebSocket = (httpServer: HttpServer) => {
           message: "Failed to comment on the post",
         });
       }
+    });
+
+    // Get all active users
+    socket.on(GET_ACTIVE_USERS, async (replyFn) => {
+      let activeUsers = [...userSockets.keys()];
+      activeUsers = activeUsers.filter((id) => id !== userId);
+      const userDetails = await UserTable.find(
+        { _id: { $in: activeUsers } },
+        { firstName: 1, lastName: 1, email: 1, profile_pic: 1 }
+      );
+      replyFn(userDetails);
     });
 
     socket.on("disconnect", () => {
