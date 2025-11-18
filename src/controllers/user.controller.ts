@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
-import { AuthService, FollowService, UserService } from "services";
+import { AuthService, FollowService, UserService, AIService } from "services";
 import { authValidations } from "validations";
 import {
   verifyToken,
@@ -198,7 +198,7 @@ class UserController extends BaseController {
   }
 
   /**
-   * @description get all users
+   * @description get all users (with AI recommendations)
    * @param req
    * @param res
    * @param next
@@ -206,7 +206,9 @@ class UserController extends BaseController {
   @RequireActiveUser()
   async getAllUsers(req: any, res: Response, next: NextFunction) {
     try {
-      if (Config.CACHING === CACHING.ENABLED) {
+      const useAI = req.query.ai === 'true'; // Optional: enable AI via query param
+      
+      if (Config.CACHING === CACHING.ENABLED && !useAI) {
         const cachedData = await getDataFromCache(
           `${REDIS_KEYS.GET_ALL_USERS}`
         );
@@ -214,11 +216,44 @@ class UserController extends BaseController {
           return this.Ok(res, JSON.parse(cachedData));
         }
       }
-      const users: IUser[] = await UserService.getAllUsers();
-      if (Config.CACHING === CACHING.ENABLED) {
+
+      let users: IUser[] = [];
+      let aiRecommended: string[] = [];
+
+      // Try to get AI recommendations first
+      if (useAI) {
+        try {
+          const aiResponse = await AIService.getUserRecommendations(
+            req._id,
+            20,
+            true // exclude users already following
+          );
+          
+          if (aiResponse && aiResponse.user_ids && aiResponse.user_ids.length > 0) {
+            aiRecommended = aiResponse.user_ids;
+            // Fetch full user details for recommended users
+            const recommendedUsers = await UserService.getUsersByIds(aiRecommended);
+            users = recommendedUsers;
+          }
+        } catch (aiError) {
+          console.error('AI recommendation failed, falling back to default:', aiError);
+        }
+      }
+
+      // Fallback to regular user list if AI didn't return results or wasn't requested
+      if (users.length === 0) {
+        users = await UserService.getAllUsers();
+      }
+
+      if (Config.CACHING === CACHING.ENABLED && !useAI) {
         setDataToCache(`${REDIS_KEYS.GET_ALL_USERS}`, JSON.stringify(users));
       }
-      this.Ok(res, { users });
+
+      this.Ok(res, { 
+        users,
+        ai_powered: aiRecommended.length > 0,
+        total: users.length
+      });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }

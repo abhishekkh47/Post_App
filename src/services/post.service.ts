@@ -57,6 +57,37 @@ class PostService {
   }
 
   /**
+   * @description get posts by array of IDs
+   * @param postIds - Array of post IDs
+   * @returns {posts} list of posts
+   */
+  public async getPostsByIds(
+    postIds: string[]
+  ): Promise<Array<Partial<IBase>>> {
+    try {
+      const posts = await PostTable.find(
+        { _id: { $in: postIds } },
+        {
+          _id: 1,
+          userId: 1,
+          post: 1,
+          type: 1,
+          createdAt: 1,
+          edited: 1,
+          reactions: 1,
+          comments: 1,
+          attachments: 1,
+        }
+      )
+        .lean()
+        .populate("userId");
+      return posts;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  /**
    * @description get post details for the given post
    * @param postId
    * @returns {post} post details

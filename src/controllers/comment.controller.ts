@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
 import BaseController from "./base.controller";
 import { commentValidations } from "validations";
-import { CommentService } from "services";
+import { CommentService, AIService } from "services";
 import {
   CACHING,
   getDataFromCache,
@@ -29,6 +29,28 @@ class CommentController extends BaseController {
         if (validate) {
           try {
             const { _id, user, body } = req;
+            
+            // Content moderation check
+            if (body.comment && body.comment.trim()) {
+              try {
+                const moderationResult = await AIService.moderateContent(body.comment);
+                
+                if (!moderationResult.is_safe) {
+                  return this.BadRequest(res, 
+                    `Your comment contains inappropriate content. Reasons: ${moderationResult.flagged_reasons.join(', ')}`
+                  );
+                }
+                
+                // Warning for moderate toxicity
+                if (moderationResult.flagged_reasons.includes('moderate_toxicity')) {
+                  console.log(`Warning: Comment by user ${_id} has moderate toxicity`);
+                }
+              } catch (moderationError) {
+                console.error('Moderation check failed:', moderationError);
+                // Continue with comment creation if moderation service is down
+              }
+            }
+            
             await CommentService.createComment(user, body);
             this.Ok(res, { message: SUCCESS_MSGS.SUCCESS });
           } catch (error) {

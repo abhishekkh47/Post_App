@@ -164,6 +164,20 @@ class UserService {
   }
 
   /**
+   * @description get users by array of IDs
+   * @param userIds - Array of user IDs
+   * @returns {*}
+   */
+  async getUsersByIds(userIds: string[]): Promise<IUser[]> {
+    try {
+      const users = await UserTable.find({ _id: { $in: userIds } });
+      return users;
+    } catch (error) {
+      throw new NetworkError((error as Error).message, 400);
+    }
+  }
+
+  /**
    * @description get all users details
    * @param user user details
    * @param filename filename string

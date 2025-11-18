@@ -8,3 +8,4 @@ export { default as MessageService } from "./message.service";
 export { default as NotificationService } from "./notification.service";
 export { default as GroupService } from "./group.service";
 export { default as WebPushService } from "./webPush.service";
+export { default as AIService } from "./ai.service";

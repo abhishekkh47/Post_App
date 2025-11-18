@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
-import { PostService, UserService, FollowService } from "services";
+import { PostService, UserService, FollowService, AIService } from "services";
 import { ICreatePost } from "types";
 import {
   CACHING,
@@ -56,6 +56,29 @@ class PostController extends BaseController {
               const url = await uploadToCloudinary(file.buffer);
               uploadedUrls.push(url);
             }
+            // Content moderation check
+            console.log("=========Moderation Check=========");
+            console.log('body.post', body.post);
+            if (body.post && body.post.trim()) {
+              try {
+                const moderationResult = await AIService.moderateContent(body.post);
+                
+                if (!moderationResult.is_safe) {
+                  return this.BadRequest(res, 
+                    `Your post contains inappropriate content. Reasons: ${moderationResult.flagged_reasons.join(', ')}`
+                  );
+                }
+                
+                // Warning for moderate toxicity
+                if (moderationResult.flagged_reasons.includes('moderate_toxicity')) {
+                  console.log(`Warning: Post by user ${_id} has moderate toxicity`);
+                }
+              } catch (moderationError) {
+                console.error('Moderation check failed:', moderationError);
+                // Continue with post creation if moderation service is down
+              }
+            }
+            console.log("=========Moderation Check End=========");
             const postObj: ICreatePost = {
               userId: _id,
               post: body.post,
@@ -175,7 +198,12 @@ class PostController extends BaseController {
   @RequireActiveUser()
   async getMyFeed(req: any, res: Response, next: NextFunction) {
     try {
-      if (Config.CACHING === CACHING.ENABLED) {
+      const feedType = req.query.type || 'latest'; // 'latest' or 'recommended'
+      const page = Number(req.query.page as string) || 1;
+      const limit = 10;
+
+      // Check cache only for non-AI feeds
+      if (Config.CACHING === CACHING.ENABLED && feedType === 'latest') {
         const cachedData = await getDataFromCache(
           `${REDIS_KEYS.GET_MY_FEED}_${req._id}_page_${req.query.page}`
         );
@@ -183,22 +211,59 @@ class PostController extends BaseController {
           return this.Ok(res, JSON.parse(cachedData));
         }
       }
-      const page = Number(req.query.page as string) || 1; // Default page is 1
-      const limit = 10; // Number of posts per page
 
-      const {
-        feed: posts,
-        currentPage,
-        totalPosts,
-        totalPages,
-      } = await PostService.getUserFeed(req._id, page, limit);
-      if (Config.CACHING === CACHING.ENABLED) {
-        setDataToCache(
-          `${REDIS_KEYS.GET_MY_FEED}_${req._id}_page_${req.query.page}`,
-          JSON.stringify({ posts })
-        );
+      let posts: any[] = [];
+      let aiPowered = false;
+
+      // AI-recommended feed
+      if (feedType === 'recommended') {
+        try {
+          const aiResponse = await AIService.getPostRecommendations(
+            req._id,
+            limit,
+            page
+          );
+          
+          if (aiResponse && aiResponse.post_ids && aiResponse.post_ids.length > 0) {
+            // Fetch full post details
+            const postDetails = await PostService.getPostsByIds(aiResponse.post_ids);
+            posts = postDetails;
+            aiPowered = true;
+          }
+        } catch (aiError) {
+          console.error('AI feed failed, falling back to chronological:', aiError);
+        }
       }
-      this.Ok(res, { posts, currentPage, totalPosts, totalPages });
+
+      // Fallback to chronological feed
+      if (posts.length === 0) {
+        const feedData = await PostService.getUserFeed(req._id, page, limit);
+        posts = feedData.feed;
+        
+        if (Config.CACHING === CACHING.ENABLED && feedType === 'latest') {
+          setDataToCache(
+            `${REDIS_KEYS.GET_MY_FEED}_${req._id}_page_${req.query.page}`,
+            JSON.stringify({ posts })
+          );
+        }
+        
+        return this.Ok(res, {
+          posts,
+          currentPage: feedData.currentPage,
+          totalPosts: feedData.totalPosts,
+          totalPages: feedData.totalPages,
+          feed_type: 'latest'
+        });
+      }
+
+      this.Ok(res, {
+        posts,
+        currentPage: page,
+        totalPosts: posts.length,
+        totalPages: 1,
+        feed_type: aiPowered ? 'recommended' : 'latest',
+        ai_powered: aiPowered
+      });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }
