@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
 import BaseController from "./base.controller";
 import { followValidations } from "validations";
-import { FollowService } from "services";
+import { FollowService, AIService, UserService } from "services";
 import {
   CACHING,
   getDataFromCache,
@@ -144,7 +144,7 @@ class FollowController extends BaseController {
   }
 
   /**
-   * @description get profiles recommended for user to follow
+   * @description get profiles recommended for user to follow (AI-powered)
    * @param req
    * @param res
    * @param next
@@ -152,15 +152,45 @@ class FollowController extends BaseController {
   @RequireActiveUser()
   async getFriendRecommendations(req: any, res: Response, next: NextFunction) {
     try {
-      let friends = [];
-      if (req.user.following < 5) {
-        friends = await FollowService.getFriendRecommendations(req._id);
-      } else {
-        friends = await FollowService.getFriendsOfFriendsRecommendations(
-          req._id
+      let friends: any = [];
+      let aiPowered = true;
+
+      // Try AI recommendations first
+      try {
+        const aiResponse = await AIService.getUserRecommendations(
+          req._id,
+          20,
+          true // exclude users already following
         );
+
+        if (aiResponse && aiResponse.user_ids && aiResponse.user_ids.length > 0) {
+          // Fetch full user details for AI-recommended users
+          const recommendedUsers = await UserService.getUsersByIds(aiResponse.user_ids);
+          friends = recommendedUsers;
+          aiPowered = true;
+          console.log(`✨ AI recommendations returned ${friends.length} users for user ${req._id}`);
+        }
+      } catch (aiError) {
+        console.error('AI recommendation failed, falling back to traditional:', aiError);
       }
-      this.Ok(res, { friends });
+
+      // Fallback to traditional recommendations if AI didn't return results
+      if (friends.length === 0) {
+        if (req.user.following < 5) {
+          friends = await FollowService.getFriendRecommendations(req._id);
+        } else {
+          friends = await FollowService.getFriendsOfFriendsRecommendations(
+            req._id
+          );
+        }
+        console.log(`📋 Traditional recommendations returned ${friends.length} users for user ${req._id}`);
+      }
+
+      this.Ok(res, { 
+        friends,
+        ai_powered: aiPowered,
+        total: friends.length
+      });
     } catch (error) {
       this.InternalServerError(res, (error as Error).message);
     }
